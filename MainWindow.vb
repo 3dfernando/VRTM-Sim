@@ -8,7 +8,58 @@ Public Class MainWindow
 
 #Region "Initialization"
     Private Sub MainWindow_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+        'Initializes all the fields according to the new, blank VRTM
+        txtNTrays.Text = Trim(Str(VRTM_SimVariables.nTrays))
+        txtNLevels.Text = Trim(Str(VRTM_SimVariables.nLevels))
+        txtBoxesPerTray.Text = Trim(Str(VRTM_SimVariables.boxesPerTray))
+        txtStCap.Text = Trim(Str(VRTM_SimVariables.nTrays * VRTM_SimVariables.nLevels * VRTM_SimVariables.boxesPerTray))
 
+        txtFanFlow.Text = Trim(Str(VRTM_SimVariables.fanFlowRate))
+        txtEvapSurf.Text = Trim(Str(VRTM_SimVariables.evapSurfArea))
+        txtGlobalHX.Text = Trim(Str(VRTM_SimVariables.globalHX_Coeff))
+
+        txtSchVRTMBegin.Text = DayFractionToHourString(VRTM_SimVariables.IdleHourBeginVRTM)
+        txtSchVRTMEnd.Text = DayFractionToHourString(VRTM_SimVariables.IdleHourEndVRTM)
+        chkMondayVRTM.Checked = VRTM_SimVariables.IdleDaysVRTM(0)
+        chkTuesdayVRTM.Checked = VRTM_SimVariables.IdleDaysVRTM(1)
+        chkWednesdayVRTM.Checked = VRTM_SimVariables.IdleDaysVRTM(2)
+        chkThursdayVRTM.Checked = VRTM_SimVariables.IdleDaysVRTM(3)
+        chkFridayVRTM.Checked = VRTM_SimVariables.IdleDaysVRTM(4)
+        chkSaturdayVRTM.Checked = VRTM_SimVariables.IdleDaysVRTM(5)
+        chkSundayVRTM.Checked = VRTM_SimVariables.IdleDaysVRTM(6)
+
+        txtTevapSP.Text = Trim(Str(VRTM_SimVariables.Tevap_Setpoint))
+        txtTCond.Text = Trim(Str(VRTM_SimVariables.Tcond))
+        txtIdleHourBeginMR.Text = DayFractionToHourString(VRTM_SimVariables.IdleHourBeginMRoom)
+        txtIdleHourEndsMR.Text = DayFractionToHourString(VRTM_SimVariables.IdleHourEndMRoom)
+        chkMondayMR.Checked = VRTM_SimVariables.IdleDaysMRoom(0)
+        chkTuesdayMR.Checked = VRTM_SimVariables.IdleDaysMRoom(1)
+        chkWednesdayMR.Checked = VRTM_SimVariables.IdleDaysMRoom(2)
+        chkThursdayMR.Checked = VRTM_SimVariables.IdleDaysMRoom(3)
+        chkFridayMR.Checked = VRTM_SimVariables.IdleDaysMRoom(4)
+        chkSaturdayMR.Checked = VRTM_SimVariables.IdleDaysMRoom(5)
+        chkSundayMR.Checked = VRTM_SimVariables.IdleDaysMRoom(6)
+
+        UpdateProductMixStats()
+        txtSafetyFactorVRTM.Text = Trim(Str(VRTM_SimVariables.SafetyFactorVRTM))
+
+        txtFirstTurnBegins.Text = DayFractionToHourString(VRTM_SimVariables.FirstTurnBegin)
+        txtFirstTurnEnds.Text = DayFractionToHourString(VRTM_SimVariables.FirstTurnEnd)
+        txtSecondTurnBegins.Text = DayFractionToHourString(VRTM_SimVariables.SecondTurnBegin)
+        txtSecondTurnEnds.Text = DayFractionToHourString(VRTM_SimVariables.SecondTurnEnd)
+
+        chkFirstTurn.Checked = VRTM_SimVariables.FirstProductionTurnEnabled
+        chkSecondTurn.Checked = VRTM_SimVariables.SecondProductionTurnEnabled
+        chkMondayProd.Checked = VRTM_SimVariables.ProductionDays(0)
+        chkTuesdayProd.Checked = VRTM_SimVariables.ProductionDays(1)
+        chkWednesdayProd.Checked = VRTM_SimVariables.ProductionDays(2)
+        chkThursdayProd.Checked = VRTM_SimVariables.ProductionDays(3)
+        chkFridayProd.Checked = VRTM_SimVariables.ProductionDays(4)
+        chkSaturdayProd.Checked = VRTM_SimVariables.ProductionDays(5)
+        chkSundayProd.Checked = VRTM_SimVariables.ProductionDays(6)
+
+        txtTotalSimTime.Text = Trim(Str(VRTM_SimVariables.TotalSimTime / (3600 * 24)))
+        txtMinimumSimDT.Text = Trim(Str(VRTM_SimVariables.MinimumSimDt))
     End Sub
 
     Private Sub MainWindow_Shown(sender As Object, e As EventArgs) Handles Me.Shown
@@ -105,8 +156,7 @@ Public Class MainWindow
     Private Sub cmdPrdMixSetup_Click(sender As Object, e As EventArgs) Handles cmdPrdMixSetup.Click
         Dim F As New ProductMixSetup
         F.ShowDialog()
-
-        'Include routine to update averages in this form
+        UpdateProductMixStats()
     End Sub
 
     Private Sub RunProcessSimulationToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles RunProcessSimulationToolStripMenuItem.Click
@@ -151,8 +201,6 @@ Public Class MainWindow
         VRTM_SimVariables.nLevels = Int(txtNLevels.Text)
         VRTM_SimVariables.nTrays = Int(txtNTrays.Text)
         VRTM_SimVariables.boxesPerTray = Int(txtBoxesPerTray.Text)
-        VRTM_SimVariables.staticCapacity = VRTM_SimVariables.nLevels * VRTM_SimVariables.nTrays * VRTM_SimVariables.boxesPerTray
-        txtStCap.Text = Trim(Str(VRTM_SimVariables.staticCapacity))
     End Sub
 
     Private Sub Validated_Textbox_Evaporators(ByVal sender As Object, ByVal e As System.EventArgs) Handles _
@@ -177,9 +225,10 @@ Public Class MainWindow
     Private Sub chkDaysVRTM(sender As Object, e As EventArgs) Handles chkMondayVRTM.CheckedChanged, chkTuesdayVRTM.CheckedChanged, chkWednesdayVRTM.CheckedChanged,
             chkThursdayVRTM.CheckedChanged, chkFridayVRTM.CheckedChanged, chkSaturdayVRTM.CheckedChanged, chkSundayVRTM.CheckedChanged
         'This will update the array of idle days in the VRTM
-        VRTM_SimVariables.IdleDaysVRTM = {chkMondayVRTM.Checked, chkTuesdayVRTM.Checked, chkWednesdayVRTM.Checked,
-            chkThursdayVRTM.Checked, chkFridayVRTM.Checked, chkSaturdayVRTM.Checked, chkSundayVRTM.Checked}
-
+        If FormShown Then
+            VRTM_SimVariables.IdleDaysVRTM = {chkMondayVRTM.Checked, chkTuesdayVRTM.Checked, chkWednesdayVRTM.Checked,
+                        chkThursdayVRTM.Checked, chkFridayVRTM.Checked, chkSaturdayVRTM.Checked, chkSundayVRTM.Checked}
+        End If
     End Sub
 #End Region
 
@@ -233,8 +282,10 @@ Public Class MainWindow
     Private Sub chkDaysMR(sender As Object, e As EventArgs) Handles chkMondayMR.CheckedChanged, chkTuesdayMR.CheckedChanged, chkWednesdayMR.CheckedChanged,
             chkThursdayMR.CheckedChanged, chkFridayMR.CheckedChanged, chkSaturdayMR.CheckedChanged, chkSundayMR.CheckedChanged
         'This will update the array of idle days in the MR
-        VRTM_SimVariables.IdleDaysMRoom = {chkMondayMR.Checked, chkTuesdayMR.Checked, chkWednesdayMR.Checked,
-            chkThursdayMR.Checked, chkFridayMR.Checked, chkSaturdayMR.Checked, chkSundayMR.Checked}
+        If FormShown Then
+            VRTM_SimVariables.IdleDaysMRoom = {chkMondayMR.Checked, chkTuesdayMR.Checked, chkWednesdayMR.Checked,
+                chkThursdayMR.Checked, chkFridayMR.Checked, chkSaturdayMR.Checked, chkSundayMR.Checked}
+        End If
     End Sub
 #End Region
 
@@ -262,8 +313,10 @@ Public Class MainWindow
 
     Private Sub Checkboxes_Production() Handles _
             chkFirstTurn.CheckedChanged, chkSecondTurn.CheckedChanged
-        VRTM_SimVariables.FirstProductionTurnEnabled = chkFirstTurn.Checked
-        VRTM_SimVariables.SecondProductionTurnEnabled = chkSecondTurn.Checked
+        If FormShown Then
+            VRTM_SimVariables.FirstProductionTurnEnabled = chkFirstTurn.Checked
+            VRTM_SimVariables.SecondProductionTurnEnabled = chkSecondTurn.Checked
+        End If
     End Sub
 
     Private Sub Validate_Hour_Prod(ByVal sender As Object, ByVal e As System.ComponentModel.CancelEventArgs) Handles _
@@ -297,8 +350,10 @@ Public Class MainWindow
     Private Sub chkDaysProd(sender As Object, e As EventArgs) Handles chkMondayProd.CheckedChanged, chkTuesdayProd.CheckedChanged, chkWednesdayProd.CheckedChanged,
             chkThursdayProd.CheckedChanged, chkFridayProd.CheckedChanged, chkSaturdayProd.CheckedChanged, chkSundayProd.CheckedChanged
         'This will update the array of idle days in the Prod
-        VRTM_SimVariables.ProductionDays = {chkMondayProd.Checked, chkTuesdayProd.Checked, chkWednesdayProd.Checked,
+        If FormShown Then
+            VRTM_SimVariables.ProductionDays = {chkMondayProd.Checked, chkTuesdayProd.Checked, chkWednesdayProd.Checked,
             chkThursdayProd.Checked, chkFridayProd.Checked, chkSaturdayProd.Checked, chkSundayProd.Checked}
+        End If
     End Sub
 
 #End Region
@@ -351,6 +406,24 @@ Public Class MainWindow
         If HourStringToDayFraction >= 1 Then HourStringToDayFraction = 0 'Makes 24:00 become 0:00 (loops around)
     End Function
 
+    Private Function DayFractionToHourString(DayFraction As Double) As String
+        'This function converts a day fraction (0 to 1) to an hour string in the format 24:00 .
+        'i.e.: 0.75 becomes 18:00
+
+        Dim H As String
+        Dim M As String
+
+        H = Trim(Str(Int(DayFraction * 24)))
+        If H.Length < 2 Then H = "0" & H
+        If H.Length > 2 Then H = "00"
+
+        M = Trim(Str((DayFraction * 24 * 60) Mod 60))
+        If M.Length < 2 Then M = "0" & M
+        If M.Length > 2 Then M = "00"
+
+        DayFractionToHourString = H & ":" & M
+    End Function
+
     Private Function CompareHours(H1 As String, H2 As String, Comparator As String) As Boolean
         'Compares H1 and H2 and returns
 
@@ -371,6 +444,27 @@ Public Class MainWindow
         End Select
 
     End Function
+
+    Private Sub UpdateProductMixStats()
+        'Updates the fields that correspond to the overall statistics of the product mix
+        Dim TotalBoxFlowIn, TotalMassFlowIn As Double
+
+        TotalBoxFlowIn = 0
+        TotalMassFlowIn = 0
+        If Not IsNothing(VRTM_SimVariables.ProductMix) Then
+            For Each Prod As ProductData In VRTM_SimVariables.ProductMix
+                TotalBoxFlowIn = TotalBoxFlowIn + Prod.AvgFlowRate
+                TotalMassFlowIn = TotalMassFlowIn + Prod.AvgFlowRate * Prod.BoxWeight
+            Next
+        End If
+
+        txtAvgBoxflowIn.Text = Trim(Str(TotalBoxFlowIn))
+        txtAvgMassFlowIn.Text = Trim(Str(TotalMassFlowIn))
+        txtAvgBoxMass.Text = Trim(Str(TotalMassFlowIn / TotalBoxFlowIn))
+
+        '----Insert code to update average heat load here----
+
+    End Sub
 
     Private Sub RefreshTable(Data(,))
         If (VRTMTable.Rows.Count <> (UBound(Data, 2) + 1)) Or (VRTMTable.Columns.Count <> (UBound(Data, 1) + 1)) Then

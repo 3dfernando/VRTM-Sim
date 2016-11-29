@@ -27,13 +27,25 @@ Partial Class MainWindow
         Me.Divisor1 = New System.Windows.Forms.SplitContainer()
         Me.LeftPanel = New System.Windows.Forms.SplitContainer()
         Me.ToolStrip1 = New System.Windows.Forms.ToolStrip()
+        Me.btnReduceSpeed = New System.Windows.Forms.ToolStripButton()
+        Me.btnStop = New System.Windows.Forms.ToolStripButton()
+        Me.btnPlay = New System.Windows.Forms.ToolStripButton()
+        Me.btnIncreaseSpeed = New System.Windows.Forms.ToolStripButton()
         Me.ToolStripSeparator2 = New System.Windows.Forms.ToolStripSeparator()
         Me.lblTimeWarp = New System.Windows.Forms.ToolStripLabel()
         Me.ToolStripSeparator3 = New System.Windows.Forms.ToolStripSeparator()
         Me.MenuStrip1 = New System.Windows.Forms.MenuStrip()
         Me.FileToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.OpenSimulationToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.SaveSimulationToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.SimulationToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.RunProcessSimulationToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.RunThermalSimulationToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.PlaybackToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.ReduceSpeedToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.StopToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.PlayToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.IncreaseSpeedToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.ToolStripSeparator1 = New System.Windows.Forms.ToolStripSeparator()
         Me.TabControl1 = New System.Windows.Forms.TabControl()
         Me.VRTMParams = New System.Windows.Forms.TabPage()
@@ -151,23 +163,11 @@ Partial Class MainWindow
         Me.Label34 = New System.Windows.Forms.Label()
         Me.Divisor2 = New System.Windows.Forms.SplitContainer()
         Me.MidPanel = New System.Windows.Forms.SplitContainer()
+        Me.lblDisplayVariable = New System.Windows.Forms.Label()
         Me.lblCurrentPos = New System.Windows.Forms.Label()
         Me.hsSimPosition = New System.Windows.Forms.HScrollBar()
         Me.VRTMTable = New System.Windows.Forms.DataGridView()
         Me.ErrorProvider1 = New System.Windows.Forms.ErrorProvider(Me.components)
-        Me.lblDisplayVariable = New System.Windows.Forms.Label()
-        Me.btnReduceSpeed = New System.Windows.Forms.ToolStripButton()
-        Me.btnStop = New System.Windows.Forms.ToolStripButton()
-        Me.btnPlay = New System.Windows.Forms.ToolStripButton()
-        Me.btnIncreaseSpeed = New System.Windows.Forms.ToolStripButton()
-        Me.OpenSimulationToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
-        Me.SaveSimulationToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
-        Me.RunProcessSimulationToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
-        Me.RunThermalSimulationToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
-        Me.ReduceSpeedToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
-        Me.StopToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
-        Me.PlayToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
-        Me.IncreaseSpeedToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         CType(Me.Divisor1, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.Divisor1.Panel1.SuspendLayout()
         Me.Divisor1.Panel2.SuspendLayout()
@@ -249,6 +249,42 @@ Partial Class MainWindow
         Me.ToolStrip1.TabIndex = 0
         Me.ToolStrip1.Text = "ToolStrip1"
         '
+        'btnReduceSpeed
+        '
+        Me.btnReduceSpeed.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image
+        Me.btnReduceSpeed.Image = Global.VRTM_Simulator.My.Resources.Resources.media_seek_backward_3
+        Me.btnReduceSpeed.ImageTransparentColor = System.Drawing.Color.Magenta
+        Me.btnReduceSpeed.Name = "btnReduceSpeed"
+        Me.btnReduceSpeed.Size = New System.Drawing.Size(23, 22)
+        Me.btnReduceSpeed.Text = "ToolStripButton3"
+        '
+        'btnStop
+        '
+        Me.btnStop.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image
+        Me.btnStop.Image = Global.VRTM_Simulator.My.Resources.Resources.media_playback_stop_3
+        Me.btnStop.ImageTransparentColor = System.Drawing.Color.Magenta
+        Me.btnStop.Name = "btnStop"
+        Me.btnStop.Size = New System.Drawing.Size(23, 22)
+        Me.btnStop.Text = "ToolStripButton4"
+        '
+        'btnPlay
+        '
+        Me.btnPlay.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image
+        Me.btnPlay.Image = Global.VRTM_Simulator.My.Resources.Resources.media_playback_start_3
+        Me.btnPlay.ImageTransparentColor = System.Drawing.Color.Magenta
+        Me.btnPlay.Name = "btnPlay"
+        Me.btnPlay.Size = New System.Drawing.Size(23, 22)
+        Me.btnPlay.Text = "ToolStripButton5"
+        '
+        'btnIncreaseSpeed
+        '
+        Me.btnIncreaseSpeed.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image
+        Me.btnIncreaseSpeed.Image = Global.VRTM_Simulator.My.Resources.Resources.media_seek_forward_3
+        Me.btnIncreaseSpeed.ImageTransparentColor = System.Drawing.Color.Magenta
+        Me.btnIncreaseSpeed.Name = "btnIncreaseSpeed"
+        Me.btnIncreaseSpeed.Size = New System.Drawing.Size(23, 22)
+        Me.btnIncreaseSpeed.Text = "ToolStripButton6"
+        '
         'ToolStripSeparator2
         '
         Me.ToolStripSeparator2.Name = "ToolStripSeparator2"
@@ -281,6 +317,20 @@ Partial Class MainWindow
         Me.FileToolStripMenuItem.Size = New System.Drawing.Size(37, 20)
         Me.FileToolStripMenuItem.Text = "&File"
         '
+        'OpenSimulationToolStripMenuItem
+        '
+        Me.OpenSimulationToolStripMenuItem.Image = Global.VRTM_Simulator.My.Resources.Resources.document_open_5
+        Me.OpenSimulationToolStripMenuItem.Name = "OpenSimulationToolStripMenuItem"
+        Me.OpenSimulationToolStripMenuItem.Size = New System.Drawing.Size(163, 22)
+        Me.OpenSimulationToolStripMenuItem.Text = "&Open Simulation"
+        '
+        'SaveSimulationToolStripMenuItem
+        '
+        Me.SaveSimulationToolStripMenuItem.Image = Global.VRTM_Simulator.My.Resources.Resources.document_save_5
+        Me.SaveSimulationToolStripMenuItem.Name = "SaveSimulationToolStripMenuItem"
+        Me.SaveSimulationToolStripMenuItem.Size = New System.Drawing.Size(163, 22)
+        Me.SaveSimulationToolStripMenuItem.Text = "&Save Simulation"
+        '
         'SimulationToolStripMenuItem
         '
         Me.SimulationToolStripMenuItem.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.RunProcessSimulationToolStripMenuItem, Me.RunThermalSimulationToolStripMenuItem})
@@ -288,12 +338,54 @@ Partial Class MainWindow
         Me.SimulationToolStripMenuItem.Size = New System.Drawing.Size(76, 20)
         Me.SimulationToolStripMenuItem.Text = "Si&mulation"
         '
+        'RunProcessSimulationToolStripMenuItem
+        '
+        Me.RunProcessSimulationToolStripMenuItem.Image = Global.VRTM_Simulator.My.Resources.Resources.script_gear
+        Me.RunProcessSimulationToolStripMenuItem.Name = "RunProcessSimulationToolStripMenuItem"
+        Me.RunProcessSimulationToolStripMenuItem.Size = New System.Drawing.Size(202, 22)
+        Me.RunProcessSimulationToolStripMenuItem.Text = "Run Process Simulation"
+        '
+        'RunThermalSimulationToolStripMenuItem
+        '
+        Me.RunThermalSimulationToolStripMenuItem.Image = Global.VRTM_Simulator.My.Resources.Resources.pictograms_hazard_signs_xtremely_flammable
+        Me.RunThermalSimulationToolStripMenuItem.Name = "RunThermalSimulationToolStripMenuItem"
+        Me.RunThermalSimulationToolStripMenuItem.Size = New System.Drawing.Size(202, 22)
+        Me.RunThermalSimulationToolStripMenuItem.Text = "Run Thermal Simulation"
+        '
         'PlaybackToolStripMenuItem
         '
         Me.PlaybackToolStripMenuItem.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.ReduceSpeedToolStripMenuItem, Me.StopToolStripMenuItem, Me.PlayToolStripMenuItem, Me.IncreaseSpeedToolStripMenuItem, Me.ToolStripSeparator1})
         Me.PlaybackToolStripMenuItem.Name = "PlaybackToolStripMenuItem"
         Me.PlaybackToolStripMenuItem.Size = New System.Drawing.Size(66, 20)
         Me.PlaybackToolStripMenuItem.Text = "&Playback"
+        '
+        'ReduceSpeedToolStripMenuItem
+        '
+        Me.ReduceSpeedToolStripMenuItem.Image = Global.VRTM_Simulator.My.Resources.Resources.media_seek_backward_3
+        Me.ReduceSpeedToolStripMenuItem.Name = "ReduceSpeedToolStripMenuItem"
+        Me.ReduceSpeedToolStripMenuItem.Size = New System.Drawing.Size(152, 22)
+        Me.ReduceSpeedToolStripMenuItem.Text = "Reduce Speed"
+        '
+        'StopToolStripMenuItem
+        '
+        Me.StopToolStripMenuItem.Image = Global.VRTM_Simulator.My.Resources.Resources.media_playback_stop_3
+        Me.StopToolStripMenuItem.Name = "StopToolStripMenuItem"
+        Me.StopToolStripMenuItem.Size = New System.Drawing.Size(152, 22)
+        Me.StopToolStripMenuItem.Text = "Stop"
+        '
+        'PlayToolStripMenuItem
+        '
+        Me.PlayToolStripMenuItem.Image = Global.VRTM_Simulator.My.Resources.Resources.media_playback_start_3
+        Me.PlayToolStripMenuItem.Name = "PlayToolStripMenuItem"
+        Me.PlayToolStripMenuItem.Size = New System.Drawing.Size(152, 22)
+        Me.PlayToolStripMenuItem.Text = "Play"
+        '
+        'IncreaseSpeedToolStripMenuItem
+        '
+        Me.IncreaseSpeedToolStripMenuItem.Image = Global.VRTM_Simulator.My.Resources.Resources.media_seek_forward_3
+        Me.IncreaseSpeedToolStripMenuItem.Name = "IncreaseSpeedToolStripMenuItem"
+        Me.IncreaseSpeedToolStripMenuItem.Size = New System.Drawing.Size(152, 22)
+        Me.IncreaseSpeedToolStripMenuItem.Text = "Increase Speed"
         '
         'ToolStripSeparator1
         '
@@ -376,7 +468,6 @@ Partial Class MainWindow
         Me.txtSchVRTMEnd.Name = "txtSchVRTMEnd"
         Me.txtSchVRTMEnd.Size = New System.Drawing.Size(57, 20)
         Me.txtSchVRTMEnd.TabIndex = 11
-        Me.txtSchVRTMEnd.Text = "2100"
         Me.txtSchVRTMEnd.ValidatingType = GetType(Date)
         '
         'txtSchVRTMBegin
@@ -386,7 +477,6 @@ Partial Class MainWindow
         Me.txtSchVRTMBegin.Name = "txtSchVRTMBegin"
         Me.txtSchVRTMBegin.Size = New System.Drawing.Size(57, 20)
         Me.txtSchVRTMBegin.TabIndex = 10
-        Me.txtSchVRTMBegin.Text = "1800"
         '
         'chkSundayVRTM
         '
@@ -411,8 +501,6 @@ Partial Class MainWindow
         'chkFridayVRTM
         '
         Me.chkFridayVRTM.AutoSize = True
-        Me.chkFridayVRTM.Checked = True
-        Me.chkFridayVRTM.CheckState = System.Windows.Forms.CheckState.Checked
         Me.chkFridayVRTM.Location = New System.Drawing.Point(33, 186)
         Me.chkFridayVRTM.Name = "chkFridayVRTM"
         Me.chkFridayVRTM.Size = New System.Drawing.Size(54, 17)
@@ -423,8 +511,6 @@ Partial Class MainWindow
         'chkThursdayVRTM
         '
         Me.chkThursdayVRTM.AutoSize = True
-        Me.chkThursdayVRTM.Checked = True
-        Me.chkThursdayVRTM.CheckState = System.Windows.Forms.CheckState.Checked
         Me.chkThursdayVRTM.Location = New System.Drawing.Point(33, 163)
         Me.chkThursdayVRTM.Name = "chkThursdayVRTM"
         Me.chkThursdayVRTM.Size = New System.Drawing.Size(70, 17)
@@ -435,8 +521,6 @@ Partial Class MainWindow
         'chkWednesdayVRTM
         '
         Me.chkWednesdayVRTM.AutoSize = True
-        Me.chkWednesdayVRTM.Checked = True
-        Me.chkWednesdayVRTM.CheckState = System.Windows.Forms.CheckState.Checked
         Me.chkWednesdayVRTM.Location = New System.Drawing.Point(33, 140)
         Me.chkWednesdayVRTM.Name = "chkWednesdayVRTM"
         Me.chkWednesdayVRTM.Size = New System.Drawing.Size(83, 17)
@@ -447,8 +531,6 @@ Partial Class MainWindow
         'chkTuesdayVRTM
         '
         Me.chkTuesdayVRTM.AutoSize = True
-        Me.chkTuesdayVRTM.Checked = True
-        Me.chkTuesdayVRTM.CheckState = System.Windows.Forms.CheckState.Checked
         Me.chkTuesdayVRTM.Location = New System.Drawing.Point(33, 117)
         Me.chkTuesdayVRTM.Name = "chkTuesdayVRTM"
         Me.chkTuesdayVRTM.Size = New System.Drawing.Size(67, 17)
@@ -459,8 +541,6 @@ Partial Class MainWindow
         'chkMondayVRTM
         '
         Me.chkMondayVRTM.AutoSize = True
-        Me.chkMondayVRTM.Checked = True
-        Me.chkMondayVRTM.CheckState = System.Windows.Forms.CheckState.Checked
         Me.chkMondayVRTM.Location = New System.Drawing.Point(33, 94)
         Me.chkMondayVRTM.Name = "chkMondayVRTM"
         Me.chkMondayVRTM.Size = New System.Drawing.Size(64, 17)
@@ -522,7 +602,6 @@ Partial Class MainWindow
         Me.txtStCap.Name = "txtStCap"
         Me.txtStCap.Size = New System.Drawing.Size(74, 20)
         Me.txtStCap.TabIndex = 4
-        Me.txtStCap.Text = "13440"
         Me.txtStCap.TextAlign = System.Windows.Forms.HorizontalAlignment.Right
         '
         'txtBoxesPerTray
@@ -531,7 +610,6 @@ Partial Class MainWindow
         Me.txtBoxesPerTray.Name = "txtBoxesPerTray"
         Me.txtBoxesPerTray.Size = New System.Drawing.Size(44, 20)
         Me.txtBoxesPerTray.TabIndex = 3
-        Me.txtBoxesPerTray.Text = "60"
         Me.txtBoxesPerTray.TextAlign = System.Windows.Forms.HorizontalAlignment.Right
         '
         'txtNTrays
@@ -540,7 +618,6 @@ Partial Class MainWindow
         Me.txtNTrays.Name = "txtNTrays"
         Me.txtNTrays.Size = New System.Drawing.Size(44, 20)
         Me.txtNTrays.TabIndex = 2
-        Me.txtNTrays.Text = "8"
         Me.txtNTrays.TextAlign = System.Windows.Forms.HorizontalAlignment.Right
         '
         'txtNLevels
@@ -549,7 +626,6 @@ Partial Class MainWindow
         Me.txtNLevels.Name = "txtNLevels"
         Me.txtNLevels.Size = New System.Drawing.Size(44, 20)
         Me.txtNLevels.TabIndex = 1
-        Me.txtNLevels.Text = "28"
         Me.txtNLevels.TextAlign = System.Windows.Forms.HorizontalAlignment.Right
         '
         'Label38
@@ -679,7 +755,6 @@ Partial Class MainWindow
         Me.txtGlobalHX.Name = "txtGlobalHX"
         Me.txtGlobalHX.Size = New System.Drawing.Size(59, 20)
         Me.txtGlobalHX.TabIndex = 9
-        Me.txtGlobalHX.Text = "22.0"
         Me.txtGlobalHX.TextAlign = System.Windows.Forms.HorizontalAlignment.Right
         '
         'Label6
@@ -697,7 +772,6 @@ Partial Class MainWindow
         Me.txtEvapSurf.Name = "txtEvapSurf"
         Me.txtEvapSurf.Size = New System.Drawing.Size(55, 20)
         Me.txtEvapSurf.TabIndex = 8
-        Me.txtEvapSurf.Text = "12500"
         Me.txtEvapSurf.TextAlign = System.Windows.Forms.HorizontalAlignment.Right
         '
         'cmdHLEdit
@@ -715,7 +789,6 @@ Partial Class MainWindow
         Me.txtFanFlow.Name = "txtFanFlow"
         Me.txtFanFlow.Size = New System.Drawing.Size(74, 20)
         Me.txtFanFlow.TabIndex = 7
-        Me.txtFanFlow.Text = "500000"
         Me.txtFanFlow.TextAlign = System.Windows.Forms.HorizontalAlignment.Right
         '
         'Label4
@@ -743,7 +816,6 @@ Partial Class MainWindow
         Me.txtHL.Name = "txtHL"
         Me.txtHL.Size = New System.Drawing.Size(46, 20)
         Me.txtHL.TabIndex = 5
-        Me.txtHL.Text = "0"
         Me.txtHL.TextAlign = System.Windows.Forms.HorizontalAlignment.Right
         '
         'Label8
@@ -805,7 +877,6 @@ Partial Class MainWindow
         Me.txtIdleHourEndsMR.Name = "txtIdleHourEndsMR"
         Me.txtIdleHourEndsMR.Size = New System.Drawing.Size(57, 20)
         Me.txtIdleHourEndsMR.TabIndex = 31
-        Me.txtIdleHourEndsMR.Text = "2100"
         Me.txtIdleHourEndsMR.ValidatingType = GetType(Date)
         '
         'txtIdleHourBeginMR
@@ -815,7 +886,6 @@ Partial Class MainWindow
         Me.txtIdleHourBeginMR.Name = "txtIdleHourBeginMR"
         Me.txtIdleHourBeginMR.Size = New System.Drawing.Size(57, 20)
         Me.txtIdleHourBeginMR.TabIndex = 30
-        Me.txtIdleHourBeginMR.Text = "1800"
         Me.txtIdleHourBeginMR.ValidatingType = GetType(Date)
         '
         'chkSundayMR
@@ -841,8 +911,6 @@ Partial Class MainWindow
         'chkFridayMR
         '
         Me.chkFridayMR.AutoSize = True
-        Me.chkFridayMR.Checked = True
-        Me.chkFridayMR.CheckState = System.Windows.Forms.CheckState.Checked
         Me.chkFridayMR.Location = New System.Drawing.Point(33, 186)
         Me.chkFridayMR.Name = "chkFridayMR"
         Me.chkFridayMR.Size = New System.Drawing.Size(54, 17)
@@ -853,8 +921,6 @@ Partial Class MainWindow
         'chkThursdayMR
         '
         Me.chkThursdayMR.AutoSize = True
-        Me.chkThursdayMR.Checked = True
-        Me.chkThursdayMR.CheckState = System.Windows.Forms.CheckState.Checked
         Me.chkThursdayMR.Location = New System.Drawing.Point(33, 163)
         Me.chkThursdayMR.Name = "chkThursdayMR"
         Me.chkThursdayMR.Size = New System.Drawing.Size(70, 17)
@@ -865,8 +931,6 @@ Partial Class MainWindow
         'chkWednesdayMR
         '
         Me.chkWednesdayMR.AutoSize = True
-        Me.chkWednesdayMR.Checked = True
-        Me.chkWednesdayMR.CheckState = System.Windows.Forms.CheckState.Checked
         Me.chkWednesdayMR.Location = New System.Drawing.Point(33, 140)
         Me.chkWednesdayMR.Name = "chkWednesdayMR"
         Me.chkWednesdayMR.Size = New System.Drawing.Size(83, 17)
@@ -877,8 +941,6 @@ Partial Class MainWindow
         'chkTuesdayMR
         '
         Me.chkTuesdayMR.AutoSize = True
-        Me.chkTuesdayMR.Checked = True
-        Me.chkTuesdayMR.CheckState = System.Windows.Forms.CheckState.Checked
         Me.chkTuesdayMR.Location = New System.Drawing.Point(33, 117)
         Me.chkTuesdayMR.Name = "chkTuesdayMR"
         Me.chkTuesdayMR.Size = New System.Drawing.Size(67, 17)
@@ -889,8 +951,6 @@ Partial Class MainWindow
         'chkMondayMR
         '
         Me.chkMondayMR.AutoSize = True
-        Me.chkMondayMR.Checked = True
-        Me.chkMondayMR.CheckState = System.Windows.Forms.CheckState.Checked
         Me.chkMondayMR.Location = New System.Drawing.Point(33, 94)
         Me.chkMondayMR.Name = "chkMondayMR"
         Me.chkMondayMR.Size = New System.Drawing.Size(64, 17)
@@ -960,7 +1020,6 @@ Partial Class MainWindow
         Me.txtReferenceCapacity.Name = "txtReferenceCapacity"
         Me.txtReferenceCapacity.Size = New System.Drawing.Size(89, 20)
         Me.txtReferenceCapacity.TabIndex = 26
-        Me.txtReferenceCapacity.Text = "1000"
         Me.txtReferenceCapacity.TextAlign = System.Windows.Forms.HorizontalAlignment.Right
         '
         'Label11
@@ -1014,7 +1073,6 @@ Partial Class MainWindow
         Me.txtTevapSP.Name = "txtTevapSP"
         Me.txtTevapSP.Size = New System.Drawing.Size(61, 20)
         Me.txtTevapSP.TabIndex = 27
-        Me.txtTevapSP.Text = "-35"
         Me.txtTevapSP.TextAlign = System.Windows.Forms.HorizontalAlignment.Right
         '
         'txtTCond
@@ -1023,7 +1081,6 @@ Partial Class MainWindow
         Me.txtTCond.Name = "txtTCond"
         Me.txtTCond.Size = New System.Drawing.Size(61, 20)
         Me.txtTCond.TabIndex = 28
-        Me.txtTCond.Text = "35"
         Me.txtTCond.TextAlign = System.Windows.Forms.HorizontalAlignment.Right
         '
         'Label14
@@ -1076,8 +1133,6 @@ Partial Class MainWindow
         'chkSecondTurn
         '
         Me.chkSecondTurn.AutoSize = True
-        Me.chkSecondTurn.Checked = True
-        Me.chkSecondTurn.CheckState = System.Windows.Forms.CheckState.Checked
         Me.chkSecondTurn.Location = New System.Drawing.Point(10, 94)
         Me.chkSecondTurn.Name = "chkSecondTurn"
         Me.chkSecondTurn.Size = New System.Drawing.Size(145, 17)
@@ -1092,7 +1147,6 @@ Partial Class MainWindow
         Me.txtSecondTurnEnds.Name = "txtSecondTurnEnds"
         Me.txtSecondTurnEnds.Size = New System.Drawing.Size(57, 20)
         Me.txtSecondTurnEnds.TabIndex = 50
-        Me.txtSecondTurnEnds.Text = "0000"
         Me.txtSecondTurnEnds.ValidatingType = GetType(Date)
         '
         'txtSecondTurnBegins
@@ -1102,7 +1156,6 @@ Partial Class MainWindow
         Me.txtSecondTurnBegins.Name = "txtSecondTurnBegins"
         Me.txtSecondTurnBegins.Size = New System.Drawing.Size(57, 20)
         Me.txtSecondTurnBegins.TabIndex = 49
-        Me.txtSecondTurnBegins.Text = "1600"
         Me.txtSecondTurnBegins.ValidatingType = GetType(Date)
         '
         'Label30
@@ -1126,8 +1179,6 @@ Partial Class MainWindow
         'chkFirstTurn
         '
         Me.chkFirstTurn.AutoSize = True
-        Me.chkFirstTurn.Checked = True
-        Me.chkFirstTurn.CheckState = System.Windows.Forms.CheckState.Checked
         Me.chkFirstTurn.Location = New System.Drawing.Point(11, 21)
         Me.chkFirstTurn.Name = "chkFirstTurn"
         Me.chkFirstTurn.Size = New System.Drawing.Size(127, 17)
@@ -1151,7 +1202,6 @@ Partial Class MainWindow
         Me.txtFirstTurnEnds.Name = "txtFirstTurnEnds"
         Me.txtFirstTurnEnds.Size = New System.Drawing.Size(57, 20)
         Me.txtFirstTurnEnds.TabIndex = 47
-        Me.txtFirstTurnEnds.Text = "1400"
         Me.txtFirstTurnEnds.ValidatingType = GetType(Date)
         '
         'txtFirstTurnBegins
@@ -1161,7 +1211,6 @@ Partial Class MainWindow
         Me.txtFirstTurnBegins.Name = "txtFirstTurnBegins"
         Me.txtFirstTurnBegins.Size = New System.Drawing.Size(57, 20)
         Me.txtFirstTurnBegins.TabIndex = 46
-        Me.txtFirstTurnBegins.Text = "0600"
         Me.txtFirstTurnBegins.ValidatingType = GetType(Date)
         '
         'chkSundayProd
@@ -1187,8 +1236,6 @@ Partial Class MainWindow
         'chkFridayProd
         '
         Me.chkFridayProd.AutoSize = True
-        Me.chkFridayProd.Checked = True
-        Me.chkFridayProd.CheckState = System.Windows.Forms.CheckState.Checked
         Me.chkFridayProd.Location = New System.Drawing.Point(33, 287)
         Me.chkFridayProd.Name = "chkFridayProd"
         Me.chkFridayProd.Size = New System.Drawing.Size(54, 17)
@@ -1199,8 +1246,6 @@ Partial Class MainWindow
         'chkThursdayProd
         '
         Me.chkThursdayProd.AutoSize = True
-        Me.chkThursdayProd.Checked = True
-        Me.chkThursdayProd.CheckState = System.Windows.Forms.CheckState.Checked
         Me.chkThursdayProd.Location = New System.Drawing.Point(33, 264)
         Me.chkThursdayProd.Name = "chkThursdayProd"
         Me.chkThursdayProd.Size = New System.Drawing.Size(70, 17)
@@ -1211,8 +1256,6 @@ Partial Class MainWindow
         'chkWednesdayProd
         '
         Me.chkWednesdayProd.AutoSize = True
-        Me.chkWednesdayProd.Checked = True
-        Me.chkWednesdayProd.CheckState = System.Windows.Forms.CheckState.Checked
         Me.chkWednesdayProd.Location = New System.Drawing.Point(33, 241)
         Me.chkWednesdayProd.Name = "chkWednesdayProd"
         Me.chkWednesdayProd.Size = New System.Drawing.Size(83, 17)
@@ -1223,8 +1266,6 @@ Partial Class MainWindow
         'chkTuesdayProd
         '
         Me.chkTuesdayProd.AutoSize = True
-        Me.chkTuesdayProd.Checked = True
-        Me.chkTuesdayProd.CheckState = System.Windows.Forms.CheckState.Checked
         Me.chkTuesdayProd.Location = New System.Drawing.Point(33, 218)
         Me.chkTuesdayProd.Name = "chkTuesdayProd"
         Me.chkTuesdayProd.Size = New System.Drawing.Size(67, 17)
@@ -1235,8 +1276,6 @@ Partial Class MainWindow
         'chkMondayProd
         '
         Me.chkMondayProd.AutoSize = True
-        Me.chkMondayProd.Checked = True
-        Me.chkMondayProd.CheckState = System.Windows.Forms.CheckState.Checked
         Me.chkMondayProd.Location = New System.Drawing.Point(33, 195)
         Me.chkMondayProd.Name = "chkMondayProd"
         Me.chkMondayProd.Size = New System.Drawing.Size(64, 17)
@@ -1288,11 +1327,10 @@ Partial Class MainWindow
         '
         'txtSafetyFactorVRTM
         '
-        Me.txtSafetyFactorVRTM.Location = New System.Drawing.Point(104, 149)
+        Me.txtSafetyFactorVRTM.Location = New System.Drawing.Point(106, 149)
         Me.txtSafetyFactorVRTM.Name = "txtSafetyFactorVRTM"
         Me.txtSafetyFactorVRTM.Size = New System.Drawing.Size(65, 20)
         Me.txtSafetyFactorVRTM.TabIndex = 50
-        Me.txtSafetyFactorVRTM.Text = "1.15"
         Me.txtSafetyFactorVRTM.TextAlign = System.Windows.Forms.HorizontalAlignment.Right
         '
         'Label17
@@ -1307,7 +1345,7 @@ Partial Class MainWindow
         'Label44
         '
         Me.Label44.AutoSize = True
-        Me.Label44.Location = New System.Drawing.Point(175, 128)
+        Me.Label44.Location = New System.Drawing.Point(177, 128)
         Me.Label44.Name = "Label44"
         Me.Label44.Size = New System.Drawing.Size(24, 13)
         Me.Label44.TabIndex = 48
@@ -1316,7 +1354,7 @@ Partial Class MainWindow
         'Label43
         '
         Me.Label43.AutoSize = True
-        Me.Label43.Location = New System.Drawing.Point(175, 104)
+        Me.Label43.Location = New System.Drawing.Point(177, 104)
         Me.Label43.Name = "Label43"
         Me.Label43.Size = New System.Drawing.Size(30, 13)
         Me.Label43.TabIndex = 47
@@ -1325,7 +1363,7 @@ Partial Class MainWindow
         'Label13
         '
         Me.Label13.AutoSize = True
-        Me.Label13.Location = New System.Drawing.Point(175, 80)
+        Me.Label13.Location = New System.Drawing.Point(177, 80)
         Me.Label13.Name = "Label13"
         Me.Label13.Size = New System.Drawing.Size(30, 13)
         Me.Label13.TabIndex = 46
@@ -1334,7 +1372,7 @@ Partial Class MainWindow
         'Label12
         '
         Me.Label12.AutoSize = True
-        Me.Label12.Location = New System.Drawing.Point(175, 56)
+        Me.Label12.Location = New System.Drawing.Point(177, 56)
         Me.Label12.Name = "Label12"
         Me.Label12.Size = New System.Drawing.Size(19, 13)
         Me.Label12.TabIndex = 45
@@ -1343,11 +1381,10 @@ Partial Class MainWindow
         'txtAvgHeatLoad
         '
         Me.txtAvgHeatLoad.Enabled = False
-        Me.txtAvgHeatLoad.Location = New System.Drawing.Point(104, 125)
+        Me.txtAvgHeatLoad.Location = New System.Drawing.Point(106, 125)
         Me.txtAvgHeatLoad.Name = "txtAvgHeatLoad"
         Me.txtAvgHeatLoad.Size = New System.Drawing.Size(65, 20)
         Me.txtAvgHeatLoad.TabIndex = 44
-        Me.txtAvgHeatLoad.Text = "2355"
         Me.txtAvgHeatLoad.TextAlign = System.Windows.Forms.HorizontalAlignment.Right
         '
         'Label42
@@ -1362,11 +1399,10 @@ Partial Class MainWindow
         'txtAvgMassFlowIn
         '
         Me.txtAvgMassFlowIn.Enabled = False
-        Me.txtAvgMassFlowIn.Location = New System.Drawing.Point(104, 101)
+        Me.txtAvgMassFlowIn.Location = New System.Drawing.Point(106, 101)
         Me.txtAvgMassFlowIn.Name = "txtAvgMassFlowIn"
         Me.txtAvgMassFlowIn.Size = New System.Drawing.Size(65, 20)
         Me.txtAvgMassFlowIn.TabIndex = 43
-        Me.txtAvgMassFlowIn.Text = "24000"
         Me.txtAvgMassFlowIn.TextAlign = System.Windows.Forms.HorizontalAlignment.Right
         '
         'Label19
@@ -1390,11 +1426,10 @@ Partial Class MainWindow
         'txtAvgBoxMass
         '
         Me.txtAvgBoxMass.Enabled = False
-        Me.txtAvgBoxMass.Location = New System.Drawing.Point(104, 53)
+        Me.txtAvgBoxMass.Location = New System.Drawing.Point(106, 53)
         Me.txtAvgBoxMass.Name = "txtAvgBoxMass"
         Me.txtAvgBoxMass.Size = New System.Drawing.Size(65, 20)
         Me.txtAvgBoxMass.TabIndex = 41
-        Me.txtAvgBoxMass.Text = "20"
         Me.txtAvgBoxMass.TextAlign = System.Windows.Forms.HorizontalAlignment.Right
         '
         'Label18
@@ -1409,11 +1444,10 @@ Partial Class MainWindow
         'txtAvgBoxflowIn
         '
         Me.txtAvgBoxflowIn.Enabled = False
-        Me.txtAvgBoxflowIn.Location = New System.Drawing.Point(104, 77)
+        Me.txtAvgBoxflowIn.Location = New System.Drawing.Point(106, 77)
         Me.txtAvgBoxflowIn.Name = "txtAvgBoxflowIn"
         Me.txtAvgBoxflowIn.Size = New System.Drawing.Size(65, 20)
         Me.txtAvgBoxflowIn.TabIndex = 42
-        Me.txtAvgBoxflowIn.Text = "1200"
         Me.txtAvgBoxflowIn.TextAlign = System.Windows.Forms.HorizontalAlignment.Right
         '
         'Label21
@@ -1474,7 +1508,6 @@ Partial Class MainWindow
         Me.txtTotalSimTime.Name = "txtTotalSimTime"
         Me.txtTotalSimTime.Size = New System.Drawing.Size(43, 20)
         Me.txtTotalSimTime.TabIndex = 58
-        Me.txtTotalSimTime.Text = "7"
         Me.txtTotalSimTime.TextAlign = System.Windows.Forms.HorizontalAlignment.Right
         '
         'Label45
@@ -1501,7 +1534,6 @@ Partial Class MainWindow
         Me.txtMinimumSimDT.Name = "txtMinimumSimDT"
         Me.txtMinimumSimDT.Size = New System.Drawing.Size(43, 20)
         Me.txtMinimumSimDT.TabIndex = 60
-        Me.txtMinimumSimDT.Text = "300"
         Me.txtMinimumSimDT.TextAlign = System.Windows.Forms.HorizontalAlignment.Right
         '
         'Label34
@@ -1548,6 +1580,16 @@ Partial Class MainWindow
         Me.MidPanel.SplitterDistance = 56
         Me.MidPanel.TabIndex = 2
         '
+        'lblDisplayVariable
+        '
+        Me.lblDisplayVariable.AutoSize = True
+        Me.lblDisplayVariable.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.lblDisplayVariable.Location = New System.Drawing.Point(8, 34)
+        Me.lblDisplayVariable.Name = "lblDisplayVariable"
+        Me.lblDisplayVariable.Size = New System.Drawing.Size(129, 13)
+        Me.lblDisplayVariable.TabIndex = 3
+        Me.lblDisplayVariable.Text = "Displaying Tray Index"
+        '
         'lblCurrentPos
         '
         Me.lblCurrentPos.AutoSize = True
@@ -1586,108 +1628,6 @@ Partial Class MainWindow
         'ErrorProvider1
         '
         Me.ErrorProvider1.ContainerControl = Me
-        '
-        'lblDisplayVariable
-        '
-        Me.lblDisplayVariable.AutoSize = True
-        Me.lblDisplayVariable.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.lblDisplayVariable.Location = New System.Drawing.Point(8, 34)
-        Me.lblDisplayVariable.Name = "lblDisplayVariable"
-        Me.lblDisplayVariable.Size = New System.Drawing.Size(129, 13)
-        Me.lblDisplayVariable.TabIndex = 3
-        Me.lblDisplayVariable.Text = "Displaying Tray Index"
-        '
-        'btnReduceSpeed
-        '
-        Me.btnReduceSpeed.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image
-        Me.btnReduceSpeed.Image = Global.VRTM_Simulator.My.Resources.Resources.media_seek_backward_3
-        Me.btnReduceSpeed.ImageTransparentColor = System.Drawing.Color.Magenta
-        Me.btnReduceSpeed.Name = "btnReduceSpeed"
-        Me.btnReduceSpeed.Size = New System.Drawing.Size(23, 22)
-        Me.btnReduceSpeed.Text = "ToolStripButton3"
-        '
-        'btnStop
-        '
-        Me.btnStop.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image
-        Me.btnStop.Image = Global.VRTM_Simulator.My.Resources.Resources.media_playback_stop_3
-        Me.btnStop.ImageTransparentColor = System.Drawing.Color.Magenta
-        Me.btnStop.Name = "btnStop"
-        Me.btnStop.Size = New System.Drawing.Size(23, 22)
-        Me.btnStop.Text = "ToolStripButton4"
-        '
-        'btnPlay
-        '
-        Me.btnPlay.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image
-        Me.btnPlay.Image = Global.VRTM_Simulator.My.Resources.Resources.media_playback_start_3
-        Me.btnPlay.ImageTransparentColor = System.Drawing.Color.Magenta
-        Me.btnPlay.Name = "btnPlay"
-        Me.btnPlay.Size = New System.Drawing.Size(23, 22)
-        Me.btnPlay.Text = "ToolStripButton5"
-        '
-        'btnIncreaseSpeed
-        '
-        Me.btnIncreaseSpeed.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image
-        Me.btnIncreaseSpeed.Image = Global.VRTM_Simulator.My.Resources.Resources.media_seek_forward_3
-        Me.btnIncreaseSpeed.ImageTransparentColor = System.Drawing.Color.Magenta
-        Me.btnIncreaseSpeed.Name = "btnIncreaseSpeed"
-        Me.btnIncreaseSpeed.Size = New System.Drawing.Size(23, 22)
-        Me.btnIncreaseSpeed.Text = "ToolStripButton6"
-        '
-        'OpenSimulationToolStripMenuItem
-        '
-        Me.OpenSimulationToolStripMenuItem.Image = Global.VRTM_Simulator.My.Resources.Resources.document_open_5
-        Me.OpenSimulationToolStripMenuItem.Name = "OpenSimulationToolStripMenuItem"
-        Me.OpenSimulationToolStripMenuItem.Size = New System.Drawing.Size(163, 22)
-        Me.OpenSimulationToolStripMenuItem.Text = "&Open Simulation"
-        '
-        'SaveSimulationToolStripMenuItem
-        '
-        Me.SaveSimulationToolStripMenuItem.Image = Global.VRTM_Simulator.My.Resources.Resources.document_save_5
-        Me.SaveSimulationToolStripMenuItem.Name = "SaveSimulationToolStripMenuItem"
-        Me.SaveSimulationToolStripMenuItem.Size = New System.Drawing.Size(163, 22)
-        Me.SaveSimulationToolStripMenuItem.Text = "&Save Simulation"
-        '
-        'RunProcessSimulationToolStripMenuItem
-        '
-        Me.RunProcessSimulationToolStripMenuItem.Image = Global.VRTM_Simulator.My.Resources.Resources.script_gear
-        Me.RunProcessSimulationToolStripMenuItem.Name = "RunProcessSimulationToolStripMenuItem"
-        Me.RunProcessSimulationToolStripMenuItem.Size = New System.Drawing.Size(202, 22)
-        Me.RunProcessSimulationToolStripMenuItem.Text = "Run Process Simulation"
-        '
-        'RunThermalSimulationToolStripMenuItem
-        '
-        Me.RunThermalSimulationToolStripMenuItem.Image = Global.VRTM_Simulator.My.Resources.Resources.pictograms_hazard_signs_xtremely_flammable
-        Me.RunThermalSimulationToolStripMenuItem.Name = "RunThermalSimulationToolStripMenuItem"
-        Me.RunThermalSimulationToolStripMenuItem.Size = New System.Drawing.Size(202, 22)
-        Me.RunThermalSimulationToolStripMenuItem.Text = "Run Thermal Simulation"
-        '
-        'ReduceSpeedToolStripMenuItem
-        '
-        Me.ReduceSpeedToolStripMenuItem.Image = Global.VRTM_Simulator.My.Resources.Resources.media_seek_backward_3
-        Me.ReduceSpeedToolStripMenuItem.Name = "ReduceSpeedToolStripMenuItem"
-        Me.ReduceSpeedToolStripMenuItem.Size = New System.Drawing.Size(152, 22)
-        Me.ReduceSpeedToolStripMenuItem.Text = "Reduce Speed"
-        '
-        'StopToolStripMenuItem
-        '
-        Me.StopToolStripMenuItem.Image = Global.VRTM_Simulator.My.Resources.Resources.media_playback_stop_3
-        Me.StopToolStripMenuItem.Name = "StopToolStripMenuItem"
-        Me.StopToolStripMenuItem.Size = New System.Drawing.Size(152, 22)
-        Me.StopToolStripMenuItem.Text = "Stop"
-        '
-        'PlayToolStripMenuItem
-        '
-        Me.PlayToolStripMenuItem.Image = Global.VRTM_Simulator.My.Resources.Resources.media_playback_start_3
-        Me.PlayToolStripMenuItem.Name = "PlayToolStripMenuItem"
-        Me.PlayToolStripMenuItem.Size = New System.Drawing.Size(152, 22)
-        Me.PlayToolStripMenuItem.Text = "Play"
-        '
-        'IncreaseSpeedToolStripMenuItem
-        '
-        Me.IncreaseSpeedToolStripMenuItem.Image = Global.VRTM_Simulator.My.Resources.Resources.media_seek_forward_3
-        Me.IncreaseSpeedToolStripMenuItem.Name = "IncreaseSpeedToolStripMenuItem"
-        Me.IncreaseSpeedToolStripMenuItem.Size = New System.Drawing.Size(152, 22)
-        Me.IncreaseSpeedToolStripMenuItem.Text = "Increase Speed"
         '
         'MainWindow
         '

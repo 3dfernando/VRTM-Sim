@@ -25,60 +25,61 @@ Partial Class ProductMixSetup
         Dim ChartArea1 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(ProductMixSetup))
         Me.lstProductMix = New System.Windows.Forms.ListView()
-        Me.Button2 = New System.Windows.Forms.Button()
-        Me.Button1 = New System.Windows.Forms.Button()
+        Me.cmdRemoveProduct = New System.Windows.Forms.Button()
+        Me.cmdAddProduct = New System.Windows.Forms.Button()
         Me.GroupBox1 = New System.Windows.Forms.GroupBox()
         Me.ProductFreezingChart = New System.Windows.Forms.DataVisualization.Charting.Chart()
         Me.Label1 = New System.Windows.Forms.Label()
-        Me.TextBox1 = New System.Windows.Forms.TextBox()
+        Me.txtProductName = New System.Windows.Forms.TextBox()
         Me.Label3 = New System.Windows.Forms.Label()
-        Me.TextBox2 = New System.Windows.Forms.TextBox()
+        Me.txtBoxWeight = New System.Windows.Forms.TextBox()
         Me.Label4 = New System.Windows.Forms.Label()
         Me.Label5 = New System.Windows.Forms.Label()
-        Me.TextBox3 = New System.Windows.Forms.TextBox()
+        Me.txtBoxFlowRate = New System.Windows.Forms.TextBox()
         Me.Label6 = New System.Windows.Forms.Label()
         Me.Label7 = New System.Windows.Forms.Label()
         Me.Label9 = New System.Windows.Forms.Label()
-        Me.TextBox5 = New System.Windows.Forms.TextBox()
+        Me.txtStdDev = New System.Windows.Forms.TextBox()
         Me.Label10 = New System.Windows.Forms.Label()
-        Me.ComboBox1 = New System.Windows.Forms.ComboBox()
+        Me.txtStatDistr = New System.Windows.Forms.ComboBox()
         Me.GroupBox2 = New System.Windows.Forms.GroupBox()
         Me.Label8 = New System.Windows.Forms.Label()
         Me.Label11 = New System.Windows.Forms.Label()
-        Me.TextBox6 = New System.Windows.Forms.TextBox()
-        Me.TextBox7 = New System.Windows.Forms.TextBox()
+        Me.txtSimLength = New System.Windows.Forms.TextBox()
+        Me.txtSimThickness = New System.Windows.Forms.TextBox()
         Me.Label14 = New System.Windows.Forms.Label()
         Me.Label15 = New System.Windows.Forms.Label()
         Me.Label16 = New System.Windows.Forms.Label()
-        Me.ComboBox3 = New System.Windows.Forms.ComboBox()
+        Me.txtSimGeom = New System.Windows.Forms.ComboBox()
         Me.Label2 = New System.Windows.Forms.Label()
-        Me.TextBox4 = New System.Windows.Forms.TextBox()
+        Me.txtSimWidth = New System.Windows.Forms.TextBox()
         Me.Label12 = New System.Windows.Forms.Label()
         Me.Label13 = New System.Windows.Forms.Label()
-        Me.TextBox8 = New System.Windows.Forms.TextBox()
+        Me.txtSimDiameter = New System.Windows.Forms.TextBox()
         Me.Label17 = New System.Windows.Forms.Label()
         Me.GroupBox3 = New System.Windows.Forms.GroupBox()
-        Me.ComboBox2 = New System.Windows.Forms.ComboBox()
+        Me.txtProductModel = New System.Windows.Forms.ComboBox()
         Me.Label18 = New System.Windows.Forms.Label()
         Me.Label19 = New System.Windows.Forms.Label()
         Me.Label20 = New System.Windows.Forms.Label()
         Me.Label21 = New System.Windows.Forms.Label()
-        Me.TextBox9 = New System.Windows.Forms.TextBox()
-        Me.TextBox10 = New System.Windows.Forms.TextBox()
-        Me.TextBox11 = New System.Windows.Forms.TextBox()
-        Me.TextBox12 = New System.Windows.Forms.TextBox()
+        Me.txtAirSpeed = New System.Windows.Forms.TextBox()
+        Me.txtMinStayTime = New System.Windows.Forms.TextBox()
+        Me.txtOutletTemp = New System.Windows.Forms.TextBox()
+        Me.txtInletTemp = New System.Windows.Forms.TextBox()
         Me.Label22 = New System.Windows.Forms.Label()
         Me.Label23 = New System.Windows.Forms.Label()
         Me.Label24 = New System.Windows.Forms.Label()
         Me.Label25 = New System.Windows.Forms.Label()
         Me.Label26 = New System.Windows.Forms.Label()
         Me.Label27 = New System.Windows.Forms.Label()
-        Me.TextBox13 = New System.Windows.Forms.TextBox()
+        Me.txtConvectionMultFactor = New System.Windows.Forms.TextBox()
         Me.Label28 = New System.Windows.Forms.Label()
-        Me.TextBox14 = New System.Windows.Forms.TextBox()
+        Me.txtConvCoeff = New System.Windows.Forms.TextBox()
         Me.Label29 = New System.Windows.Forms.Label()
-        Me.ListView1 = New System.Windows.Forms.ListView()
+        Me.lstProdModelProperties = New System.Windows.Forms.ListView()
         Me.Label30 = New System.Windows.Forms.Label()
+        Me.cmdSaveProduct = New System.Windows.Forms.Button()
         Me.GroupBox1.SuspendLayout()
         CType(Me.ProductFreezingChart, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.GroupBox2.SuspendLayout()
@@ -94,40 +95,40 @@ Partial Class ProductMixSetup
         Me.lstProductMix.UseCompatibleStateImageBehavior = False
         Me.lstProductMix.View = System.Windows.Forms.View.Details
         '
-        'Button2
+        'cmdRemoveProduct
         '
-        Me.Button2.Image = Global.VRTM_Simulator.My.Resources.Resources.list_remove_4
-        Me.Button2.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft
-        Me.Button2.Location = New System.Drawing.Point(10, 44)
-        Me.Button2.Name = "Button2"
-        Me.Button2.Size = New System.Drawing.Size(126, 26)
-        Me.Button2.TabIndex = 2
-        Me.Button2.Text = "Remove Product"
-        Me.Button2.TextAlign = System.Drawing.ContentAlignment.MiddleRight
-        Me.Button2.UseVisualStyleBackColor = True
+        Me.cmdRemoveProduct.Image = Global.VRTM_Simulator.My.Resources.Resources.list_remove_4
+        Me.cmdRemoveProduct.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft
+        Me.cmdRemoveProduct.Location = New System.Drawing.Point(10, 44)
+        Me.cmdRemoveProduct.Name = "cmdRemoveProduct"
+        Me.cmdRemoveProduct.Size = New System.Drawing.Size(126, 26)
+        Me.cmdRemoveProduct.TabIndex = 2
+        Me.cmdRemoveProduct.Text = "Remove Product"
+        Me.cmdRemoveProduct.TextAlign = System.Drawing.ContentAlignment.MiddleRight
+        Me.cmdRemoveProduct.UseVisualStyleBackColor = True
         '
-        'Button1
+        'cmdAddProduct
         '
-        Me.Button1.Image = Global.VRTM_Simulator.My.Resources.Resources.edit_add_2
-        Me.Button1.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft
-        Me.Button1.Location = New System.Drawing.Point(10, 12)
-        Me.Button1.Name = "Button1"
-        Me.Button1.Size = New System.Drawing.Size(126, 26)
-        Me.Button1.TabIndex = 1
-        Me.Button1.Text = "Add Product"
-        Me.Button1.TextAlign = System.Drawing.ContentAlignment.MiddleRight
-        Me.Button1.UseVisualStyleBackColor = True
+        Me.cmdAddProduct.Image = Global.VRTM_Simulator.My.Resources.Resources.edit_add_2
+        Me.cmdAddProduct.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft
+        Me.cmdAddProduct.Location = New System.Drawing.Point(10, 12)
+        Me.cmdAddProduct.Name = "cmdAddProduct"
+        Me.cmdAddProduct.Size = New System.Drawing.Size(126, 26)
+        Me.cmdAddProduct.TabIndex = 1
+        Me.cmdAddProduct.Text = "Add Product"
+        Me.cmdAddProduct.TextAlign = System.Drawing.ContentAlignment.MiddleRight
+        Me.cmdAddProduct.UseVisualStyleBackColor = True
         '
         'GroupBox1
         '
-        Me.GroupBox1.Controls.Add(Me.ComboBox1)
+        Me.GroupBox1.Controls.Add(Me.txtStatDistr)
         Me.GroupBox1.Controls.Add(Me.Label10)
         Me.GroupBox1.Controls.Add(Me.Label6)
         Me.GroupBox1.Controls.Add(Me.Label4)
-        Me.GroupBox1.Controls.Add(Me.TextBox5)
-        Me.GroupBox1.Controls.Add(Me.TextBox3)
-        Me.GroupBox1.Controls.Add(Me.TextBox2)
-        Me.GroupBox1.Controls.Add(Me.TextBox1)
+        Me.GroupBox1.Controls.Add(Me.txtStdDev)
+        Me.GroupBox1.Controls.Add(Me.txtBoxFlowRate)
+        Me.GroupBox1.Controls.Add(Me.txtBoxWeight)
+        Me.GroupBox1.Controls.Add(Me.txtProductName)
         Me.GroupBox1.Controls.Add(Me.Label9)
         Me.GroupBox1.Controls.Add(Me.Label7)
         Me.GroupBox1.Controls.Add(Me.Label5)
@@ -161,12 +162,13 @@ Partial Class ProductMixSetup
         Me.Label1.TabIndex = 0
         Me.Label1.Text = "Product Name/SKU:"
         '
-        'TextBox1
+        'txtProductName
         '
-        Me.TextBox1.Location = New System.Drawing.Point(117, 20)
-        Me.TextBox1.Name = "TextBox1"
-        Me.TextBox1.Size = New System.Drawing.Size(125, 20)
-        Me.TextBox1.TabIndex = 1
+        Me.txtProductName.Location = New System.Drawing.Point(117, 20)
+        Me.txtProductName.Name = "txtProductName"
+        Me.txtProductName.Size = New System.Drawing.Size(125, 20)
+        Me.txtProductName.TabIndex = 1
+        Me.txtProductName.TextAlign = System.Windows.Forms.HorizontalAlignment.Right
         '
         'Label3
         '
@@ -177,12 +179,13 @@ Partial Class ProductMixSetup
         Me.Label3.TabIndex = 0
         Me.Label3.Text = "Box Weight:"
         '
-        'TextBox2
+        'txtBoxWeight
         '
-        Me.TextBox2.Location = New System.Drawing.Point(117, 45)
-        Me.TextBox2.Name = "TextBox2"
-        Me.TextBox2.Size = New System.Drawing.Size(73, 20)
-        Me.TextBox2.TabIndex = 1
+        Me.txtBoxWeight.Location = New System.Drawing.Point(117, 45)
+        Me.txtBoxWeight.Name = "txtBoxWeight"
+        Me.txtBoxWeight.Size = New System.Drawing.Size(73, 20)
+        Me.txtBoxWeight.TabIndex = 1
+        Me.txtBoxWeight.TextAlign = System.Windows.Forms.HorizontalAlignment.Right
         '
         'Label4
         '
@@ -202,12 +205,13 @@ Partial Class ProductMixSetup
         Me.Label5.TabIndex = 0
         Me.Label5.Text = "Avg. Box Flow Rate:"
         '
-        'TextBox3
+        'txtBoxFlowRate
         '
-        Me.TextBox3.Location = New System.Drawing.Point(117, 69)
-        Me.TextBox3.Name = "TextBox3"
-        Me.TextBox3.Size = New System.Drawing.Size(73, 20)
-        Me.TextBox3.TabIndex = 1
+        Me.txtBoxFlowRate.Location = New System.Drawing.Point(117, 69)
+        Me.txtBoxFlowRate.Name = "txtBoxFlowRate"
+        Me.txtBoxFlowRate.Size = New System.Drawing.Size(73, 20)
+        Me.txtBoxFlowRate.TabIndex = 1
+        Me.txtBoxFlowRate.TextAlign = System.Windows.Forms.HorizontalAlignment.Right
         '
         'Label6
         '
@@ -236,12 +240,13 @@ Partial Class ProductMixSetup
         Me.Label9.TabIndex = 0
         Me.Label9.Text = "Standard Deviation:"
         '
-        'TextBox5
+        'txtStdDev
         '
-        Me.TextBox5.Location = New System.Drawing.Point(117, 117)
-        Me.TextBox5.Name = "TextBox5"
-        Me.TextBox5.Size = New System.Drawing.Size(73, 20)
-        Me.TextBox5.TabIndex = 1
+        Me.txtStdDev.Location = New System.Drawing.Point(117, 117)
+        Me.txtStdDev.Name = "txtStdDev"
+        Me.txtStdDev.Size = New System.Drawing.Size(73, 20)
+        Me.txtStdDev.TabIndex = 1
+        Me.txtStdDev.TextAlign = System.Windows.Forms.HorizontalAlignment.Right
         '
         'Label10
         '
@@ -252,25 +257,27 @@ Partial Class ProductMixSetup
         Me.Label10.TabIndex = 2
         Me.Label10.Text = "boxes/h"
         '
-        'ComboBox1
+        'txtStatDistr
         '
-        Me.ComboBox1.FormattingEnabled = True
-        Me.ComboBox1.Location = New System.Drawing.Point(117, 92)
-        Me.ComboBox1.Name = "ComboBox1"
-        Me.ComboBox1.Size = New System.Drawing.Size(125, 21)
-        Me.ComboBox1.TabIndex = 3
+        Me.txtStatDistr.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
+        Me.txtStatDistr.FormattingEnabled = True
+        Me.txtStatDistr.Items.AddRange(New Object() {"Exponential", "Gaussian"})
+        Me.txtStatDistr.Location = New System.Drawing.Point(117, 92)
+        Me.txtStatDistr.Name = "txtStatDistr"
+        Me.txtStatDistr.Size = New System.Drawing.Size(125, 21)
+        Me.txtStatDistr.TabIndex = 3
         '
         'GroupBox2
         '
-        Me.GroupBox2.Controls.Add(Me.ComboBox3)
+        Me.GroupBox2.Controls.Add(Me.txtSimGeom)
         Me.GroupBox2.Controls.Add(Me.Label17)
         Me.GroupBox2.Controls.Add(Me.Label12)
         Me.GroupBox2.Controls.Add(Me.Label8)
         Me.GroupBox2.Controls.Add(Me.Label11)
-        Me.GroupBox2.Controls.Add(Me.TextBox8)
-        Me.GroupBox2.Controls.Add(Me.TextBox4)
-        Me.GroupBox2.Controls.Add(Me.TextBox6)
-        Me.GroupBox2.Controls.Add(Me.TextBox7)
+        Me.GroupBox2.Controls.Add(Me.txtSimDiameter)
+        Me.GroupBox2.Controls.Add(Me.txtSimWidth)
+        Me.GroupBox2.Controls.Add(Me.txtSimLength)
+        Me.GroupBox2.Controls.Add(Me.txtSimThickness)
         Me.GroupBox2.Controls.Add(Me.Label13)
         Me.GroupBox2.Controls.Add(Me.Label2)
         Me.GroupBox2.Controls.Add(Me.Label14)
@@ -301,19 +308,21 @@ Partial Class ProductMixSetup
         Me.Label11.TabIndex = 2
         Me.Label11.Text = "mm"
         '
-        'TextBox6
+        'txtSimLength
         '
-        Me.TextBox6.Location = New System.Drawing.Point(117, 71)
-        Me.TextBox6.Name = "TextBox6"
-        Me.TextBox6.Size = New System.Drawing.Size(73, 20)
-        Me.TextBox6.TabIndex = 1
+        Me.txtSimLength.Location = New System.Drawing.Point(117, 71)
+        Me.txtSimLength.Name = "txtSimLength"
+        Me.txtSimLength.Size = New System.Drawing.Size(73, 20)
+        Me.txtSimLength.TabIndex = 1
+        Me.txtSimLength.TextAlign = System.Windows.Forms.HorizontalAlignment.Right
         '
-        'TextBox7
+        'txtSimThickness
         '
-        Me.TextBox7.Location = New System.Drawing.Point(117, 47)
-        Me.TextBox7.Name = "TextBox7"
-        Me.TextBox7.Size = New System.Drawing.Size(73, 20)
-        Me.TextBox7.TabIndex = 1
+        Me.txtSimThickness.Location = New System.Drawing.Point(117, 47)
+        Me.txtSimThickness.Name = "txtSimThickness"
+        Me.txtSimThickness.Size = New System.Drawing.Size(73, 20)
+        Me.txtSimThickness.TabIndex = 1
+        Me.txtSimThickness.TextAlign = System.Windows.Forms.HorizontalAlignment.Right
         '
         'Label14
         '
@@ -342,13 +351,15 @@ Partial Class ProductMixSetup
         Me.Label16.TabIndex = 0
         Me.Label16.Text = "Simulation Geometry:"
         '
-        'ComboBox3
+        'txtSimGeom
         '
-        Me.ComboBox3.FormattingEnabled = True
-        Me.ComboBox3.Location = New System.Drawing.Point(117, 22)
-        Me.ComboBox3.Name = "ComboBox3"
-        Me.ComboBox3.Size = New System.Drawing.Size(125, 21)
-        Me.ComboBox3.TabIndex = 4
+        Me.txtSimGeom.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
+        Me.txtSimGeom.FormattingEnabled = True
+        Me.txtSimGeom.Items.AddRange(New Object() {"Thin Slab", "Long Cylinder", "Sphere"})
+        Me.txtSimGeom.Location = New System.Drawing.Point(117, 22)
+        Me.txtSimGeom.Name = "txtSimGeom"
+        Me.txtSimGeom.Size = New System.Drawing.Size(125, 21)
+        Me.txtSimGeom.TabIndex = 4
         '
         'Label2
         '
@@ -359,12 +370,13 @@ Partial Class ProductMixSetup
         Me.Label2.TabIndex = 0
         Me.Label2.Text = "Simulation Width:"
         '
-        'TextBox4
+        'txtSimWidth
         '
-        Me.TextBox4.Location = New System.Drawing.Point(117, 94)
-        Me.TextBox4.Name = "TextBox4"
-        Me.TextBox4.Size = New System.Drawing.Size(73, 20)
-        Me.TextBox4.TabIndex = 1
+        Me.txtSimWidth.Location = New System.Drawing.Point(117, 94)
+        Me.txtSimWidth.Name = "txtSimWidth"
+        Me.txtSimWidth.Size = New System.Drawing.Size(73, 20)
+        Me.txtSimWidth.TabIndex = 1
+        Me.txtSimWidth.TextAlign = System.Windows.Forms.HorizontalAlignment.Right
         '
         'Label12
         '
@@ -384,12 +396,13 @@ Partial Class ProductMixSetup
         Me.Label13.TabIndex = 0
         Me.Label13.Text = "Simulation Diameter:"
         '
-        'TextBox8
+        'txtSimDiameter
         '
-        Me.TextBox8.Location = New System.Drawing.Point(117, 118)
-        Me.TextBox8.Name = "TextBox8"
-        Me.TextBox8.Size = New System.Drawing.Size(73, 20)
-        Me.TextBox8.TabIndex = 1
+        Me.txtSimDiameter.Location = New System.Drawing.Point(117, 118)
+        Me.txtSimDiameter.Name = "txtSimDiameter"
+        Me.txtSimDiameter.Size = New System.Drawing.Size(73, 20)
+        Me.txtSimDiameter.TabIndex = 1
+        Me.txtSimDiameter.TextAlign = System.Windows.Forms.HorizontalAlignment.Right
         '
         'Label17
         '
@@ -403,21 +416,21 @@ Partial Class ProductMixSetup
         'GroupBox3
         '
         Me.GroupBox3.Controls.Add(Me.Label30)
-        Me.GroupBox3.Controls.Add(Me.ListView1)
-        Me.GroupBox3.Controls.Add(Me.ComboBox2)
+        Me.GroupBox3.Controls.Add(Me.lstProdModelProperties)
+        Me.GroupBox3.Controls.Add(Me.txtProductModel)
         Me.GroupBox3.Controls.Add(Me.Label29)
         Me.GroupBox3.Controls.Add(Me.Label18)
         Me.GroupBox3.Controls.Add(Me.Label19)
         Me.GroupBox3.Controls.Add(Me.Label20)
         Me.GroupBox3.Controls.Add(Me.Label21)
-        Me.GroupBox3.Controls.Add(Me.TextBox14)
-        Me.GroupBox3.Controls.Add(Me.TextBox13)
-        Me.GroupBox3.Controls.Add(Me.TextBox9)
-        Me.GroupBox3.Controls.Add(Me.TextBox10)
+        Me.GroupBox3.Controls.Add(Me.txtConvCoeff)
+        Me.GroupBox3.Controls.Add(Me.txtConvectionMultFactor)
+        Me.GroupBox3.Controls.Add(Me.txtAirSpeed)
+        Me.GroupBox3.Controls.Add(Me.txtMinStayTime)
         Me.GroupBox3.Controls.Add(Me.Label28)
-        Me.GroupBox3.Controls.Add(Me.TextBox11)
+        Me.GroupBox3.Controls.Add(Me.txtOutletTemp)
         Me.GroupBox3.Controls.Add(Me.Label27)
-        Me.GroupBox3.Controls.Add(Me.TextBox12)
+        Me.GroupBox3.Controls.Add(Me.txtInletTemp)
         Me.GroupBox3.Controls.Add(Me.Label22)
         Me.GroupBox3.Controls.Add(Me.Label23)
         Me.GroupBox3.Controls.Add(Me.Label24)
@@ -425,18 +438,18 @@ Partial Class ProductMixSetup
         Me.GroupBox3.Controls.Add(Me.Label26)
         Me.GroupBox3.Location = New System.Drawing.Point(533, 143)
         Me.GroupBox3.Name = "GroupBox3"
-        Me.GroupBox3.Size = New System.Drawing.Size(259, 453)
+        Me.GroupBox3.Size = New System.Drawing.Size(259, 397)
         Me.GroupBox3.TabIndex = 6
         Me.GroupBox3.TabStop = False
         Me.GroupBox3.Text = "Thermal Simulation Data"
         '
-        'ComboBox2
+        'txtProductModel
         '
-        Me.ComboBox2.FormattingEnabled = True
-        Me.ComboBox2.Location = New System.Drawing.Point(117, 22)
-        Me.ComboBox2.Name = "ComboBox2"
-        Me.ComboBox2.Size = New System.Drawing.Size(125, 21)
-        Me.ComboBox2.TabIndex = 4
+        Me.txtProductModel.FormattingEnabled = True
+        Me.txtProductModel.Location = New System.Drawing.Point(117, 22)
+        Me.txtProductModel.Name = "txtProductModel"
+        Me.txtProductModel.Size = New System.Drawing.Size(125, 21)
+        Me.txtProductModel.TabIndex = 4
         '
         'Label18
         '
@@ -474,33 +487,37 @@ Partial Class ProductMixSetup
         Me.Label21.TabIndex = 2
         Me.Label21.Text = "ºC"
         '
-        'TextBox9
+        'txtAirSpeed
         '
-        Me.TextBox9.Location = New System.Drawing.Point(117, 313)
-        Me.TextBox9.Name = "TextBox9"
-        Me.TextBox9.Size = New System.Drawing.Size(73, 20)
-        Me.TextBox9.TabIndex = 1
+        Me.txtAirSpeed.Location = New System.Drawing.Point(117, 313)
+        Me.txtAirSpeed.Name = "txtAirSpeed"
+        Me.txtAirSpeed.Size = New System.Drawing.Size(73, 20)
+        Me.txtAirSpeed.TabIndex = 1
+        Me.txtAirSpeed.TextAlign = System.Windows.Forms.HorizontalAlignment.Right
         '
-        'TextBox10
+        'txtMinStayTime
         '
-        Me.TextBox10.Location = New System.Drawing.Point(117, 289)
-        Me.TextBox10.Name = "TextBox10"
-        Me.TextBox10.Size = New System.Drawing.Size(73, 20)
-        Me.TextBox10.TabIndex = 1
+        Me.txtMinStayTime.Location = New System.Drawing.Point(117, 289)
+        Me.txtMinStayTime.Name = "txtMinStayTime"
+        Me.txtMinStayTime.Size = New System.Drawing.Size(73, 20)
+        Me.txtMinStayTime.TabIndex = 1
+        Me.txtMinStayTime.TextAlign = System.Windows.Forms.HorizontalAlignment.Right
         '
-        'TextBox11
+        'txtOutletTemp
         '
-        Me.TextBox11.Location = New System.Drawing.Point(117, 266)
-        Me.TextBox11.Name = "TextBox11"
-        Me.TextBox11.Size = New System.Drawing.Size(73, 20)
-        Me.TextBox11.TabIndex = 1
+        Me.txtOutletTemp.Location = New System.Drawing.Point(117, 266)
+        Me.txtOutletTemp.Name = "txtOutletTemp"
+        Me.txtOutletTemp.Size = New System.Drawing.Size(73, 20)
+        Me.txtOutletTemp.TabIndex = 1
+        Me.txtOutletTemp.TextAlign = System.Windows.Forms.HorizontalAlignment.Right
         '
-        'TextBox12
+        'txtInletTemp
         '
-        Me.TextBox12.Location = New System.Drawing.Point(117, 242)
-        Me.TextBox12.Name = "TextBox12"
-        Me.TextBox12.Size = New System.Drawing.Size(73, 20)
-        Me.TextBox12.TabIndex = 1
+        Me.txtInletTemp.Location = New System.Drawing.Point(117, 242)
+        Me.txtInletTemp.Name = "txtInletTemp"
+        Me.txtInletTemp.Size = New System.Drawing.Size(73, 20)
+        Me.txtInletTemp.TabIndex = 1
+        Me.txtInletTemp.TextAlign = System.Windows.Forms.HorizontalAlignment.Right
         '
         'Label22
         '
@@ -556,12 +573,13 @@ Partial Class ProductMixSetup
         Me.Label27.TabIndex = 0
         Me.Label27.Text = "Conv. Mult. Factor:"
         '
-        'TextBox13
+        'txtConvectionMultFactor
         '
-        Me.TextBox13.Location = New System.Drawing.Point(117, 336)
-        Me.TextBox13.Name = "TextBox13"
-        Me.TextBox13.Size = New System.Drawing.Size(73, 20)
-        Me.TextBox13.TabIndex = 1
+        Me.txtConvectionMultFactor.Location = New System.Drawing.Point(117, 336)
+        Me.txtConvectionMultFactor.Name = "txtConvectionMultFactor"
+        Me.txtConvectionMultFactor.Size = New System.Drawing.Size(73, 20)
+        Me.txtConvectionMultFactor.TabIndex = 1
+        Me.txtConvectionMultFactor.TextAlign = System.Windows.Forms.HorizontalAlignment.Right
         '
         'Label28
         '
@@ -572,13 +590,14 @@ Partial Class ProductMixSetup
         Me.Label28.TabIndex = 0
         Me.Label28.Text = "Conv. Coefficient:"
         '
-        'TextBox14
+        'txtConvCoeff
         '
-        Me.TextBox14.Enabled = False
-        Me.TextBox14.Location = New System.Drawing.Point(117, 359)
-        Me.TextBox14.Name = "TextBox14"
-        Me.TextBox14.Size = New System.Drawing.Size(73, 20)
-        Me.TextBox14.TabIndex = 1
+        Me.txtConvCoeff.Enabled = False
+        Me.txtConvCoeff.Location = New System.Drawing.Point(117, 359)
+        Me.txtConvCoeff.Name = "txtConvCoeff"
+        Me.txtConvCoeff.Size = New System.Drawing.Size(73, 20)
+        Me.txtConvCoeff.TabIndex = 1
+        Me.txtConvCoeff.TextAlign = System.Windows.Forms.HorizontalAlignment.Right
         '
         'Label29
         '
@@ -589,13 +608,13 @@ Partial Class ProductMixSetup
         Me.Label29.TabIndex = 2
         Me.Label29.Text = "W/m².K"
         '
-        'ListView1
+        'lstProdModelProperties
         '
-        Me.ListView1.Location = New System.Drawing.Point(22, 72)
-        Me.ListView1.Name = "ListView1"
-        Me.ListView1.Size = New System.Drawing.Size(218, 149)
-        Me.ListView1.TabIndex = 5
-        Me.ListView1.UseCompatibleStateImageBehavior = False
+        Me.lstProdModelProperties.Location = New System.Drawing.Point(22, 72)
+        Me.lstProdModelProperties.Name = "lstProdModelProperties"
+        Me.lstProdModelProperties.Size = New System.Drawing.Size(218, 149)
+        Me.lstProdModelProperties.TabIndex = 5
+        Me.lstProdModelProperties.UseCompatibleStateImageBehavior = False
         '
         'Label30
         '
@@ -606,17 +625,30 @@ Partial Class ProductMixSetup
         Me.Label30.TabIndex = 6
         Me.Label30.Text = "Product Model Properties:"
         '
+        'cmdSaveProduct
+        '
+        Me.cmdSaveProduct.Image = Global.VRTM_Simulator.My.Resources.Resources.document_save_5
+        Me.cmdSaveProduct.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft
+        Me.cmdSaveProduct.Location = New System.Drawing.Point(666, 546)
+        Me.cmdSaveProduct.Name = "cmdSaveProduct"
+        Me.cmdSaveProduct.Size = New System.Drawing.Size(126, 33)
+        Me.cmdSaveProduct.TabIndex = 7
+        Me.cmdSaveProduct.Text = "Save Product"
+        Me.cmdSaveProduct.TextAlign = System.Drawing.ContentAlignment.MiddleRight
+        Me.cmdSaveProduct.UseVisualStyleBackColor = True
+        '
         'ProductMixSetup
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(811, 608)
+        Me.Controls.Add(Me.cmdSaveProduct)
         Me.Controls.Add(Me.GroupBox3)
         Me.Controls.Add(Me.GroupBox2)
         Me.Controls.Add(Me.ProductFreezingChart)
         Me.Controls.Add(Me.GroupBox1)
-        Me.Controls.Add(Me.Button2)
-        Me.Controls.Add(Me.Button1)
+        Me.Controls.Add(Me.cmdRemoveProduct)
+        Me.Controls.Add(Me.cmdAddProduct)
         Me.Controls.Add(Me.lstProductMix)
         Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle
         Me.Icon = CType(resources.GetObject("$this.Icon"), System.Drawing.Icon)
@@ -636,17 +668,17 @@ Partial Class ProductMixSetup
     End Sub
 
     Friend WithEvents lstProductMix As ListView
-    Friend WithEvents Button1 As Button
-    Friend WithEvents Button2 As Button
+    Friend WithEvents cmdAddProduct As Button
+    Friend WithEvents cmdRemoveProduct As Button
     Friend WithEvents GroupBox1 As GroupBox
-    Friend WithEvents ComboBox1 As ComboBox
+    Friend WithEvents txtStatDistr As ComboBox
     Friend WithEvents Label10 As Label
     Friend WithEvents Label6 As Label
     Friend WithEvents Label4 As Label
-    Friend WithEvents TextBox5 As TextBox
-    Friend WithEvents TextBox3 As TextBox
-    Friend WithEvents TextBox2 As TextBox
-    Friend WithEvents TextBox1 As TextBox
+    Friend WithEvents txtStdDev As TextBox
+    Friend WithEvents txtBoxFlowRate As TextBox
+    Friend WithEvents txtBoxWeight As TextBox
+    Friend WithEvents txtProductName As TextBox
     Friend WithEvents Label9 As Label
     Friend WithEvents Label7 As Label
     Friend WithEvents Label5 As Label
@@ -654,15 +686,15 @@ Partial Class ProductMixSetup
     Friend WithEvents Label1 As Label
     Friend WithEvents ProductFreezingChart As DataVisualization.Charting.Chart
     Friend WithEvents GroupBox2 As GroupBox
-    Friend WithEvents ComboBox3 As ComboBox
+    Friend WithEvents txtSimGeom As ComboBox
     Friend WithEvents Label17 As Label
     Friend WithEvents Label12 As Label
     Friend WithEvents Label8 As Label
     Friend WithEvents Label11 As Label
-    Friend WithEvents TextBox8 As TextBox
-    Friend WithEvents TextBox4 As TextBox
-    Friend WithEvents TextBox6 As TextBox
-    Friend WithEvents TextBox7 As TextBox
+    Friend WithEvents txtSimDiameter As TextBox
+    Friend WithEvents txtSimWidth As TextBox
+    Friend WithEvents txtSimLength As TextBox
+    Friend WithEvents txtSimThickness As TextBox
     Friend WithEvents Label13 As Label
     Friend WithEvents Label2 As Label
     Friend WithEvents Label14 As Label
@@ -670,24 +702,25 @@ Partial Class ProductMixSetup
     Friend WithEvents Label16 As Label
     Friend WithEvents GroupBox3 As GroupBox
     Friend WithEvents Label30 As Label
-    Friend WithEvents ListView1 As ListView
-    Friend WithEvents ComboBox2 As ComboBox
+    Friend WithEvents lstProdModelProperties As ListView
+    Friend WithEvents txtProductModel As ComboBox
     Friend WithEvents Label29 As Label
     Friend WithEvents Label18 As Label
     Friend WithEvents Label19 As Label
     Friend WithEvents Label20 As Label
     Friend WithEvents Label21 As Label
-    Friend WithEvents TextBox14 As TextBox
-    Friend WithEvents TextBox13 As TextBox
-    Friend WithEvents TextBox9 As TextBox
-    Friend WithEvents TextBox10 As TextBox
+    Friend WithEvents txtConvCoeff As TextBox
+    Friend WithEvents txtConvectionMultFactor As TextBox
+    Friend WithEvents txtAirSpeed As TextBox
+    Friend WithEvents txtMinStayTime As TextBox
     Friend WithEvents Label28 As Label
-    Friend WithEvents TextBox11 As TextBox
+    Friend WithEvents txtOutletTemp As TextBox
     Friend WithEvents Label27 As Label
-    Friend WithEvents TextBox12 As TextBox
+    Friend WithEvents txtInletTemp As TextBox
     Friend WithEvents Label22 As Label
     Friend WithEvents Label23 As Label
     Friend WithEvents Label24 As Label
     Friend WithEvents Label25 As Label
     Friend WithEvents Label26 As Label
+    Friend WithEvents cmdSaveProduct As Button
 End Class
