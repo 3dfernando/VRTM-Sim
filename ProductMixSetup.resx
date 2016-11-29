@@ -117,41 +117,29 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
-  <data name="edit-add-2" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\edit-add-2.ico;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="media-seek-forward-3" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\media-seek-forward-3.ico;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="script-gear" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\script-gear.ico;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="edit-remove-2" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\edit-remove-2.ico;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="media-playback-start-3" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\media-playback-start-3.ico;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="media-playback-stop-3" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\media-playback-stop-3.ico;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="media-playback-pause-3" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\media-playback-pause-3.ico;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="pictograms-hazard_signs-xtremely_flammable" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\pictograms-hazard_signs-xtremely_flammable.ico;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="media-seek-backward-3" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\media-seek-backward-3.ico;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="document-open-5" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\document-open-5.ico;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="document-save-5" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\document-save-5.ico;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="list-remove-4" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\list-remove-4.ico;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
+  <data name="$this.Icon" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        AAABAAEAEBAAAAAAAABoBAAAFgAAACgAAAAQAAAAIAAAAAEAIAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAA
+        AAD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP//
+        /wD///8AG1mJtxtYiP8aVob/GlWF/xlUg/8ZVIL/GFOA/xhSf/8XUX7/F1B9/xZPe/8WTnr/Fk55/xZN
+        ef8VTXj/FUx3wBxai/B+reD/ga/k/3+r4v9+qOD/fKbf/3qi3v95oN3/d57c/3ab2/91mdr/dJja/3SY
+        2v90mNr/dJja/xVNeP8cW4zwgLLj/1GU3P9Eitj/QoXV/0CA1P89fNH/O3fP/zhzzf82cMz/NG3K/zJp
+        yf8xZ8j/MGXI/3SY2v8WTXn/HVyO8IO35f9Vnd//SpLb/0eN2f9Eidf/QYPV/z9/0/88e9D/OnbO/zdy
+        zf81bsv/M2vK/zJoyf91mNr/Fk56/x1dj/CFveb/WaTj/0+b3v9Mltz/SZHa/0eM2P9Dh9b/QILU/z59
+        0f88etD/OHTO/zdxzP80bsv/dpvb/xZPe/8eXpHwiMHo/16s5v9Uo+P/UJ7h/02Z3v9LlNz/SI/a/0SK
+        2P9ChdX/QIDU/z180f87d8//OHPN/3if3f8XUHz/Hl+S8IvG6v9is+n/WKrm/1Wm5P9SouL/T5zg/02Y
+        3f9Kktv/R43Z/0SJ1/9Bg9X/P3/T/zx70P97o97/F1F+/x9glPCNyO3/Zbjr/1uy6f9Zruf/V6nl/1Sl
+        4/9RoOL/T5ve/0yW3P9Jkdr/R4zY/0OH1v9AgtT/fqjg/xhSf/8fYZXwj8zu/4/M9P+HxfL/g8Px/4C/
+        7/99vO7/erjr/3W06v9xsOj/bqvm/2mn5f9mo+P/Yp7h/4Ct4/8YU4H/H2KW8Hex2f8pbqT/F2Gb/xde
+        mf8XXJb/FluS/xVZjv8VVov/FFSH/xRRgv8STn7/Ekx6/zlojP9njrD/GVSC/yBil9tBfKr/ZJa+/ytv
+        pv8gaKH/IGWf/yBknP8fYpn/H2CV/x5fkf8eXY//HVmK/z9wmP9bhKb/OGuU/xlVhK8gY5gSIGKX7j96
+        qP9gk7z/YZS8/2GTvP9gkrv/YJG5/2CQt/9gj7X/X46z/1+MsP9aiKv/OG2Y/xpXh4P///8A////ACBj
+        mAwgYpekH2KW8R9hlvMfYZXzH2CU8x5fkvMeXpHzHV2Q8x1cj/McW43zHFuM5xtainz///8A////AP//
+        /wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP//
+        /wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP//
+        /wD///8A//8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAEAAMAH
+        AAD//wAA//8AAA==
+</value>
   </data>
 </root>
