@@ -147,11 +147,6 @@ Public Class MainWindow
 
 
 
-
-
-
-
-
 #Region "Button Press"
     Private Sub cmdPrdMixSetup_Click(sender As Object, e As EventArgs) Handles cmdPrdMixSetup.Click
         Dim F As New ProductMixSetup
@@ -183,7 +178,6 @@ Public Class MainWindow
         'Validates these textboxes that have a time input, and whether the times are consistent
         Dim HourFormat As New System.Text.RegularExpressions.Regex("([0-1][0-9]|2[0-3]):([0-5][0-9])")
         If (Not (HourFormat.IsMatch(sender.Text))) Or CompareHours(txtSchVRTMBegin.Text, txtSchVRTMEnd.Text, "LargerThan") Or CompareHours(txtSchVRTMBegin.Text, txtSchVRTMEnd.Text, "EqualTo") Then
-
             ' Cancel the event and select the text to be corrected by the user.
             e.Cancel = True
             sender.Select(0, sender.Text.Length)
