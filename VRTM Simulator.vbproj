@@ -73,6 +73,7 @@
     <Import Include="System.Threading.Tasks" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="FluidConvection.vb" />
     <Compile Include="FoodPropertiesModel.vb" />
     <Compile Include="MainWindow.vb">
       <SubType>Form</SubType>

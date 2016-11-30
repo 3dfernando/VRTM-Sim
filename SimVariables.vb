@@ -1,5 +1,6 @@
 ﻿Module SimVariables
     Public VRTM_SimVariables As New SimulationVariables
+    Public FoodPropertiesList As New Collection
 
     Public Class SimulationVariables
         '============================
@@ -109,14 +110,13 @@
 
             Me.ProductMix(0).InletTemperature = 12
             Me.ProductMix(0).OutletTemperatureDesign = -18
-            Me.ProductMix(0).FoodThermalPropertiesModel = New FoodProperties()
             Me.ProductMix(0).MinimumStayTime = 24
             Me.ProductMix(0).AirSpeed = 4
             Me.ProductMix(0).ConvCoeffMultiplier = 1.1
             Me.ProductMix(0).ConvCoefficientUsed = 10
+
+            Me.ProductMix(0).FoodThermalPropertiesModel = New FoodProperties()
         End Sub
-
-
     End Class
 
     Public Class ProductData
@@ -142,5 +142,78 @@
         Public ConvCoefficientUsed As Double 'W/m².K
 
     End Class
+
+    Public Class FoodPropertiesListItem
+        'This models one item of a Food Properties List
+        Public ProductName As String
+        Public WaterContent As Double '0-1 value
+        Public ProteinContent As Double '0-1 value
+        Public FatContent As Double '0-1 value
+        Public CarbContent As Double '0-1 value
+        Public AshContent As Double '0-1 value
+        Public FreezingTemp As Double 'ºC
+    End Class
+
+    Public Sub LoadFoodPropertiesCSVIntoMemory()
+        Try
+            If Not System.IO.File.Exists(My.Settings.FoodProductCSVPath) Then
+TryAgain:
+                Dim fDiag As New System.Windows.Forms.OpenFileDialog
+                fDiag.Filter = "CSV Files|*.csv"
+                fDiag.ShowDialog()
+                If Not System.IO.File.Exists(fDiag.FileName) Then
+                    MsgBox("Invalid file. Shutting down.")
+                Else
+                    My.Settings.FoodProductCSVPath = fDiag.FileName
+                End If
+            End If
+
+            FoodPropertiesList.Clear()
+            Try
+                Using Reader As New Microsoft.VisualBasic.FileIO.TextFieldParser(My.Settings.FoodProductCSVPath, System.Text.Encoding.GetEncoding("Windows-1252"))
+                    Reader.TextFieldType = FileIO.FieldType.Delimited
+                    Reader.SetDelimiters({";"})
+
+                    Dim currentRow As String()
+                    Dim firstLine As Boolean = True
+                    'Reads data from file
+                    While Not Reader.EndOfData
+                        currentRow = Reader.ReadFields()
+                        If Not firstLine Then
+                            If UBound(currentRow) = 6 Then
+                                Dim TempFood As New FoodPropertiesListItem
+                                With TempFood
+                                    .ProductName = currentRow(0)
+                                    Double.TryParse(currentRow(1), .WaterContent)
+                                    Double.TryParse(currentRow(2), .ProteinContent)
+                                    Double.TryParse(currentRow(3), .FatContent)
+                                    Double.TryParse(currentRow(4), .CarbContent)
+                                    Double.TryParse(currentRow(5), .AshContent)
+                                    Double.TryParse(currentRow(6), .FreezingTemp)
+
+                                    If ((TempFood.WaterContent + TempFood.ProteinContent + TempFood.FatContent + TempFood.CarbContent + TempFood.AshContent) - 1) < 0.00001 Then 'Allow for double imprecision
+                                        FoodPropertiesList.Add(TempFood)
+                                    End If
+                                End With
+                            Else
+                                Throw New Exception("CSV File Format incorrect for food properties (should be exactly 7 columns)")
+                            End If
+                        Else
+                            firstLine = False
+                        End If
+                    End While
+                End Using
+            Catch ex As Exception
+                If MsgBox("Problem trying to read this file. Do you want to open another file?", vbYesNo + vbCritical, "Error") = vbYes Then
+                    GoTo TryAgain
+                End If
+            End Try
+
+
+        Catch ex As Exception
+            MsgBox("Error whilst trying to find a food product properties model. Shutting down.")
+            Application.Exit()
+        End Try
+    End Sub
 
 End Module

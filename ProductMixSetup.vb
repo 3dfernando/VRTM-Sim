@@ -1,11 +1,14 @@
 ﻿Public Class ProductMixSetup
     Private IndexOfProductBeingEdited As Integer = -1
+    Private AirTemperatureApproach As Double = 7 'Models a constant approach as a first approx. for air temperature (Tair-Tevap)
 
+#Region "Product list handling/saving"
     Private Sub ProductMixSetup_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         'Loads the columns in the listview
         lstProductMix.View = View.Details
         lstProductMix.FullRowSelect = True
 
+        lstProductMix.Columns.Clear()
         lstProductMix.Columns.Add("Product Name", 100)
         lstProductMix.Columns.Add("Box Weight [kg]", 90)
         lstProductMix.Columns.Add("Avg Flow [box/h]", 100)
@@ -13,13 +16,31 @@
         lstProductMix.Columns.Add("Outlet Temp. [ºC]", 100)
         lstProductMix.Columns.Add("Thermal Model", 100)
 
-        'Loads the products according to the VRTMSimulationVariables into the list
-        UpdateProductList()
+        'Loads the columns in the product model properties view
+        lstProdModelProperties.View = View.Details
+        lstProdModelProperties.FullRowSelect = True
+
+        lstProdModelProperties.Columns.Clear()
+        lstProdModelProperties.Columns.Add("Property", 120)
+        lstProdModelProperties.Columns.Add("Value", 60)
 
         'Initializes the simple comboboxes
         txtStatDistr.SelectedIndex = 0
         txtSimGeom.SelectedIndex = 0
 
+        'Initializes the Product model combobox
+        txtProductModel.Items.Clear()
+        For Each Food As FoodPropertiesListItem In FoodPropertiesList
+            txtProductModel.Items.Add(Food.ProductName)
+        Next
+        txtProductModel.SelectedIndex = 0
+
+        'Loads the products according to the VRTMSimulationVariables into the list
+        UpdateProductList()
+
+        'Inits the chart formatting
+        InitializeGraph()
+        UpdateGraph("Sample Temperature Distribution", {0, 1, 2.1, 3, 4, 5.5}, {12, 0, -2, -2, -18, -18}, {12, 11, 5, 2, -2, -7}) 'Delete me
     End Sub
 
     Private Sub UpdateProductList()
@@ -32,7 +53,7 @@
                 lstProductMix.Items(lstProductMix.Items.Count - 1).SubItems.Add(Trim(Str(Prod.AvgFlowRate)))
                 lstProductMix.Items(lstProductMix.Items.Count - 1).SubItems.Add(Trim(Str(Prod.InletTemperature)))
                 lstProductMix.Items(lstProductMix.Items.Count - 1).SubItems.Add(Trim(Str(Prod.OutletTemperatureDesign)))
-                lstProductMix.Items(lstProductMix.Items.Count - 1).SubItems.Add(Prod.ProdName)
+                lstProductMix.Items(lstProductMix.Items.Count - 1).SubItems.Add(Prod.FoodThermalPropertiesModel.FoodModelUsed.ProductName)
             Next
         End If
 
@@ -105,11 +126,7 @@
                         txtAirSpeed.Text = Trim(Str(p.AirSpeed))
                         txtConvectionMultFactor.Text = Trim(Str(p.ConvCoeffMultiplier))
                         txtConvCoeff.Text = Trim(Str(p.ConvCoefficientUsed))
-
-                        txtProductModel.Text = ""
-
-                        'Include the food thermal properties model here
-                        '=p.FoodThermalPropertiesModel
+                        txtProductModel.SelectedItem = p.FoodThermalPropertiesModel.FoodModelUsed.ProductName
                     End If
                 Next
             End With
@@ -150,10 +167,40 @@
         txtConvectionMultFactor.Text = ""
         txtConvCoeff.Text = ""
 
-        txtProductModel.Text = ""
+        txtProductModel.SelectedIndex = 0
+
+        ClearGraph()
+    End Sub
+
+    Private Sub UpdateFoodPropertiesList()
+        'This updates the little list of "Product Model Properties"
+        Dim i As ListViewItem
+        For Each p As FoodPropertiesListItem In FoodPropertiesList
+            If p.ProductName = txtProductModel.SelectedItem Then
+                lstProdModelProperties.Items.Clear()
+                i = lstProdModelProperties.Items.Add("Water Content")
+                i.SubItems.Add(Trim(Str(p.WaterContent * 100)) & "%")
+                i = lstProdModelProperties.Items.Add("Protein Content")
+                i.SubItems.Add(Trim(Str(p.ProteinContent * 100)) & "%")
+                i = lstProdModelProperties.Items.Add("Fat Content")
+                i.SubItems.Add(Trim(Str(p.FatContent * 100)) & "%")
+                i = lstProdModelProperties.Items.Add("Carb Content")
+                i.SubItems.Add(Trim(Str(p.CarbContent * 100)) & "%")
+                i = lstProdModelProperties.Items.Add("Ash Content")
+                i.SubItems.Add(Trim(Str(p.AshContent * 100)) & "%")
+                i = lstProdModelProperties.Items.Add("Freezing Temperature")
+                i.SubItems.Add(Trim(Str(p.FreezingTemp)) & " ºC")
+                Exit For
+            End If
+        Next
+    End Sub
+
+    Private Sub txtProductModel_SelectedIndexChanged(sender As Object, e As EventArgs) Handles txtProductModel.SelectedIndexChanged
+        UpdateFoodPropertiesList()
     End Sub
 
     Private Sub cmdSaveProduct_Click(sender As Object, e As EventArgs) Handles cmdSaveProduct.Click
+
         'Updates the current selected item in the list with the data
 
         'Performs validation in all objects before saving
@@ -164,7 +211,7 @@
         Dim errorOccurred As Boolean = False
 
         objectsToValidatePositive = {txtBoxWeight, txtBoxFlowRate, txtStdDev, txtSimThickness, txtSimLength, txtSimWidth, txtSimDiameter, txtMinStayTime,
-            txtAirSpeed, txtConvectionMultFactor}
+             txtAirSpeed, txtConvectionMultFactor}
         objectsToValidateTemperature = {txtInletTemp, txtOutletTemp}
         ProdNameObj = txtProductName
 
@@ -228,8 +275,12 @@
         VRTM_SimVariables.ProductMix(I).ConvCoeffMultiplier = Val(txtConvectionMultFactor.Text)
         VRTM_SimVariables.ProductMix(I).ConvCoefficientUsed = Val(txtConvCoeff.Text)
 
-        '----It still is missing the product properties model
-
+        For Each p As FoodPropertiesListItem In FoodPropertiesList
+            If p.ProductName = txtProductModel.SelectedItem Then
+                VRTM_SimVariables.ProductMix(I).FoodThermalPropertiesModel = New FoodProperties(p)
+                Exit For
+            End If
+        Next
         UpdateProductList() 'Updates the list with the saved data
 
     End Sub
@@ -272,6 +323,101 @@
         IndexOfProductBeingEdited = -1
     End Sub
 
+#End Region
+
+#Region "Chart update"
+    Private Sub InitializeGraph()
+        'Initializes the graph formatting (because the default formatting is awful!!)
+        Dim LightGrayColor, DarkGrayColor As Color
+        LightGrayColor = Color.FromArgb(230, 230, 230)
+        DarkGrayColor = Color.FromArgb(100, 100, 100)
+
+        With ProductFreezingChart
+            .ChartAreas(0).AxisX.Title = "Time [h]"
+            .ChartAreas(0).AxisY.Title = "Temperature [ºC]"
+
+            .ChartAreas(0).AxisX.LineColor = DarkGrayColor
+            .ChartAreas(0).AxisX.MajorGrid.LineColor = LightGrayColor
+            .ChartAreas(0).AxisX.MinorGrid.LineColor = LightGrayColor
+            .ChartAreas(0).AxisX.MajorTickMark.LineColor = DarkGrayColor
+            .ChartAreas(0).AxisX.MinorTickMark.LineColor = DarkGrayColor
+            .ChartAreas(0).AxisY.LineColor = DarkGrayColor
+            .ChartAreas(0).AxisY.MajorGrid.LineColor = LightGrayColor
+            .ChartAreas(0).AxisY.MinorGrid.LineColor = LightGrayColor
+            .ChartAreas(0).AxisY.MajorTickMark.LineColor = DarkGrayColor
+            .ChartAreas(0).AxisY.MinorTickMark.LineColor = DarkGrayColor
+
+            .ChartAreas(0).AxisX.LabelStyle.Font = New Font(.ChartAreas(0).AxisX.LabelStyle.Font.FontFamily, 8)
+            .ChartAreas(0).AxisY.LabelStyle.Font = New Font(.ChartAreas(0).AxisY.LabelStyle.Font.FontFamily, 8)
+            .ChartAreas(0).AxisX.LabelStyle.ForeColor = DarkGrayColor
+            .ChartAreas(0).AxisY.LabelStyle.ForeColor = DarkGrayColor
+
+        End With
+    End Sub
+
+    Private Sub UpdateGraph(Title As String, TimeArray() As Double, TemperatureArraySurf() As Double, TemperatureArrayCenter() As Double)
+        'Updates the graph with the three results from the simulation
+        Dim I As Integer
+
+        If UBound(TimeArray) <> UBound(TemperatureArraySurf) Then Exit Sub
+        If UBound(TimeArray) <> UBound(TemperatureArrayCenter) Then Exit Sub
+
+        'Titles
+        ProductFreezingChart.Titles.Clear()
+        ProductFreezingChart.Titles.Add(Title)
+
+        'Surface series
+        ProductFreezingChart.Series.Clear()
+        Dim Surf As New DataVisualization.Charting.Series
+        Surf.Name = "Surface"
+        Surf.ChartType = DataVisualization.Charting.SeriesChartType.Line
+        For I = 0 To UBound(TemperatureArraySurf)
+            Surf.Points.AddXY(TimeArray(I), TemperatureArraySurf(I))
+        Next
+        Surf.Color = Color.Red
+        Surf.BorderWidth = 1
+        ProductFreezingChart.Series.Add(Surf)
+
+        'Center series
+        Dim Center As New DataVisualization.Charting.Series
+        Center.Name = "Center"
+        Center.ChartType = DataVisualization.Charting.SeriesChartType.Line
+        For I = 0 To UBound(TemperatureArrayCenter)
+            Center.Points.AddXY(TimeArray(I), TemperatureArrayCenter(I))
+        Next
+        Center.Color = Color.Blue
+        Center.BorderWidth = 1
+        ProductFreezingChart.Series.Add(Center)
+
+        'Chart resizing
+        ProductFreezingChart.ChartAreas(0).AxisX.Minimum = 0
+        ProductFreezingChart.ChartAreas(0).AxisX.Maximum = TimeArray(UBound(TimeArray))
+
+        Dim TInterval, TMin, TMax, padding As Double
+        TMin = TemperatureArraySurf(UBound(TemperatureArraySurf))
+        TMax = TemperatureArrayCenter(0)
+        TInterval = TMax - TMin
+        padding = 0.1
+        ProductFreezingChart.ChartAreas(0).AxisY.Minimum = TMin - padding * TInterval
+        ProductFreezingChart.ChartAreas(0).AxisY.Maximum = TMax + padding * TInterval
+
+
+        'Legends
+        ProductFreezingChart.Legends.Add("Surface")
+        ProductFreezingChart.Legends.Add("Center")
+        ProductFreezingChart.Legends(0).Position.Auto = False
+        ProductFreezingChart.Legends(0).Position = New DataVisualization.Charting.ElementPosition(80, 10, 15, 20)
+
+    End Sub
+
+    Private Sub ClearGraph()
+        'Clears the data in the chart
+        ProductFreezingChart.Titles.Clear()
+        ProductFreezingChart.Series.Clear()
+    End Sub
+
+#End Region
+
 #Region "Validation of fields"
     Private Sub GeneralValidated(ByVal sender As Object, ByVal e As System.EventArgs) Handles _
         txtProductName.Validated, txtBoxWeight.Validated, txtBoxFlowRate.Validated, txtStdDev.Validated, txtSimThickness.Validated, txtSimLength.Validated,
@@ -279,6 +425,16 @@
         txtInletTemp.Validated, txtOutletTemp.Validated
         ' If all conditions have been met, clear the error provider of errors.
         ErrorProvider1.SetError(sender, "")
+
+        'Updates convection coefficient if enough data is available.
+        Dim OkToCalc As Boolean = True
+        OkToCalc = OkToCalc And (txtSimGeom.SelectedItem <> "")
+        OkToCalc = OkToCalc And (Val(txtAirSpeed.Text) > 0)
+        OkToCalc = OkToCalc And (txtConvectionMultFactor.Text > 0)
+
+        txtConvCoeff.Text = Trim(Str(Int(Get_H(txtSimGeom.SelectedItem, Val(txtSimThickness.Text), Val(txtSimWidth.Text), Val(txtSimLength.Text),
+                       VRTM_SimVariables.Tevap_Setpoint + AirTemperatureApproach, "Air", Val(txtAirSpeed.Text), Val(txtConvectionMultFactor.Text)) * 100) / 100))
+
     End Sub
     Private Sub ValidateProdName(sender As Object, ByVal e As System.ComponentModel.CancelEventArgs) Handles txtProductName.Validating
         'It cannot be the same as any product
@@ -376,6 +532,9 @@
                 txtSimDiameter.Enabled = True
         End Select
     End Sub
+
+
+
 #End Region
 
 
