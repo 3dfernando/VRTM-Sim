@@ -10,5 +10,10 @@
             FoodModelUsed = FoodModel
         End Sub
 
+        Public Sub Initialize()
+            'Initializes the food properties model and fills up the important variable arrays
+
+        End Sub
+
     End Class
 End Module

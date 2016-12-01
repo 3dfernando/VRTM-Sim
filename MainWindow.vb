@@ -478,6 +478,7 @@ Public Class MainWindow
             Next
         Next
     End Sub
+
 #End Region
 
 End Class

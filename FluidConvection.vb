@@ -85,6 +85,8 @@
                 Get_k_fluid = 0.0240533778865432 + 0.0000782466354180217 * T
             Case "Water"
                 Get_k_fluid = -0.00000711011436736763 * (T ^ 2) + 0.00182792301512115 * T + 0.569247547257793
+            Case Else
+                Get_k_fluid = 0
         End Select
     End Function
     Public Function Get_mu_fluid(Fluid As String, T As Double) As Double
@@ -95,6 +97,8 @@
                 Get_mu_fluid = 0.0000171825345965432 + 0.0000000493207363030714 * T
             Case "Water"
                 Get_mu_fluid = -0.00000000245368846094409 * (T ^ 3) + 0.000000553205710186646 * (T ^ 2) - 0.0000454127415232501 * T + 0.00170928263667909
+            Case Else
+                Get_mu_fluid = 0
         End Select
     End Function
     Public Function Get_rho_fluid(Fluid As String, T As Double) As Double
@@ -105,6 +109,8 @@
                 Get_rho_fluid = 1.27583822258315 - 0.00475228691519318 * T + 0.0000176662498279995 * (T ^ 2)
             Case "Water"
                 Get_rho_fluid = -0.00346753359255589 * (T ^ 2) - 0.081523449109055 * T + 1000.63458966787
+            Case Else
+                Get_rho_fluid = 0
         End Select
     End Function
     Public Function Get_cp_fluid(Fluid As String, T As Double) As Double
@@ -115,6 +121,8 @@
                 Get_cp_fluid = 1008.57666988117 + 0.0111658123080398 * T + 0.000375143668134172 * (T ^ 2)
             Case "Water"
                 Get_cp_fluid = -0.0000000706143290722502 * (T ^ 5) + 0.000013827440999955 * (T ^ 4) + 0.0000774335688096721 * (T ^ 3) - 0.158609176779097 * (T ^ 2) + 9.6662653725282 * T + 4060.17993139157
+            Case Else
+                Get_cp_fluid = 0
         End Select
     End Function
 
