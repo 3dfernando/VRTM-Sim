@@ -168,6 +168,7 @@ Partial Class MainWindow
         Me.hsSimPosition = New System.Windows.Forms.HScrollBar()
         Me.VRTMTable = New System.Windows.Forms.DataGridView()
         Me.ErrorProvider1 = New System.Windows.Forms.ErrorProvider(Me.components)
+        Me.Button1 = New System.Windows.Forms.Button()
         CType(Me.Divisor1, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.Divisor1.Panel1.SuspendLayout()
         Me.Divisor1.Panel2.SuspendLayout()
@@ -409,6 +410,7 @@ Partial Class MainWindow
         '
         'VRTMParams
         '
+        Me.VRTMParams.Controls.Add(Me.Button1)
         Me.VRTMParams.Controls.Add(Me.Label32)
         Me.VRTMParams.Controls.Add(Me.GroupBox7)
         Me.VRTMParams.Controls.Add(Me.GroupBox1)
@@ -1629,6 +1631,15 @@ Partial Class MainWindow
         '
         Me.ErrorProvider1.ContainerControl = Me
         '
+        'Button1
+        '
+        Me.Button1.Location = New System.Drawing.Point(93, 608)
+        Me.Button1.Name = "Button1"
+        Me.Button1.Size = New System.Drawing.Size(18, 24)
+        Me.Button1.TabIndex = 18
+        Me.Button1.Text = "Button1"
+        Me.Button1.UseVisualStyleBackColor = True
+        '
         'MainWindow
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
@@ -1830,4 +1841,5 @@ Partial Class MainWindow
     Friend WithEvents Label46 As Label
     Friend WithEvents Label45 As Label
     Friend WithEvents lblDisplayVariable As Label
+    Friend WithEvents Button1 As Button
 End Class

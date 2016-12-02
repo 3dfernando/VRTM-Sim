@@ -65,9 +65,6 @@
             Next
 
 
-
-
-
             Initialized = True
         End Sub
 
@@ -138,6 +135,7 @@
             End Select
         End Function
 #End Region
+
 
     End Class
 End Module

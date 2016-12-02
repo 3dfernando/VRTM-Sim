@@ -479,6 +479,32 @@ Public Class MainWindow
         Next
     End Sub
 
+
 #End Region
 
+    Private Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click
+        Dim rho_p As New Poly({1329.9, -0.5184})
+        Dim rho_f As New Poly({925.59, -0.41757})
+        Dim rho_c As New Poly({1599.1, -0.31046})
+        Dim rho_a As New Poly({2423.8, -0.28063})
+        Dim rho_w As New Poly({997.18, 0.0031439, -0.0037574})
+
+        Dim xp As New Poly({0.09})
+        Dim xf As New Poly({0.05})
+        Dim xc As New Poly({0.05})
+        Dim xa As New Poly({0.02})
+        Dim xw As New Poly({0.79})
+
+        Dim Num, Den, rho, remainder As Poly
+
+        Num = rho_p * rho_f * rho_c * rho_a * rho_w * (xp + xf + xc + xa + xw)
+        Den = (xp * rho_f * rho_c * rho_a * rho_w) + (xf * rho_p * rho_c * rho_a * rho_w) + (xc * rho_p * rho_f * rho_a * rho_w) + (xa * rho_p * rho_f * rho_c * rho_w) + (xw * rho_p * rho_f * rho_c * rho_a)
+        rho = Num / Den
+        remainder = Num Mod Den
+
+        Dim r As Double
+        r = rho.Replace_X(0) * Den.Replace_X(0) + remainder.Replace_X(0)
+
+
+    End Sub
 End Class

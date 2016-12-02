@@ -82,6 +82,7 @@
       <DependentUpon>MainWindow.vb</DependentUpon>
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="Poly.vb" />
     <Compile Include="ProductMixSetup.Designer.vb">
       <DependentUpon>ProductMixSetup.vb</DependentUpon>
     </Compile>
