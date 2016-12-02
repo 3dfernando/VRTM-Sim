@@ -277,7 +277,7 @@
 
         For Each p As FoodPropertiesListItem In FoodPropertiesList
             If p.ProductName = txtProductModel.SelectedItem Then
-                VRTM_SimVariables.ProductMix(I).FoodThermalPropertiesModel = New FoodProperties(p)
+                VRTM_SimVariables.ProductMix(I).FoodThermalPropertiesModel = New FoodProperties(p, True)
                 Exit For
             End If
         Next
