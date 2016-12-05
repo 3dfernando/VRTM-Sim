@@ -129,7 +129,46 @@
                         txtProductModel.SelectedItem = p.FoodThermalPropertiesModel.FoodModelUsed.ProductName
                     End If
                 Next
+
+                p = VRTM_SimVariables.ProductMix(0)
+                p.FoodThermalPropertiesModel.Initialize()
+
+                '====TEST CODE====
+                'Graphs out the density of the product
+
+                Dim N As Long = 500
+                Dim X() As Double
+                Dim Y() As Double
+                Dim Z() As Double
+                Dim T As Double
+                Dim T0 As Double = -25
+                ReDim X(N - 1)
+                ReDim Y(N - 1)
+                ReDim Z(N - 1)
+
+                For I = 1 To N
+                    T = T0 + (50 + 25) * (I / N)
+                    X(I - 1) = T
+                    Y(I - 1) = p.FoodThermalPropertiesModel.get_rho(T)
+                    Z(I - 1) = p.FoodThermalPropertiesModel.get_cp(T)
+                Next
+                UpdateGraph("Rho", X, Z, Z)
+
+                Dim T1 As DateTime = DateTime.Now
+                N = 1000000
+                For I = 1 To N
+                    Y(0) = p.FoodThermalPropertiesModel.get_rho(-20)
+                Next
+                Dim T2 As DateTime = DateTime.Now
+                Dim DT As TimeSpan = T2 - T1
+
+                Dim time_ns As Double = (DT.TotalMilliseconds / (N * 1000)) * 1000000000
+
+                T2 = DateTime.Now
             End With
+
+            'UpdateGraph("Sample Temperature Distribution", {0, 1, 2.1, 3, 4, 5.5}, {12, 0, -2, -2, -18, -18}, {12, 11, 5, 2, -2, -7}) 'Delete me
+
         Else
             'Nothing has been selected, so clears the form
             clearForm()
@@ -390,12 +429,15 @@
         ProductFreezingChart.Series.Add(Center)
 
         'Chart resizing
-        ProductFreezingChart.ChartAreas(0).AxisX.Minimum = 0
+        ProductFreezingChart.ChartAreas(0).AxisX.Minimum = TimeArray(0)
         ProductFreezingChart.ChartAreas(0).AxisX.Maximum = TimeArray(UBound(TimeArray))
 
-        Dim TInterval, TMin, TMax, padding As Double
-        TMin = TemperatureArraySurf(UBound(TemperatureArraySurf))
-        TMax = TemperatureArrayCenter(0)
+        Dim TInterval, TMin1, TMax1, TMin2, TMax2, padding As Double
+        MinMax(TemperatureArraySurf, TMin1, TMax1)
+        MinMax(TemperatureArrayCenter, TMin2, TMax2)
+
+        Dim TMin As Double = Math.Min(TMin1, TMin2)
+        Dim TMax As Double = Math.Max(TMax1, TMax2)
         TInterval = TMax - TMin
         padding = 0.1
         ProductFreezingChart.ChartAreas(0).AxisY.Minimum = TMin - padding * TInterval
@@ -403,6 +445,7 @@
 
 
         'Legends
+        ProductFreezingChart.Legends.Clear()
         ProductFreezingChart.Legends.Add("Surface")
         ProductFreezingChart.Legends.Add("Center")
         ProductFreezingChart.Legends(0).Position.Auto = False
@@ -414,6 +457,20 @@
         'Clears the data in the chart
         ProductFreezingChart.Titles.Clear()
         ProductFreezingChart.Series.Clear()
+    End Sub
+
+    Private Sub MinMax(Array() As Double, ByRef Min As Double, ByRef Max As Double)
+        'Determines the minimum and maximum elements of the array
+        Dim largest As Double = Double.MinValue
+        Dim smallest As Double = Double.MaxValue
+
+        For Each element As Double In Array
+            largest = Math.Max(largest, element)
+            smallest = Math.Min(smallest, element)
+        Next
+
+        Min = smallest
+        Max = largest
     End Sub
 
 #End Region

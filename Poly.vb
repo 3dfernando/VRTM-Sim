@@ -16,11 +16,8 @@
         ReDim Coefficients(Degree)
     End Sub
 
-    Public Function Degree() As Integer
-        'Returns the degree of the polynomial
-        Return UBound(Coefficients)
-    End Function
 
+#Region "Numerical Functions"
     Public Function Replace_X(x As Double) As Double
         'This replaces X in the polynomial and returns a number
         Dim I As Integer
@@ -31,6 +28,66 @@
         Return R
     End Function
 
+    Public Function Numerical_Integration(from_x As Double, to_x As Double, dx As Double) As Double
+        'Integrates numerically between from_x and to_x with a step dx
+        'Uses the trapezium rule (simpler, and adequate for the problems solved herein)
+
+        Dim St As Integer = 1
+        Dim dx_used As Double
+        Dim curr_x As Double
+
+        Dim prev_y As Double
+        Dim curr_y As Double
+        Dim integral As Double
+
+        'Init vars
+        dx_used = (to_x - from_x) / Math.Abs(Int((to_x - from_x) / dx))
+        prev_y = Replace_X(from_x)
+        integral = 0
+
+        'Does trapezium integral
+        For curr_x = (from_x + dx_used) To to_x Step dx_used
+            curr_y = Replace_X(curr_x)
+            integral = integral + (curr_y + prev_y) * (dx_used / 2)
+            prev_y = curr_y
+        Next
+
+        Numerical_Integration = integral
+    End Function
+
+    Public Function Numerical_Integration_of_P_on_Q(P As Poly, Q As Poly, from_x As Double, to_x As Double, dx As Double) As Double
+        'Integrates numerically P/Q between from_x and to_x with a step dx
+        'Uses the trapezium rule (simpler, and adequate for the problems solved herein)
+
+        Dim St As Integer = 1
+        Dim dx_used As Double
+        Dim curr_x As Double
+
+        Dim prev_y_P As Double
+        Dim curr_y_P As Double
+        Dim prev_y_Q As Double
+        Dim curr_y_Q As Double
+        Dim integral As Double
+
+        'Init vars
+        dx_used = (to_x - from_x) / Math.Abs(Int((to_x - from_x) / dx))
+        prev_y_P = P.Replace_X(from_x)
+        prev_y_Q = Q.Replace_X(from_x)
+        integral = 0
+
+        'Does trapezium integral
+        For curr_x = (from_x + dx_used) To to_x Step dx_used
+            curr_y_P = P.Replace_X(curr_x)
+            curr_y_Q = Q.Replace_X(curr_x)
+            integral = integral + ((curr_y_P / curr_y_Q) + (prev_y_P / prev_y_Q)) * (dx_used / 2)
+            prev_y_P = curr_y_P
+            prev_y_Q = curr_y_Q
+        Next
+
+        Numerical_Integration_of_P_on_Q = integral
+    End Function
+
+#End Region
 
 #Region "Operators"
     Public Shared Operator +(P1 As Poly, P2 As Poly) As Poly
@@ -152,6 +209,11 @@
 
         Return tempPoly
     End Operator
+
+    Public Function Degree() As Integer
+        'Returns the degree of the polynomial
+        Return UBound(Coefficients)
+    End Function
 #End Region
 
 End Class
