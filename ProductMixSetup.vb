@@ -40,7 +40,9 @@
 
         'Inits the chart formatting
         InitializeGraph()
-        UpdateGraph("Sample Temperature Distribution", {0, 1, 2.1, 3, 4, 5.5}, {12, 0, -2, -2, -18, -18}, {12, 11, 5, 2, -2, -7}) 'Delete me
+        'Shows the first item in the graph
+        lstProductMix.Items(0).Selected = True
+        lstProductMix.Select()
     End Sub
 
     Private Sub UpdateProductList()
@@ -133,38 +135,7 @@
                 p = VRTM_SimVariables.ProductMix(0)
                 p.FoodThermalPropertiesModel.Initialize()
 
-                '====TEST CODE====
-                'Graphs out the density of the product
-
-                Dim N As Long = 500
-                Dim X() As Double
-                Dim Y() As Double
-                Dim Z() As Double
-                Dim T As Double
-                Dim T0 As Double = -25
-                ReDim X(N - 1)
-                ReDim Y(N - 1)
-                ReDim Z(N - 1)
-
-                For I = 1 To N
-                    T = T0 + (50 + 25) * (I / N)
-                    X(I - 1) = T
-                    Y(I - 1) = p.FoodThermalPropertiesModel.get_rho(T)
-                    Z(I - 1) = p.FoodThermalPropertiesModel.get_cp(T)
-                Next
-                UpdateGraph("Rho", X, Z, Z)
-
-                Dim T1 As DateTime = DateTime.Now
-                N = 1000000
-                For I = 1 To N
-                    Y(0) = p.FoodThermalPropertiesModel.get_rho(-20)
-                Next
-                Dim T2 As DateTime = DateTime.Now
-                Dim DT As TimeSpan = T2 - T1
-
-                Dim time_ns As Double = (DT.TotalMilliseconds / (N * 1000)) * 1000000000
-
-                T2 = DateTime.Now
+                SimulateFood_UpdateChartData()
             End With
 
             'UpdateGraph("Sample Temperature Distribution", {0, 1, 2.1, 3, 4, 5.5}, {12, 0, -2, -2, -18, -18}, {12, 11, 5, 2, -2, -7}) 'Delete me
@@ -232,6 +203,35 @@
                 Exit For
             End If
         Next
+    End Sub
+
+    Private Sub SimulateFood_UpdateChartData()
+        'This sub will simulate the selected food and update the chart dataset to show the new simulation results.
+
+        Dim t() As Double
+        Dim Ts() As Double
+        Dim Tc() As Double
+
+        Dim L As Double = Val(txtSimThickness.Text) / 1000
+        Dim nx As Long = 20
+        Dim totalt As Double = Val(txtMinStayTime.Text) * 3600
+        Dim nt As Long = 300
+        Dim Ti As Double = Val(txtInletTemp.Text)
+        Dim h As Double = Val(txtConvCoeff.Text)
+        Dim Tf As Double = VRTM_SimVariables.Tevap_Setpoint + VRTM_SimVariables.AssumedDTForPreviews
+        Dim G As String = txtSimGeom.SelectedItem
+        Dim p As FoodPropertiesListItem
+
+        For Each p In FoodPropertiesList
+            If p.ProductName = txtProductModel.SelectedItem Then
+                Exit For
+            End If
+        Next
+
+        Dim food As New FoodProperties(p, True)
+
+        Solve_Crank_Nicolson_OneProduct(L, nx, totalt, nt, Ti, h, Tf, G, food, t, Ts, Tc)
+        UpdateGraph("Product freezing curve for " & txtProductModel.SelectedItem, t, Ts, Tc)
     End Sub
 
     Private Sub txtProductModel_SelectedIndexChanged(sender As Object, e As EventArgs) Handles txtProductModel.SelectedIndexChanged
@@ -321,6 +321,15 @@
             End If
         Next
         UpdateProductList() 'Updates the list with the saved data
+
+        lstProductMix.SelectedItems.Clear()
+        For Each item As ListViewItem In lstProductMix.Items
+            If VRTM_SimVariables.ProductMix(I).FoodThermalPropertiesModel.FoodModelUsed.ProductName = item.SubItems(5).Text Then
+                item.Selected = True
+                lstProductMix.Select()
+                Exit For
+            End If
+        Next
 
     End Sub
 
@@ -487,7 +496,7 @@
         Dim OkToCalc As Boolean = True
         OkToCalc = OkToCalc And (txtSimGeom.SelectedItem <> "")
         OkToCalc = OkToCalc And (Val(txtAirSpeed.Text) > 0)
-        OkToCalc = OkToCalc And (txtConvectionMultFactor.Text > 0)
+        OkToCalc = OkToCalc And (Val(txtConvectionMultFactor.Text) > 0)
 
         txtConvCoeff.Text = Trim(Str(Int(Get_H(txtSimGeom.SelectedItem, Val(txtSimThickness.Text), Val(txtSimWidth.Text), Val(txtSimLength.Text),
                        VRTM_SimVariables.Tevap_Setpoint + AirTemperatureApproach, "Air", Val(txtAirSpeed.Text), Val(txtConvectionMultFactor.Text)) * 100) / 100))

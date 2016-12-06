@@ -12,14 +12,27 @@
         Return total
     End Function
 
-    ' Return the error squared.
+    ' Return the R squared param.
     Public Function ErrorSquared(ByVal points As List(Of PointF), ByVal coeffs As List(Of Double)) As Double
-        Dim total As Double = 0
+        Dim Avg As Double = 0
         For Each pt As PointF In points
-            Dim dy As Double = pt.Y - F(coeffs, pt.X)
-            total += dy * dy
+            Avg += pt.Y
         Next pt
-        Return total
+        Avg = Avg / points.Count
+
+        Dim SStot As Double = 0
+        Dim SSres As Double = 0
+        Dim dy As Double
+        Dim devy As Double
+        For Each pt As PointF In points
+            devy = (pt.Y - Avg)
+            SStot += devy * devy
+
+            dy = pt.Y - F(coeffs, pt.X)
+            SSres += dy * dy
+        Next pt
+
+        ErrorSquared = 1 - (SSres / SStot)
     End Function
 
     ' Find the least squares linear fit.

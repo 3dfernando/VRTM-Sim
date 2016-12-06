@@ -168,7 +168,10 @@ Partial Class MainWindow
         Me.hsSimPosition = New System.Windows.Forms.HScrollBar()
         Me.VRTMTable = New System.Windows.Forms.DataGridView()
         Me.ErrorProvider1 = New System.Windows.Forms.ErrorProvider(Me.components)
-        Me.Button1 = New System.Windows.Forms.Button()
+        Me.GroupBox4 = New System.Windows.Forms.GroupBox()
+        Me.txtAcceptedDt = New System.Windows.Forms.TextBox()
+        Me.Label48 = New System.Windows.Forms.Label()
+        Me.Label49 = New System.Windows.Forms.Label()
         CType(Me.Divisor1, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.Divisor1.Panel1.SuspendLayout()
         Me.Divisor1.Panel2.SuspendLayout()
@@ -201,6 +204,7 @@ Partial Class MainWindow
         Me.MidPanel.SuspendLayout()
         CType(Me.VRTMTable, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.ErrorProvider1, System.ComponentModel.ISupportInitialize).BeginInit()
+        Me.GroupBox4.SuspendLayout()
         Me.SuspendLayout()
         '
         'Divisor1
@@ -410,7 +414,6 @@ Partial Class MainWindow
         '
         'VRTMParams
         '
-        Me.VRTMParams.Controls.Add(Me.Button1)
         Me.VRTMParams.Controls.Add(Me.Label32)
         Me.VRTMParams.Controls.Add(Me.GroupBox7)
         Me.VRTMParams.Controls.Add(Me.GroupBox1)
@@ -1472,6 +1475,7 @@ Partial Class MainWindow
         '
         'SimParams
         '
+        Me.SimParams.Controls.Add(Me.GroupBox4)
         Me.SimParams.Controls.Add(Me.GroupBox9)
         Me.SimParams.Location = New System.Drawing.Point(4, 40)
         Me.SimParams.Name = "SimParams"
@@ -1493,7 +1497,7 @@ Partial Class MainWindow
         Me.GroupBox9.Size = New System.Drawing.Size(211, 82)
         Me.GroupBox9.TabIndex = 4
         Me.GroupBox9.TabStop = False
-        Me.GroupBox9.Text = "Simulation"
+        Me.GroupBox9.Text = "Main Simulator"
         '
         'Label46
         '
@@ -1631,14 +1635,43 @@ Partial Class MainWindow
         '
         Me.ErrorProvider1.ContainerControl = Me
         '
-        'Button1
+        'GroupBox4
         '
-        Me.Button1.Location = New System.Drawing.Point(93, 608)
-        Me.Button1.Name = "Button1"
-        Me.Button1.Size = New System.Drawing.Size(18, 24)
-        Me.Button1.TabIndex = 18
-        Me.Button1.Text = "Button1"
-        Me.Button1.UseVisualStyleBackColor = True
+        Me.GroupBox4.Controls.Add(Me.txtAcceptedDt)
+        Me.GroupBox4.Controls.Add(Me.Label48)
+        Me.GroupBox4.Controls.Add(Me.Label49)
+        Me.GroupBox4.Location = New System.Drawing.Point(16, 106)
+        Me.GroupBox4.Name = "GroupBox4"
+        Me.GroupBox4.Size = New System.Drawing.Size(211, 60)
+        Me.GroupBox4.TabIndex = 62
+        Me.GroupBox4.TabStop = False
+        Me.GroupBox4.Text = "Food Selector Mini-Simulator"
+        '
+        'txtAcceptedDt
+        '
+        Me.txtAcceptedDt.Location = New System.Drawing.Point(124, 20)
+        Me.txtAcceptedDt.Name = "txtAcceptedDt"
+        Me.txtAcceptedDt.Size = New System.Drawing.Size(43, 20)
+        Me.txtAcceptedDt.TabIndex = 58
+        Me.txtAcceptedDt.TextAlign = System.Windows.Forms.HorizontalAlignment.Right
+        '
+        'Label48
+        '
+        Me.Label48.AutoSize = True
+        Me.Label48.Location = New System.Drawing.Point(173, 23)
+        Me.Label48.Name = "Label48"
+        Me.Label48.Size = New System.Drawing.Size(18, 13)
+        Me.Label48.TabIndex = 2
+        Me.Label48.Text = "ºC"
+        '
+        'Label49
+        '
+        Me.Label49.AutoSize = True
+        Me.Label49.Location = New System.Drawing.Point(7, 23)
+        Me.Label49.Name = "Label49"
+        Me.Label49.Size = New System.Drawing.Size(114, 13)
+        Me.Label49.TabIndex = 2
+        Me.Label49.Text = "ΔT from Tevap to Tair:"
         '
         'MainWindow
         '
@@ -1694,6 +1727,8 @@ Partial Class MainWindow
         Me.MidPanel.ResumeLayout(False)
         CType(Me.VRTMTable, System.ComponentModel.ISupportInitialize).EndInit()
         CType(Me.ErrorProvider1, System.ComponentModel.ISupportInitialize).EndInit()
+        Me.GroupBox4.ResumeLayout(False)
+        Me.GroupBox4.PerformLayout()
         Me.ResumeLayout(False)
 
     End Sub
@@ -1841,5 +1876,8 @@ Partial Class MainWindow
     Friend WithEvents Label46 As Label
     Friend WithEvents Label45 As Label
     Friend WithEvents lblDisplayVariable As Label
-    Friend WithEvents Button1 As Button
+    Friend WithEvents GroupBox4 As GroupBox
+    Friend WithEvents txtAcceptedDt As TextBox
+    Friend WithEvents Label48 As Label
+    Friend WithEvents Label49 As Label
 End Class

@@ -23,13 +23,14 @@
         Private FitCoeffs_cp_frozen1 As List(Of Double) 'Stores the polynomial coefficients for specific heat of this product
         Private FitCoeffs_cp_frozen2 As List(Of Double) 'Stores the polynomial coefficients for specific heat of this product
 
-        '''
-        Private FitCoeffs_logalpha_unfrozen As List(Of Double) 'Stores the polynomial coefficients for thermal diffusivity of this product
-        Private FitCoeffs_H_unfrozen As List(Of Double) 'Stores the polynomial coefficients for enthalpy of this product
+        Private FitCoeffs_alpha_unfrozen As List(Of Double) 'Stores the polynomial coefficients for thermal diffusivity of this product
+        Private FitCoeffs_logalpha_frozen1 As List(Of Double) 'Stores the polynomial coefficients for thermal diffusivity of this product
+        Private FitCoeffs_logalpha_frozen2 As List(Of Double) 'Stores the polynomial coefficients for thermal diffusivity of this product
 
-        Private FitCoeffs_cp_frozen As List(Of Double) 'Stores the polynomial coefficients for specific heat of this product
-        Private FitCoeffs_logalpha_frozen As List(Of Double) 'Stores the polynomial coefficients for thermal diffusivity of this product
-        Private FitCoeffs_H_urozen As List(Of Double) 'Stores the polynomial coefficients for enthalpy of this product
+        '''
+        Private FitCoeffs_H_unfrozen As List(Of Double) 'Stores the polynomial coefficients for enthalpy of this product
+        Private FitCoeffs_H_frozen1 As List(Of Double) 'Stores the polynomial coefficients for enthalpy of this product
+        Private FitCoeffs_H_frozen2 As List(Of Double) 'Stores the polynomial coefficients for enthalpy of this product
 #End Region
 
         Public Sub New()
@@ -50,6 +51,8 @@
             Initialized = True
             Init_k()
             Init_cp()
+            Init_alpha()
+            Init_H()
 
         End Sub
 
@@ -307,9 +310,7 @@
             Next
 
             FitCoeffs_cp_unfrozen = FindPolynomialLeastSquaresFit(cp, 3)
-            Dim Errore As Double = ErrorSquared(cp, FitCoeffs_cp_unfrozen)
-
-
+            'Dim Errore As Double = ErrorSquared(cp, FitCoeffs_cp_unfrozen)
 
             '================FROZEN PART 1================
             nPoints = 1000
@@ -322,7 +323,7 @@
             Next
 
             FitCoeffs_cp_frozen1 = FindPolynomialLeastSquaresFit(cp, 10)
-            Errore = ErrorSquared(cp, FitCoeffs_cp_frozen1)
+            'Errore = ErrorSquared(cp, FitCoeffs_cp_frozen1)
 
             '================FROZEN PART 2================
             nPoints = 1000
@@ -336,8 +337,7 @@
             Next
 
             FitCoeffs_cp_frozen2 = FindPolynomialLeastSquaresFit(cp, 10)
-            Errore = ErrorSquared(cp, FitCoeffs_cp_frozen2)
-
+            'Errore = ErrorSquared(cp, FitCoeffs_cp_frozen2)
 
         End Sub
         Public Function get_cp(T As Double) As Double
@@ -355,6 +355,190 @@
                 get_cp = 0
             End If
         End Function
+
+        Private Sub Init_alpha()
+            'This fills up the polynomial fit coefficients for the thermal diffusivity
+
+            '================UNFROZEN================
+            Dim alpha As New List(Of PointF)
+            Dim newPoint As PointF
+            Dim nPoints As Integer = 25
+            Dim Tc As Double
+            Dim i As Long
+            Dim Tf As Double = FoodModelUsed.FreezingTemp
+
+            newPoint.X = Tf + 0.01
+            newPoint.Y = get_k(Tf + 0.01) / (get_rho(Tf + 0.01) * get_cp(Tf + 0.01))
+            alpha.Add(newPoint)
+
+            For i = 1 To nPoints
+                Tc = i * (MaxTemperature - Tf) / nPoints + Tf
+                newPoint.X = Tc
+                newPoint.Y = get_k(Tc) / (get_rho(Tc) * get_cp(Tc))
+                alpha.Add(newPoint)
+            Next
+
+            FitCoeffs_alpha_unfrozen = FindPolynomialLeastSquaresFit(alpha, 3)
+            'Dim Errore As Double = ErrorSquared(alpha, FitCoeffs_alpha_unfrozen)
+
+            '================FROZEN PART 1================
+            nPoints = 1000
+            alpha.Clear()
+            For i = 1 To nPoints
+                Tc = (i - 1) * (Tf - MidTemperature) / nPoints + MidTemperature
+                newPoint.X = Tc
+                newPoint.Y = Math.Log10(get_k(Tc) / (get_rho(Tc) * get_cp(Tc)))
+                alpha.Add(newPoint)
+            Next
+            Tc = Tf
+            newPoint.X = Tc
+            newPoint.Y = Math.Log10(get_k(Tc) / (get_rho(Tc) * get_cp(Tc)))
+            alpha.Add(newPoint)
+
+            FitCoeffs_logalpha_frozen1 = FindPolynomialLeastSquaresFit(alpha, 10)
+            'Errore = ErrorSquared(alpha, FitCoeffs_logalpha_frozen1)
+
+            '================FROZEN PART 2================
+            nPoints = 1000
+            alpha.Clear()
+            For i = 1 To nPoints - 1
+                Tc = (i - 1) * (MidTemperature - MinTemperature) / nPoints + MinTemperature
+                newPoint.X = Tc
+                newPoint.Y = Math.Log10(get_k(Tc) / (get_rho(Tc) * get_cp(Tc)))
+                alpha.Add(newPoint)
+            Next
+
+            FitCoeffs_logalpha_frozen2 = FindPolynomialLeastSquaresFit(alpha, 10)
+            'Errore = ErrorSquared(alpha, FitCoeffs_logalpha_frozen2)
+
+        End Sub
+        Public Function get_alpha(T As Double) As Double
+            'Returns the value of cp(T)
+
+            If Initialized Then
+                If T > FoodModelUsed.FreezingTemp Then
+                    get_alpha = ReplaceT(T, FitCoeffs_alpha_unfrozen)
+                ElseIf T > MidTemperature Then
+                    get_alpha = Math.Pow(10, ReplaceT(T, FitCoeffs_logalpha_frozen1))
+                Else
+                    get_alpha = Math.Pow(10, ReplaceT(T, FitCoeffs_logalpha_frozen2))
+                End If
+            Else
+                get_alpha = 0
+            End If
+        End Function
+
+        Private Sub Init_H()
+            'This fills up the polynomial fit coefficients for the specific heat variable
+            'The polynomial fit coefficients for the thermal conductivity of the components are as shown below: 
+            Dim cp_p As New Poly({2008.2, 1.2089, -0.0013129})
+            Dim cp_f As New Poly({1984.2, 1.4733, -0.0000048008})
+            Dim cp_c As New Poly({1548.8, 1.9625, 0.0059399})
+            Dim cp_a As New Poly({0.32962, 0.0014011, -0.0000029069})
+            Dim cp_w As New Poly({4128.9, -0.090864, 0.0054731})
+            Dim cp_i As New Poly({2062.3, -6.0769})
+
+            Dim xp As Double
+            Dim xf As Double
+            Dim xc As Double
+            Dim xa As Double
+            Dim xi As Double
+            Dim xw As Double
+            Dim Tf As Double
+
+            With FoodModelUsed
+                xp = .ProteinContent
+                xf = .FatContent
+                xc = .CarbContent
+                xa = .AshContent
+                xw = .WaterContent
+                Tf = .FreezingTemp
+            End With
+
+            '================FROZEN PART 2================
+            Dim H As New List(Of PointF)
+            Dim newPoint As PointF
+            Dim nPoints As Integer
+            Dim Tc As Double
+            Dim i As Long
+            Dim H_Accum As Double = 0
+            Dim cp As Double
+            Dim Errore As Double
+
+            nPoints = 1000
+            H.Clear()
+            For i = 1 To nPoints - 1
+                Tc = (i - 1) * (MidTemperature - MinTemperature) / nPoints + MinTemperature
+                xi = (xw - 0.4 * xp) * (1 - (Tf / Tc))
+                newPoint.X = Tc
+                cp = 1550 + 1260 * (1 - xw) - 333600 * Tf * (xw - 0.4 * xp) / (Tc * Tc)
+                H_Accum += cp * (MidTemperature - MinTemperature) / nPoints
+                newPoint.Y = H_Accum
+
+                H.Add(newPoint)
+            Next
+
+            FitCoeffs_H_frozen2 = FindPolynomialLeastSquaresFit(H, 10)
+            'Errore = ErrorSquared(H, FitCoeffs_H_frozen2)
+
+            '================FROZEN PART 1================
+            nPoints = 1000
+            H.Clear()
+            For i = 1 To nPoints - 1
+                Tc = i * (Tf - MidTemperature) / nPoints + MidTemperature
+                newPoint.X = Tc
+                cp = 1550 + 1260 * (1 - xw) - 333600 * Tf * (xw - 0.4 * xp) / (Tc * Tc)
+                H_Accum += cp * (Tf - MidTemperature) / nPoints
+                newPoint.Y = H_Accum
+
+                H.Add(newPoint)
+            Next
+
+            FitCoeffs_H_frozen1 = FindPolynomialLeastSquaresFit(H, 10)
+            'Errore = ErrorSquared(H, FitCoeffs_H_frozen1)
+
+            '================UNFROZEN================
+
+            H.Clear()
+            nPoints = 25
+            newPoint.X = Tf
+            cp = xp * cp_p.Replace_X(Tf) + xf * cp_f.Replace_X(Tf) + xc * cp_c.Replace_X(Tf) + xa * cp_a.Replace_X(Tf) + xw * cp_w.Replace_X(Tf)
+            H_Accum += cp * (Tf - MidTemperature) / nPoints
+            newPoint.Y = H_Accum
+            H.Add(newPoint)
+
+            For i = 1 To nPoints
+                Tc = i * (MaxTemperature - Tf) / nPoints + Tf
+                newPoint.X = Tc
+                newPoint.Y = xp * cp_p.Replace_X(Tc) + xf * cp_f.Replace_X(Tc) + xc * cp_c.Replace_X(Tc) + xa * cp_a.Replace_X(Tc) + xw * cp_w.Replace_X(Tc)
+                H_Accum += cp * (MaxTemperature - Tf) / nPoints
+                newPoint.Y = H_Accum
+
+                H.Add(newPoint)
+            Next
+
+            FitCoeffs_H_unfrozen = FindPolynomialLeastSquaresFit(H, 3)
+            'Errore = ErrorSquared(H, FitCoeffs_H_unfrozen)
+
+
+        End Sub
+        Public Function get_H(T As Double) As Double
+            'Returns the value of cp(T)
+
+            If Initialized Then
+                If T > FoodModelUsed.FreezingTemp Then
+                    get_H = ReplaceT(T, FitCoeffs_H_unfrozen)
+                ElseIf T > MidTemperature Then
+                    get_H = ReplaceT(T, FitCoeffs_H_frozen1)
+                Else
+                    get_H = ReplaceT(T, FitCoeffs_H_frozen2)
+                End If
+            Else
+                get_H = 0
+            End If
+        End Function
+
+
 
         Private Function ReplaceT(T As Double, F As List(Of Double)) As Double
             'Replaces T in F(T) and returns F(T)

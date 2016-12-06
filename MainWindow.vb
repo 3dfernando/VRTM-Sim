@@ -60,6 +60,7 @@ Public Class MainWindow
 
         txtTotalSimTime.Text = Trim(Str(VRTM_SimVariables.TotalSimTime / (3600 * 24)))
         txtMinimumSimDT.Text = Trim(Str(VRTM_SimVariables.MinimumSimDt))
+        txtAcceptedDt.Text = Trim(Str(VRTM_SimVariables.AssumedDTForPreviews))
 
         'Puts in public memory the food properties model table (many products available from settings)
         LoadFoodPropertiesCSVIntoMemory()
@@ -385,6 +386,7 @@ Public Class MainWindow
         VRTM_SimVariables.TotalSimTime = Val(txtTotalSimTime.Text) * 24 * 3600
         VRTM_SimVariables.MinimumSimDt = Val(txtMinimumSimDT.Text)
 
+        VRTM_SimVariables.AssumedDTForPreviews = Val(txtAcceptedDt.Text)
     End Sub
 #End Region
 
@@ -482,8 +484,4 @@ Public Class MainWindow
 
 #End Region
 
-    Private Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click
-
-
-    End Sub
 End Class

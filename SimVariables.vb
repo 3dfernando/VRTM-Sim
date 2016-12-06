@@ -44,6 +44,7 @@
         '----Variables under Simulation Params Tab----
         Public TotalSimTime As Double 'Total simulation time in [s]
         Public MinimumSimDt As Double 'Minimum simulation delta-t in [s]
+        Public AssumedDTForPreviews As Double 'This is the assumed Tevap-Tair for the preview window on the food selector
 
         '===========================================
         '----Data containers for each form opened---
@@ -92,6 +93,8 @@
 
             Me.TotalSimTime = 3600 * 24 * 7
             Me.MinimumSimDt = 300
+            Me.AssumedDTForPreviews = 7
+
 
             'Initializes one product in the mix
             ReDim Me.ProductMix(0)
@@ -184,12 +187,12 @@ TryAgain:
                                 Dim TempFood As New FoodPropertiesListItem
                                 With TempFood
                                     .ProductName = currentRow(0)
-                                    Double.TryParse(currentRow(1), .WaterContent)
-                                    Double.TryParse(currentRow(2), .ProteinContent)
-                                    Double.TryParse(currentRow(3), .FatContent)
-                                    Double.TryParse(currentRow(4), .CarbContent)
-                                    Double.TryParse(currentRow(5), .AshContent)
-                                    Double.TryParse(currentRow(6), .FreezingTemp)
+                                    .WaterContent = Double.Parse(currentRow(1))
+                                    .ProteinContent = Double.Parse(currentRow(2))
+                                    .FatContent = Double.Parse(currentRow(3))
+                                    .CarbContent = Double.Parse(currentRow(4))
+                                    .AshContent = Double.Parse(currentRow(5))
+                                    .FreezingTemp = Double.Parse(currentRow(6))
 
                                     If ((TempFood.WaterContent + TempFood.ProteinContent + TempFood.FatContent + TempFood.CarbContent + TempFood.AshContent) - 1) < 0.00001 Then 'Allow for double imprecision
                                         FoodPropertiesList.Add(TempFood)
