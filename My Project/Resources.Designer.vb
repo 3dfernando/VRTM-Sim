@@ -173,9 +173,29 @@ Namespace My.Resources
         '''<summary>
         '''  Looks up a localized resource of type System.Drawing.Bitmap.
         '''</summary>
+        Friend ReadOnly Property Product_Shapes_and_Dimensions() As System.Drawing.Bitmap
+            Get
+                Dim obj As Object = ResourceManager.GetObject("Product_Shapes_and_Dimensions", resourceCulture)
+                Return CType(obj,System.Drawing.Bitmap)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized resource of type System.Drawing.Bitmap.
+        '''</summary>
         Friend ReadOnly Property script_gear() As System.Drawing.Bitmap
             Get
                 Dim obj As Object = ResourceManager.GetObject("script-gear", resourceCulture)
+                Return CType(obj,System.Drawing.Bitmap)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized resource of type System.Drawing.Bitmap.
+        '''</summary>
+        Friend ReadOnly Property Tray_and_Levels() As System.Drawing.Bitmap
+            Get
+                Dim obj As Object = ResourceManager.GetObject("Tray_and_Levels", resourceCulture)
                 Return CType(obj,System.Drawing.Bitmap)
             End Get
         End Property

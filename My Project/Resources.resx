@@ -154,4 +154,10 @@
   <data name="list-remove-4" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\list-remove-4.ico;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
+  <data name="Product_Shapes_and_Dimensions" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Product Shapes and Dimensions.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Tray_and_Levels" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Tray and Levels.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
 </root>

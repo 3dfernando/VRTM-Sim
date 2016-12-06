@@ -69,6 +69,17 @@ Public Class MainWindow
         Catch ex As Exception
             VRTM_SimVariables.ProductMix(0).FoodThermalPropertiesModel.FoodModelUsed = FoodPropertiesList(0)
         End Try
+
+        'Creates tooltips for the imaged tooltip components
+        Try
+            Dim T As New ImageTip
+            T.SetToolTip(txtNLevels, "Tray_and_Levels")
+            T.SetToolTip(txtNTrays, "Tray_and_Levels")
+
+        Catch ex As Exception
+
+        End Try
+
     End Sub
 
     Private Sub MainWindow_Shown(sender As Object, e As EventArgs) Handles Me.Shown

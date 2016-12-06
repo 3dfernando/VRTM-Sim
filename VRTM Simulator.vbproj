@@ -77,6 +77,9 @@
     <Compile Include="CurveFitting.vb" />
     <Compile Include="FluidConvection.vb" />
     <Compile Include="FoodPropertiesModel.vb" />
+    <Compile Include="ImageTip.vb">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="MainWindow.vb">
       <SubType>Form</SubType>
     </Compile>
@@ -171,6 +174,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\list-remove-4.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Tray and Levels.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Product Shapes and Dimensions.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

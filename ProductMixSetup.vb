@@ -43,6 +43,19 @@
         'Shows the first item in the graph
         lstProductMix.Items(0).Selected = True
         lstProductMix.Select()
+
+        'Inits the tooltips with images
+        Try
+            Dim T As New ImageTip
+            T.SetToolTip(txtSimDiameter, "Product_Shapes_and_Dimensions")
+            T.SetToolTip(txtSimGeom, "Product_Shapes_and_Dimensions")
+            T.SetToolTip(txtSimLength, "Product_Shapes_and_Dimensions")
+            T.SetToolTip(txtSimWidth, "Product_Shapes_and_Dimensions")
+            T.SetToolTip(txtSimThickness, "Product_Shapes_and_Dimensions")
+
+        Catch ex As Exception
+
+        End Try
     End Sub
 
     Private Sub UpdateProductList()
