@@ -172,6 +172,9 @@ Partial Class MainWindow
         Me.txtAcceptedDt = New System.Windows.Forms.TextBox()
         Me.Label48 = New System.Windows.Forms.Label()
         Me.Label49 = New System.Windows.Forms.Label()
+        Me.Label47 = New System.Windows.Forms.Label()
+        Me.txtWeeklyHeatLoad = New System.Windows.Forms.TextBox()
+        Me.Label50 = New System.Windows.Forms.Label()
         CType(Me.Divisor1, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.Divisor1.Panel1.SuspendLayout()
         Me.Divisor1.Panel2.SuspendLayout()
@@ -1128,7 +1131,7 @@ Partial Class MainWindow
         Me.GroupBox8.Controls.Add(Me.chkMondayProd)
         Me.GroupBox8.Controls.Add(Me.Label28)
         Me.GroupBox8.Controls.Add(Me.Label29)
-        Me.GroupBox8.Location = New System.Drawing.Point(16, 193)
+        Me.GroupBox8.Location = New System.Drawing.Point(16, 230)
         Me.GroupBox8.Name = "GroupBox8"
         Me.GroupBox8.Size = New System.Drawing.Size(211, 362)
         Me.GroupBox8.TabIndex = 17
@@ -1308,6 +1311,9 @@ Partial Class MainWindow
         '
         'GroupBox5
         '
+        Me.GroupBox5.Controls.Add(Me.Label47)
+        Me.GroupBox5.Controls.Add(Me.txtWeeklyHeatLoad)
+        Me.GroupBox5.Controls.Add(Me.Label50)
         Me.GroupBox5.Controls.Add(Me.txtSafetyFactorVRTM)
         Me.GroupBox5.Controls.Add(Me.Label17)
         Me.GroupBox5.Controls.Add(Me.Label44)
@@ -1325,14 +1331,14 @@ Partial Class MainWindow
         Me.GroupBox5.Controls.Add(Me.Label21)
         Me.GroupBox5.Location = New System.Drawing.Point(16, 6)
         Me.GroupBox5.Name = "GroupBox5"
-        Me.GroupBox5.Size = New System.Drawing.Size(211, 181)
+        Me.GroupBox5.Size = New System.Drawing.Size(211, 217)
         Me.GroupBox5.TabIndex = 3
         Me.GroupBox5.TabStop = False
         Me.GroupBox5.Text = "Products"
         '
         'txtSafetyFactorVRTM
         '
-        Me.txtSafetyFactorVRTM.Location = New System.Drawing.Point(106, 149)
+        Me.txtSafetyFactorVRTM.Location = New System.Drawing.Point(106, 173)
         Me.txtSafetyFactorVRTM.Name = "txtSafetyFactorVRTM"
         Me.txtSafetyFactorVRTM.Size = New System.Drawing.Size(65, 20)
         Me.txtSafetyFactorVRTM.TabIndex = 50
@@ -1341,7 +1347,7 @@ Partial Class MainWindow
         'Label17
         '
         Me.Label17.AutoSize = True
-        Me.Label17.Location = New System.Drawing.Point(7, 152)
+        Me.Label17.Location = New System.Drawing.Point(7, 176)
         Me.Label17.Name = "Label17"
         Me.Label17.Size = New System.Drawing.Size(73, 13)
         Me.Label17.TabIndex = 49
@@ -1397,9 +1403,9 @@ Partial Class MainWindow
         Me.Label42.AutoSize = True
         Me.Label42.Location = New System.Drawing.Point(7, 128)
         Me.Label42.Name = "Label42"
-        Me.Label42.Size = New System.Drawing.Size(82, 13)
+        Me.Label42.Size = New System.Drawing.Size(86, 13)
         Me.Label42.TabIndex = 7
-        Me.Label42.Text = "Avg Heat Load:"
+        Me.Label42.Text = "Daily Heat Load:"
         '
         'txtAvgMassFlowIn
         '
@@ -1673,6 +1679,33 @@ Partial Class MainWindow
         Me.Label49.TabIndex = 2
         Me.Label49.Text = "ΔT from Tevap to Tair:"
         '
+        'Label47
+        '
+        Me.Label47.AutoSize = True
+        Me.Label47.Location = New System.Drawing.Point(177, 152)
+        Me.Label47.Name = "Label47"
+        Me.Label47.Size = New System.Drawing.Size(24, 13)
+        Me.Label47.TabIndex = 53
+        Me.Label47.Text = "kW"
+        '
+        'txtWeeklyHeatLoad
+        '
+        Me.txtWeeklyHeatLoad.Enabled = False
+        Me.txtWeeklyHeatLoad.Location = New System.Drawing.Point(106, 149)
+        Me.txtWeeklyHeatLoad.Name = "txtWeeklyHeatLoad"
+        Me.txtWeeklyHeatLoad.Size = New System.Drawing.Size(65, 20)
+        Me.txtWeeklyHeatLoad.TabIndex = 52
+        Me.txtWeeklyHeatLoad.TextAlign = System.Windows.Forms.HorizontalAlignment.Right
+        '
+        'Label50
+        '
+        Me.Label50.AutoSize = True
+        Me.Label50.Location = New System.Drawing.Point(7, 152)
+        Me.Label50.Name = "Label50"
+        Me.Label50.Size = New System.Drawing.Size(99, 13)
+        Me.Label50.TabIndex = 51
+        Me.Label50.Text = "Weekly Heat Load:"
+        '
         'MainWindow
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
@@ -1880,4 +1913,7 @@ Partial Class MainWindow
     Friend WithEvents txtAcceptedDt As TextBox
     Friend WithEvents Label48 As Label
     Friend WithEvents Label49 As Label
+    Friend WithEvents Label47 As Label
+    Friend WithEvents txtWeeklyHeatLoad As TextBox
+    Friend WithEvents Label50 As Label
 End Class

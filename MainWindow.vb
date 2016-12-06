@@ -450,24 +450,50 @@ Public Class MainWindow
 
     Private Sub UpdateProductMixStats()
         'Updates the fields that correspond to the overall statistics of the product mix
-        Dim TotalBoxFlowIn, TotalMassFlowIn As Double
+        Dim TotalBoxFlowIn, TotalMassFlowIn, TotalInstHeatLoad As Double
 
         TotalBoxFlowIn = 0
         TotalMassFlowIn = 0
+        TotalInstHeatLoad = 0
         If Not IsNothing(VRTM_SimVariables.ProductMix) Then
             For Each Prod As ProductData In VRTM_SimVariables.ProductMix
                 TotalBoxFlowIn = TotalBoxFlowIn + Prod.AvgFlowRate
                 TotalMassFlowIn = TotalMassFlowIn + Prod.AvgFlowRate * Prod.BoxWeight
+                TotalInstHeatLoad = TotalInstHeatLoad + Prod.DeltaHSimulated * (TotalMassFlowIn / 3600)
             Next
         End If
+
+        Dim ProductiveDays As Integer = 0
+        Dim MRDays As Integer = 0
+        For i As Integer = 0 To 6
+            ProductiveDays -= VRTM_SimVariables.ProductionDays(i)
+            MRDays -= VRTM_SimVariables.IdleDaysMRoom(i)
+        Next
+
+        Dim ProductiveHours As Double = 24 * (Delta_Day(VRTM_SimVariables.SecondTurnEnd, VRTM_SimVariables.SecondTurnBegin) +
+                                        Delta_Day(VRTM_SimVariables.FirstTurnEnd, VRTM_SimVariables.FirstTurnBegin))
+        Dim MRHours As Double = 24 * (1 - Delta_Day(VRTM_SimVariables.IdleHourEndMRoom, VRTM_SimVariables.IdleHourBeginMRoom))
+
+        Dim DailyAvgHL As Double
+        Dim WeeklyAvgHL As Double
+        DailyAvgHL = ((ProductiveHours / MRHours) * TotalInstHeatLoad) / 1000
+        WeeklyAvgHL = (((ProductiveHours * ProductiveDays) / (MRHours * MRDays + 24 * 2)) * TotalInstHeatLoad) / 1000
+        TotalInstHeatLoad = TotalInstHeatLoad / 1000 'W to kW
 
         txtAvgBoxflowIn.Text = Trim(Str(TotalBoxFlowIn))
         txtAvgMassFlowIn.Text = Trim(Str(TotalMassFlowIn))
         txtAvgBoxMass.Text = Trim(Str(TotalMassFlowIn / TotalBoxFlowIn))
-
-        '----Insert code to update average heat load here----
+        txtAvgHeatLoad.Text = Trim(Str(DailyAvgHL))
+        txtWeeklyHeatLoad.Text = Trim(Str(WeeklyAvgHL))
 
     End Sub
+
+    Private Function Delta_Day(ByVal Day1 As Double, ByVal Day2 As Double) As Double
+        'Calculates the difference in days between one time and the other (Day1 and Day2 are expected 0-1)
+        If Day1 = 0 Then Day1 = 1
+        If Day2 = 0 Then Day2 = 1
+        Delta_Day = Day1 - Day2
+    End Function
 
     Private Sub RefreshTable(Data(,))
         If (VRTMTable.Rows.Count <> (UBound(Data, 2) + 1)) Or (VRTMTable.Columns.Count <> (UBound(Data, 1) + 1)) Then

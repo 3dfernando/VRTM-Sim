@@ -211,15 +211,22 @@
         Dim t() As Double
         Dim Ts() As Double
         Dim Tc() As Double
+        Dim DH As Double
 
-        Dim L As Double = Val(txtSimThickness.Text) / 1000
+        Dim G As String = txtSimGeom.SelectedItem
+        Dim L As Double
+
+        If G.ToLower = "thin slab" Then
+            L = Val(txtSimThickness.Text) / 1000
+        Else
+            L = Val(txtSimDiameter.Text) / 1000
+        End If
         Dim nx As Long = 20
         Dim totalt As Double = Val(txtMinStayTime.Text) * 3600
         Dim nt As Long = 300
         Dim Ti As Double = Val(txtInletTemp.Text)
         Dim h As Double = Val(txtConvCoeff.Text)
         Dim Tf As Double = VRTM_SimVariables.Tevap_Setpoint + VRTM_SimVariables.AssumedDTForPreviews
-        Dim G As String = txtSimGeom.SelectedItem
         Dim p As FoodPropertiesListItem
 
         For Each p In FoodPropertiesList
@@ -230,8 +237,12 @@
 
         Dim food As New FoodProperties(p, True)
 
-        Solve_Crank_Nicolson_OneProduct(L, nx, totalt, nt, Ti, h, Tf, G, food, t, Ts, Tc)
+        Solve_Crank_Nicolson_OneProduct(L, nx, totalt, nt, Ti, h, Tf, G, food, t, Ts, Tc, DH)
         UpdateGraph("Product freezing curve for " & txtProductModel.SelectedItem, t, Ts, Tc)
+
+        'Updates DH in the VRTMSimVariables
+        VRTM_SimVariables.ProductMix(lstProductMix.SelectedIndices(0)).DeltaHSimulated = DH
+
     End Sub
 
     Private Sub txtProductModel_SelectedIndexChanged(sender As Object, e As EventArgs) Handles txtProductModel.SelectedIndexChanged
@@ -270,6 +281,18 @@
         If ErrorProvider1.GetError(ProdNameObj) <> Nothing Then
             errorOccurred = True
         End If
+
+        'Verifies whether there isn't any product with the same tag in the list
+        If lstProductMix.SelectedItems.Count = 0 Then
+            For Each p As ProductData In VRTM_SimVariables.ProductMix
+                If p.ProdName = txtProductName.Text Then
+                    errorOccurred = True
+                    MsgBox("You cannot have repeated Product Names in the list.")
+                    Exit For
+                End If
+            Next
+        End If
+
         If errorOccurred Then Exit Sub
 
         'Now does the saving
@@ -322,14 +345,8 @@
         Next
         UpdateProductList() 'Updates the list with the saved data
 
-        lstProductMix.SelectedItems.Clear()
-        For Each item As ListViewItem In lstProductMix.Items
-            If VRTM_SimVariables.ProductMix(I).FoodThermalPropertiesModel.FoodModelUsed.ProductName = item.SubItems(5).Text Then
-                item.Selected = True
-                lstProductMix.Select()
-                Exit For
-            End If
-        Next
+        lstProductMix.Items(I).Selected = True
+        lstProductMix.Select()
 
     End Sub
 
@@ -452,6 +469,22 @@
         ProductFreezingChart.ChartAreas(0).AxisY.Minimum = TMin - padding * TInterval
         ProductFreezingChart.ChartAreas(0).AxisY.Maximum = TMax + padding * TInterval
 
+        'Implements smart axis tick marks
+        With ProductFreezingChart.ChartAreas(0)
+            .AxisX.Interval = GetTickInterval(.AxisX.Minimum, .AxisX.Maximum, 5)
+            .AxisX.MajorTickMark.Interval = .AxisX.Interval
+            .AxisX.Minimum = Int(.AxisX.Minimum / .AxisX.Interval) * .AxisX.Interval
+            .AxisX.Maximum = Int(.AxisX.Maximum / .AxisX.Interval) * .AxisX.Interval
+
+            .AxisY.Interval = GetTickInterval(.AxisY.Minimum, .AxisY.Maximum, 5)
+            .AxisY.MajorTickMark.Interval = .AxisY.Interval
+            .AxisY.Minimum = Int(.AxisY.Minimum / .AxisY.Interval) * .AxisY.Interval
+            .AxisY.Maximum = Int(.AxisY.Maximum / .AxisY.Interval) * .AxisY.Interval
+        End With
+
+        'Binds axes tooltips
+        Surf.ToolTip = "t=#VALX s" & vbCrLf & "T=#VALY ºC"
+        Center.ToolTip = "t=#VALX s" & vbCrLf & "T=#VALY ºC"
 
         'Legends
         ProductFreezingChart.Legends.Clear()
@@ -461,6 +494,24 @@
         ProductFreezingChart.Legends(0).Position = New DataVisualization.Charting.ElementPosition(80, 10, 15, 20)
 
     End Sub
+
+    Public Function GetTickInterval(MinValue As Double, MaxValue As Double, MinDivisions As Double) As Double
+        'This function returns a smart tick interval for the chart
+        Dim Interval As Double = (MaxValue - MinValue) / MinDivisions
+        If Interval < 0 Then Interval = -Interval
+        Dim Magnitude As Double = Math.Pow(10, Int(Math.Log10(Interval)))
+
+        If Magnitude > Interval Then
+            GetTickInterval = Magnitude * 0.5
+        ElseIf Magnitude * 2 > Interval Then
+            GetTickInterval = Magnitude * 1
+        ElseIf Magnitude * 5 > Interval Then
+            GetTickInterval = Magnitude * 2
+        Else
+            GetTickInterval = Magnitude * 5
+        End If
+
+    End Function
 
     Private Sub ClearGraph()
         'Clears the data in the chart
@@ -498,7 +549,7 @@
         OkToCalc = OkToCalc And (Val(txtAirSpeed.Text) > 0)
         OkToCalc = OkToCalc And (Val(txtConvectionMultFactor.Text) > 0)
 
-        txtConvCoeff.Text = Trim(Str(Int(Get_H(txtSimGeom.SelectedItem, Val(txtSimThickness.Text), Val(txtSimWidth.Text), Val(txtSimLength.Text),
+        txtConvCoeff.Text = Trim(Str(Int(Get_H(txtSimGeom.SelectedItem, Val(txtSimThickness.Text), Val(txtSimWidth.Text), Val(txtSimLength.Text), Val(txtSimDiameter.Text),
                        VRTM_SimVariables.Tevap_Setpoint + AirTemperatureApproach, "Air", Val(txtAirSpeed.Text), Val(txtConvectionMultFactor.Text)) * 100) / 100))
 
     End Sub

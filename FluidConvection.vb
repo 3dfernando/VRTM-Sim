@@ -2,7 +2,7 @@
     'This module tries to model the properties of a non-phase-changing fluid according to some correlations in the literature
     'And, thereafter, calculate the convection coefficients for given boundary conditions
 
-    Public Function Get_H(Geometry As String, Thickness As Double, Width As Double, Length As Double, T_Fluid As Double,
+    Public Function Get_H(Geometry As String, Thickness As Double, Width As Double, Length As Double, Diameter As Double, T_Fluid As Double,
                     Fluid As String, FluidSpeed As Double, ConvMultFactor As Double) As Double
         'Returns the convection coefficient in [W/m².K] based on the classic correlations from Incropera
         'Thickness, Width and Length are given in [mm] to ease input by user
@@ -42,7 +42,7 @@
                     Nu = 0.0296 * (Re ^ 0.8) * (Pr ^ 0.333333)
                 End If
             Case "Long Cylinder"
-                L_Charact = Thickness / 1000
+                L_Charact = Diameter / 1000
                 Re = L_Charact * FluidSpeed / v
                 If Re < 0.4 Then
                     Nu = 0
@@ -60,7 +60,7 @@
                     Nu = 0
                 End If
             Case "Sphere"
-                L_Charact = Thickness / 1000
+                L_Charact = Diameter / 1000
                 Re = L_Charact * FluidSpeed / v
                 If (Re > 3.5) And (Re < 80000) And (Pr > 0.7) And (Pr < 380) Then
                     Nu = (2 + 0.4 * (Re ^ 0.5) + 0.06 * (Re ^ 0.666666)) * (Pr ^ 0.4)

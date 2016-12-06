@@ -5,7 +5,8 @@
     Public Sub Solve_Crank_Nicolson_OneProduct(L As Double, nx As Long, t_total As Double, nt As Long,
                                                     T_Initial As Double, h As Double, T_fluid As Double,
                                                     Geometry As String, Product As FoodProperties,
-                                                    ByRef t_Simulation As Double(), ByRef T_Profile_Surf As Double(), ByRef T_Profile_Center As Double())
+                                                    ByRef t_Simulation As Double(), ByRef T_Profile_Surf As Double(),
+                                                    ByRef T_Profile_Center As Double(), ByRef DeltaH As Double)
         'This will solve a transient heat conduction for one product. The return values (Variables with ByRef declares) are the center and surface temperature profiles.
         'This code will do a strict case of the Next_Timestep function, which is the 1D product with symmetric boundary conditions of convection 
         'Variables used:
@@ -61,6 +62,17 @@
             T_Profile_Surf(i) = TProfile(nx - 1)
             T_Profile_Center(i) = TProfile(0)
         Next
+
+        'Integrates the enthalpy differential
+        Dim H_init As Double
+        Dim H_end As Double = 0
+
+        H_init = Product.get_H(T_Initial)
+        For i = 0 To nx - 1
+            H_end += Product.get_H(TProfile(i))
+        Next
+        H_end = H_end / nx
+        DeltaH = H_init - H_end
 
     End Sub
 

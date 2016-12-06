@@ -115,8 +115,9 @@
             Me.ProductMix(0).OutletTemperatureDesign = -18
             Me.ProductMix(0).MinimumStayTime = 24
             Me.ProductMix(0).AirSpeed = 4
-            Me.ProductMix(0).ConvCoeffMultiplier = 1.1
+            Me.ProductMix(0).ConvCoeffMultiplier = 1.0
             Me.ProductMix(0).ConvCoefficientUsed = 10
+            Me.ProductMix(0).DeltaHSimulated = 262367 'Simulated already for this product
 
             Me.ProductMix(0).FoodThermalPropertiesModel = New FoodProperties()
         End Sub
@@ -143,6 +144,8 @@
         Public AirSpeed As Double 'm/s
         Public ConvCoeffMultiplier As Double '[-]
         Public ConvCoefficientUsed As Double 'W/m².K
+
+        Public DeltaHSimulated As Double 'J/kg
 
     End Class
 
