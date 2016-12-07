@@ -27,25 +27,13 @@ Partial Class MainWindow
         Me.Divisor1 = New System.Windows.Forms.SplitContainer()
         Me.LeftPanel = New System.Windows.Forms.SplitContainer()
         Me.ToolStrip1 = New System.Windows.Forms.ToolStrip()
-        Me.btnReduceSpeed = New System.Windows.Forms.ToolStripButton()
-        Me.btnStop = New System.Windows.Forms.ToolStripButton()
-        Me.btnPlay = New System.Windows.Forms.ToolStripButton()
-        Me.btnIncreaseSpeed = New System.Windows.Forms.ToolStripButton()
         Me.ToolStripSeparator2 = New System.Windows.Forms.ToolStripSeparator()
         Me.lblTimeWarp = New System.Windows.Forms.ToolStripLabel()
         Me.ToolStripSeparator3 = New System.Windows.Forms.ToolStripSeparator()
         Me.MenuStrip1 = New System.Windows.Forms.MenuStrip()
         Me.FileToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
-        Me.OpenSimulationToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
-        Me.SaveSimulationToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.SimulationToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
-        Me.RunProcessSimulationToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
-        Me.RunThermalSimulationToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.PlaybackToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
-        Me.ReduceSpeedToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
-        Me.StopToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
-        Me.PlayToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
-        Me.IncreaseSpeedToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.ToolStripSeparator1 = New System.Windows.Forms.ToolStripSeparator()
         Me.TabControl1 = New System.Windows.Forms.TabControl()
         Me.VRTMParams = New System.Windows.Forms.TabPage()
@@ -137,6 +125,9 @@ Partial Class MainWindow
         Me.Label28 = New System.Windows.Forms.Label()
         Me.Label29 = New System.Windows.Forms.Label()
         Me.GroupBox5 = New System.Windows.Forms.GroupBox()
+        Me.Label47 = New System.Windows.Forms.Label()
+        Me.txtWeeklyHeatLoad = New System.Windows.Forms.TextBox()
+        Me.Label50 = New System.Windows.Forms.Label()
         Me.txtSafetyFactorVRTM = New System.Windows.Forms.TextBox()
         Me.Label17 = New System.Windows.Forms.Label()
         Me.Label44 = New System.Windows.Forms.Label()
@@ -154,6 +145,10 @@ Partial Class MainWindow
         Me.Label21 = New System.Windows.Forms.Label()
         Me.ProdStats = New System.Windows.Forms.TabPage()
         Me.SimParams = New System.Windows.Forms.TabPage()
+        Me.GroupBox4 = New System.Windows.Forms.GroupBox()
+        Me.txtAcceptedDt = New System.Windows.Forms.TextBox()
+        Me.Label48 = New System.Windows.Forms.Label()
+        Me.Label49 = New System.Windows.Forms.Label()
         Me.GroupBox9 = New System.Windows.Forms.GroupBox()
         Me.Label46 = New System.Windows.Forms.Label()
         Me.txtTotalSimTime = New System.Windows.Forms.TextBox()
@@ -168,13 +163,21 @@ Partial Class MainWindow
         Me.hsSimPosition = New System.Windows.Forms.HScrollBar()
         Me.VRTMTable = New System.Windows.Forms.DataGridView()
         Me.ErrorProvider1 = New System.Windows.Forms.ErrorProvider(Me.components)
-        Me.GroupBox4 = New System.Windows.Forms.GroupBox()
-        Me.txtAcceptedDt = New System.Windows.Forms.TextBox()
-        Me.Label48 = New System.Windows.Forms.Label()
-        Me.Label49 = New System.Windows.Forms.Label()
-        Me.Label47 = New System.Windows.Forms.Label()
-        Me.txtWeeklyHeatLoad = New System.Windows.Forms.TextBox()
-        Me.Label50 = New System.Windows.Forms.Label()
+        Me.btnReduceSpeed = New System.Windows.Forms.ToolStripButton()
+        Me.btnStop = New System.Windows.Forms.ToolStripButton()
+        Me.btnPlay = New System.Windows.Forms.ToolStripButton()
+        Me.btnIncreaseSpeed = New System.Windows.Forms.ToolStripButton()
+        Me.OpenSimulationToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.SaveSimulationToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.RunProcessSimulationToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.RunThermalSimulationToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.ReduceSpeedToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.StopToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.PlayToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.IncreaseSpeedToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.Label51 = New System.Windows.Forms.Label()
+        Me.txtFanPower = New System.Windows.Forms.TextBox()
+        Me.Label52 = New System.Windows.Forms.Label()
         CType(Me.Divisor1, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.Divisor1.Panel1.SuspendLayout()
         Me.Divisor1.Panel2.SuspendLayout()
@@ -197,6 +200,7 @@ Partial Class MainWindow
         Me.GroupBox8.SuspendLayout()
         Me.GroupBox5.SuspendLayout()
         Me.SimParams.SuspendLayout()
+        Me.GroupBox4.SuspendLayout()
         Me.GroupBox9.SuspendLayout()
         CType(Me.Divisor2, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.Divisor2.Panel1.SuspendLayout()
@@ -207,7 +211,6 @@ Partial Class MainWindow
         Me.MidPanel.SuspendLayout()
         CType(Me.VRTMTable, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.ErrorProvider1, System.ComponentModel.ISupportInitialize).BeginInit()
-        Me.GroupBox4.SuspendLayout()
         Me.SuspendLayout()
         '
         'Divisor1
@@ -257,42 +260,6 @@ Partial Class MainWindow
         Me.ToolStrip1.TabIndex = 0
         Me.ToolStrip1.Text = "ToolStrip1"
         '
-        'btnReduceSpeed
-        '
-        Me.btnReduceSpeed.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image
-        Me.btnReduceSpeed.Image = Global.VRTM_Simulator.My.Resources.Resources.media_seek_backward_3
-        Me.btnReduceSpeed.ImageTransparentColor = System.Drawing.Color.Magenta
-        Me.btnReduceSpeed.Name = "btnReduceSpeed"
-        Me.btnReduceSpeed.Size = New System.Drawing.Size(23, 22)
-        Me.btnReduceSpeed.Text = "ToolStripButton3"
-        '
-        'btnStop
-        '
-        Me.btnStop.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image
-        Me.btnStop.Image = Global.VRTM_Simulator.My.Resources.Resources.media_playback_stop_3
-        Me.btnStop.ImageTransparentColor = System.Drawing.Color.Magenta
-        Me.btnStop.Name = "btnStop"
-        Me.btnStop.Size = New System.Drawing.Size(23, 22)
-        Me.btnStop.Text = "ToolStripButton4"
-        '
-        'btnPlay
-        '
-        Me.btnPlay.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image
-        Me.btnPlay.Image = Global.VRTM_Simulator.My.Resources.Resources.media_playback_start_3
-        Me.btnPlay.ImageTransparentColor = System.Drawing.Color.Magenta
-        Me.btnPlay.Name = "btnPlay"
-        Me.btnPlay.Size = New System.Drawing.Size(23, 22)
-        Me.btnPlay.Text = "ToolStripButton5"
-        '
-        'btnIncreaseSpeed
-        '
-        Me.btnIncreaseSpeed.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image
-        Me.btnIncreaseSpeed.Image = Global.VRTM_Simulator.My.Resources.Resources.media_seek_forward_3
-        Me.btnIncreaseSpeed.ImageTransparentColor = System.Drawing.Color.Magenta
-        Me.btnIncreaseSpeed.Name = "btnIncreaseSpeed"
-        Me.btnIncreaseSpeed.Size = New System.Drawing.Size(23, 22)
-        Me.btnIncreaseSpeed.Text = "ToolStripButton6"
-        '
         'ToolStripSeparator2
         '
         Me.ToolStripSeparator2.Name = "ToolStripSeparator2"
@@ -325,20 +292,6 @@ Partial Class MainWindow
         Me.FileToolStripMenuItem.Size = New System.Drawing.Size(37, 20)
         Me.FileToolStripMenuItem.Text = "&File"
         '
-        'OpenSimulationToolStripMenuItem
-        '
-        Me.OpenSimulationToolStripMenuItem.Image = Global.VRTM_Simulator.My.Resources.Resources.document_open_5
-        Me.OpenSimulationToolStripMenuItem.Name = "OpenSimulationToolStripMenuItem"
-        Me.OpenSimulationToolStripMenuItem.Size = New System.Drawing.Size(163, 22)
-        Me.OpenSimulationToolStripMenuItem.Text = "&Open Simulation"
-        '
-        'SaveSimulationToolStripMenuItem
-        '
-        Me.SaveSimulationToolStripMenuItem.Image = Global.VRTM_Simulator.My.Resources.Resources.document_save_5
-        Me.SaveSimulationToolStripMenuItem.Name = "SaveSimulationToolStripMenuItem"
-        Me.SaveSimulationToolStripMenuItem.Size = New System.Drawing.Size(163, 22)
-        Me.SaveSimulationToolStripMenuItem.Text = "&Save Simulation"
-        '
         'SimulationToolStripMenuItem
         '
         Me.SimulationToolStripMenuItem.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.RunProcessSimulationToolStripMenuItem, Me.RunThermalSimulationToolStripMenuItem})
@@ -346,54 +299,12 @@ Partial Class MainWindow
         Me.SimulationToolStripMenuItem.Size = New System.Drawing.Size(76, 20)
         Me.SimulationToolStripMenuItem.Text = "Si&mulation"
         '
-        'RunProcessSimulationToolStripMenuItem
-        '
-        Me.RunProcessSimulationToolStripMenuItem.Image = Global.VRTM_Simulator.My.Resources.Resources.script_gear
-        Me.RunProcessSimulationToolStripMenuItem.Name = "RunProcessSimulationToolStripMenuItem"
-        Me.RunProcessSimulationToolStripMenuItem.Size = New System.Drawing.Size(202, 22)
-        Me.RunProcessSimulationToolStripMenuItem.Text = "Run Process Simulation"
-        '
-        'RunThermalSimulationToolStripMenuItem
-        '
-        Me.RunThermalSimulationToolStripMenuItem.Image = Global.VRTM_Simulator.My.Resources.Resources.pictograms_hazard_signs_xtremely_flammable
-        Me.RunThermalSimulationToolStripMenuItem.Name = "RunThermalSimulationToolStripMenuItem"
-        Me.RunThermalSimulationToolStripMenuItem.Size = New System.Drawing.Size(202, 22)
-        Me.RunThermalSimulationToolStripMenuItem.Text = "Run Thermal Simulation"
-        '
         'PlaybackToolStripMenuItem
         '
         Me.PlaybackToolStripMenuItem.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.ReduceSpeedToolStripMenuItem, Me.StopToolStripMenuItem, Me.PlayToolStripMenuItem, Me.IncreaseSpeedToolStripMenuItem, Me.ToolStripSeparator1})
         Me.PlaybackToolStripMenuItem.Name = "PlaybackToolStripMenuItem"
         Me.PlaybackToolStripMenuItem.Size = New System.Drawing.Size(66, 20)
         Me.PlaybackToolStripMenuItem.Text = "&Playback"
-        '
-        'ReduceSpeedToolStripMenuItem
-        '
-        Me.ReduceSpeedToolStripMenuItem.Image = Global.VRTM_Simulator.My.Resources.Resources.media_seek_backward_3
-        Me.ReduceSpeedToolStripMenuItem.Name = "ReduceSpeedToolStripMenuItem"
-        Me.ReduceSpeedToolStripMenuItem.Size = New System.Drawing.Size(152, 22)
-        Me.ReduceSpeedToolStripMenuItem.Text = "Reduce Speed"
-        '
-        'StopToolStripMenuItem
-        '
-        Me.StopToolStripMenuItem.Image = Global.VRTM_Simulator.My.Resources.Resources.media_playback_stop_3
-        Me.StopToolStripMenuItem.Name = "StopToolStripMenuItem"
-        Me.StopToolStripMenuItem.Size = New System.Drawing.Size(152, 22)
-        Me.StopToolStripMenuItem.Text = "Stop"
-        '
-        'PlayToolStripMenuItem
-        '
-        Me.PlayToolStripMenuItem.Image = Global.VRTM_Simulator.My.Resources.Resources.media_playback_start_3
-        Me.PlayToolStripMenuItem.Name = "PlayToolStripMenuItem"
-        Me.PlayToolStripMenuItem.Size = New System.Drawing.Size(152, 22)
-        Me.PlayToolStripMenuItem.Text = "Play"
-        '
-        'IncreaseSpeedToolStripMenuItem
-        '
-        Me.IncreaseSpeedToolStripMenuItem.Image = Global.VRTM_Simulator.My.Resources.Resources.media_seek_forward_3
-        Me.IncreaseSpeedToolStripMenuItem.Name = "IncreaseSpeedToolStripMenuItem"
-        Me.IncreaseSpeedToolStripMenuItem.Size = New System.Drawing.Size(152, 22)
-        Me.IncreaseSpeedToolStripMenuItem.Text = "Increase Speed"
         '
         'ToolStripSeparator1
         '
@@ -453,7 +364,7 @@ Partial Class MainWindow
         Me.GroupBox7.Controls.Add(Me.Label25)
         Me.GroupBox7.Controls.Add(Me.Label26)
         Me.GroupBox7.Controls.Add(Me.Label27)
-        Me.GroupBox7.Location = New System.Drawing.Point(15, 264)
+        Me.GroupBox7.Location = New System.Drawing.Point(15, 285)
         Me.GroupBox7.Name = "GroupBox7"
         Me.GroupBox7.Size = New System.Drawing.Size(211, 287)
         Me.GroupBox7.TabIndex = 17
@@ -703,20 +614,23 @@ Partial Class MainWindow
         '
         Me.GroupBox2.Controls.Add(Me.Label41)
         Me.GroupBox2.Controls.Add(Me.Label40)
+        Me.GroupBox2.Controls.Add(Me.Label52)
         Me.GroupBox2.Controls.Add(Me.Label39)
         Me.GroupBox2.Controls.Add(Me.Label35)
         Me.GroupBox2.Controls.Add(Me.txtGlobalHX)
         Me.GroupBox2.Controls.Add(Me.Label6)
         Me.GroupBox2.Controls.Add(Me.txtEvapSurf)
         Me.GroupBox2.Controls.Add(Me.cmdHLEdit)
+        Me.GroupBox2.Controls.Add(Me.txtFanPower)
         Me.GroupBox2.Controls.Add(Me.txtFanFlow)
+        Me.GroupBox2.Controls.Add(Me.Label51)
         Me.GroupBox2.Controls.Add(Me.Label4)
         Me.GroupBox2.Controls.Add(Me.Label7)
         Me.GroupBox2.Controls.Add(Me.txtHL)
         Me.GroupBox2.Controls.Add(Me.Label8)
         Me.GroupBox2.Location = New System.Drawing.Point(15, 139)
         Me.GroupBox2.Name = "GroupBox2"
-        Me.GroupBox2.Size = New System.Drawing.Size(211, 119)
+        Me.GroupBox2.Size = New System.Drawing.Size(211, 140)
         Me.GroupBox2.TabIndex = 4
         Me.GroupBox2.TabStop = False
         Me.GroupBox2.Text = "Evaporators"
@@ -724,7 +638,7 @@ Partial Class MainWindow
         'Label41
         '
         Me.Label41.AutoSize = True
-        Me.Label41.Location = New System.Drawing.Point(161, 92)
+        Me.Label41.Location = New System.Drawing.Point(161, 116)
         Me.Label41.Name = "Label41"
         Me.Label41.Size = New System.Drawing.Size(44, 13)
         Me.Label41.TabIndex = 9
@@ -733,7 +647,7 @@ Partial Class MainWindow
         'Label40
         '
         Me.Label40.AutoSize = True
-        Me.Label40.Location = New System.Drawing.Point(177, 69)
+        Me.Label40.Location = New System.Drawing.Point(177, 93)
         Me.Label40.Name = "Label40"
         Me.Label40.Size = New System.Drawing.Size(18, 13)
         Me.Label40.TabIndex = 8
@@ -759,7 +673,7 @@ Partial Class MainWindow
         '
         'txtGlobalHX
         '
-        Me.txtGlobalHX.Location = New System.Drawing.Point(97, 89)
+        Me.txtGlobalHX.Location = New System.Drawing.Point(97, 113)
         Me.txtGlobalHX.Name = "txtGlobalHX"
         Me.txtGlobalHX.Size = New System.Drawing.Size(59, 20)
         Me.txtGlobalHX.TabIndex = 9
@@ -768,7 +682,7 @@ Partial Class MainWindow
         'Label6
         '
         Me.Label6.AutoSize = True
-        Me.Label6.Location = New System.Drawing.Point(7, 92)
+        Me.Label6.Location = New System.Drawing.Point(7, 116)
         Me.Label6.Name = "Label6"
         Me.Label6.Size = New System.Drawing.Size(89, 13)
         Me.Label6.TabIndex = 4
@@ -776,7 +690,7 @@ Partial Class MainWindow
         '
         'txtEvapSurf
         '
-        Me.txtEvapSurf.Location = New System.Drawing.Point(116, 66)
+        Me.txtEvapSurf.Location = New System.Drawing.Point(116, 90)
         Me.txtEvapSurf.Name = "txtEvapSurf"
         Me.txtEvapSurf.Size = New System.Drawing.Size(55, 20)
         Me.txtEvapSurf.TabIndex = 8
@@ -802,7 +716,7 @@ Partial Class MainWindow
         'Label4
         '
         Me.Label4.AutoSize = True
-        Me.Label4.Location = New System.Drawing.Point(7, 69)
+        Me.Label4.Location = New System.Drawing.Point(7, 93)
         Me.Label4.Name = "Label4"
         Me.Label4.Size = New System.Drawing.Size(103, 13)
         Me.Label4.TabIndex = 2
@@ -1336,6 +1250,33 @@ Partial Class MainWindow
         Me.GroupBox5.TabStop = False
         Me.GroupBox5.Text = "Products"
         '
+        'Label47
+        '
+        Me.Label47.AutoSize = True
+        Me.Label47.Location = New System.Drawing.Point(177, 152)
+        Me.Label47.Name = "Label47"
+        Me.Label47.Size = New System.Drawing.Size(24, 13)
+        Me.Label47.TabIndex = 53
+        Me.Label47.Text = "kW"
+        '
+        'txtWeeklyHeatLoad
+        '
+        Me.txtWeeklyHeatLoad.Enabled = False
+        Me.txtWeeklyHeatLoad.Location = New System.Drawing.Point(106, 149)
+        Me.txtWeeklyHeatLoad.Name = "txtWeeklyHeatLoad"
+        Me.txtWeeklyHeatLoad.Size = New System.Drawing.Size(65, 20)
+        Me.txtWeeklyHeatLoad.TabIndex = 52
+        Me.txtWeeklyHeatLoad.TextAlign = System.Windows.Forms.HorizontalAlignment.Right
+        '
+        'Label50
+        '
+        Me.Label50.AutoSize = True
+        Me.Label50.Location = New System.Drawing.Point(7, 152)
+        Me.Label50.Name = "Label50"
+        Me.Label50.Size = New System.Drawing.Size(99, 13)
+        Me.Label50.TabIndex = 51
+        Me.Label50.Text = "Weekly Heat Load:"
+        '
         'txtSafetyFactorVRTM
         '
         Me.txtSafetyFactorVRTM.Location = New System.Drawing.Point(106, 173)
@@ -1490,6 +1431,44 @@ Partial Class MainWindow
         Me.SimParams.Text = "Simulation Parameters"
         Me.SimParams.UseVisualStyleBackColor = True
         '
+        'GroupBox4
+        '
+        Me.GroupBox4.Controls.Add(Me.txtAcceptedDt)
+        Me.GroupBox4.Controls.Add(Me.Label48)
+        Me.GroupBox4.Controls.Add(Me.Label49)
+        Me.GroupBox4.Location = New System.Drawing.Point(16, 106)
+        Me.GroupBox4.Name = "GroupBox4"
+        Me.GroupBox4.Size = New System.Drawing.Size(211, 60)
+        Me.GroupBox4.TabIndex = 62
+        Me.GroupBox4.TabStop = False
+        Me.GroupBox4.Text = "Food Selector Mini-Simulator"
+        '
+        'txtAcceptedDt
+        '
+        Me.txtAcceptedDt.Location = New System.Drawing.Point(124, 20)
+        Me.txtAcceptedDt.Name = "txtAcceptedDt"
+        Me.txtAcceptedDt.Size = New System.Drawing.Size(43, 20)
+        Me.txtAcceptedDt.TabIndex = 58
+        Me.txtAcceptedDt.TextAlign = System.Windows.Forms.HorizontalAlignment.Right
+        '
+        'Label48
+        '
+        Me.Label48.AutoSize = True
+        Me.Label48.Location = New System.Drawing.Point(173, 23)
+        Me.Label48.Name = "Label48"
+        Me.Label48.Size = New System.Drawing.Size(18, 13)
+        Me.Label48.TabIndex = 2
+        Me.Label48.Text = "ºC"
+        '
+        'Label49
+        '
+        Me.Label49.AutoSize = True
+        Me.Label49.Location = New System.Drawing.Point(7, 23)
+        Me.Label49.Name = "Label49"
+        Me.Label49.Size = New System.Drawing.Size(114, 13)
+        Me.Label49.TabIndex = 2
+        Me.Label49.Text = "ΔT from Tevap to Tair:"
+        '
         'GroupBox9
         '
         Me.GroupBox9.Controls.Add(Me.Label46)
@@ -1641,70 +1620,123 @@ Partial Class MainWindow
         '
         Me.ErrorProvider1.ContainerControl = Me
         '
-        'GroupBox4
+        'btnReduceSpeed
         '
-        Me.GroupBox4.Controls.Add(Me.txtAcceptedDt)
-        Me.GroupBox4.Controls.Add(Me.Label48)
-        Me.GroupBox4.Controls.Add(Me.Label49)
-        Me.GroupBox4.Location = New System.Drawing.Point(16, 106)
-        Me.GroupBox4.Name = "GroupBox4"
-        Me.GroupBox4.Size = New System.Drawing.Size(211, 60)
-        Me.GroupBox4.TabIndex = 62
-        Me.GroupBox4.TabStop = False
-        Me.GroupBox4.Text = "Food Selector Mini-Simulator"
+        Me.btnReduceSpeed.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image
+        Me.btnReduceSpeed.Image = Global.VRTM_Simulator.My.Resources.Resources.media_seek_backward_3
+        Me.btnReduceSpeed.ImageTransparentColor = System.Drawing.Color.Magenta
+        Me.btnReduceSpeed.Name = "btnReduceSpeed"
+        Me.btnReduceSpeed.Size = New System.Drawing.Size(23, 22)
+        Me.btnReduceSpeed.Text = "ToolStripButton3"
         '
-        'txtAcceptedDt
+        'btnStop
         '
-        Me.txtAcceptedDt.Location = New System.Drawing.Point(124, 20)
-        Me.txtAcceptedDt.Name = "txtAcceptedDt"
-        Me.txtAcceptedDt.Size = New System.Drawing.Size(43, 20)
-        Me.txtAcceptedDt.TabIndex = 58
-        Me.txtAcceptedDt.TextAlign = System.Windows.Forms.HorizontalAlignment.Right
+        Me.btnStop.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image
+        Me.btnStop.Image = Global.VRTM_Simulator.My.Resources.Resources.media_playback_stop_3
+        Me.btnStop.ImageTransparentColor = System.Drawing.Color.Magenta
+        Me.btnStop.Name = "btnStop"
+        Me.btnStop.Size = New System.Drawing.Size(23, 22)
+        Me.btnStop.Text = "ToolStripButton4"
         '
-        'Label48
+        'btnPlay
         '
-        Me.Label48.AutoSize = True
-        Me.Label48.Location = New System.Drawing.Point(173, 23)
-        Me.Label48.Name = "Label48"
-        Me.Label48.Size = New System.Drawing.Size(18, 13)
-        Me.Label48.TabIndex = 2
-        Me.Label48.Text = "ºC"
+        Me.btnPlay.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image
+        Me.btnPlay.Image = Global.VRTM_Simulator.My.Resources.Resources.media_playback_start_3
+        Me.btnPlay.ImageTransparentColor = System.Drawing.Color.Magenta
+        Me.btnPlay.Name = "btnPlay"
+        Me.btnPlay.Size = New System.Drawing.Size(23, 22)
+        Me.btnPlay.Text = "ToolStripButton5"
         '
-        'Label49
+        'btnIncreaseSpeed
         '
-        Me.Label49.AutoSize = True
-        Me.Label49.Location = New System.Drawing.Point(7, 23)
-        Me.Label49.Name = "Label49"
-        Me.Label49.Size = New System.Drawing.Size(114, 13)
-        Me.Label49.TabIndex = 2
-        Me.Label49.Text = "ΔT from Tevap to Tair:"
+        Me.btnIncreaseSpeed.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image
+        Me.btnIncreaseSpeed.Image = Global.VRTM_Simulator.My.Resources.Resources.media_seek_forward_3
+        Me.btnIncreaseSpeed.ImageTransparentColor = System.Drawing.Color.Magenta
+        Me.btnIncreaseSpeed.Name = "btnIncreaseSpeed"
+        Me.btnIncreaseSpeed.Size = New System.Drawing.Size(23, 22)
+        Me.btnIncreaseSpeed.Text = "ToolStripButton6"
         '
-        'Label47
+        'OpenSimulationToolStripMenuItem
         '
-        Me.Label47.AutoSize = True
-        Me.Label47.Location = New System.Drawing.Point(177, 152)
-        Me.Label47.Name = "Label47"
-        Me.Label47.Size = New System.Drawing.Size(24, 13)
-        Me.Label47.TabIndex = 53
-        Me.Label47.Text = "kW"
+        Me.OpenSimulationToolStripMenuItem.Image = Global.VRTM_Simulator.My.Resources.Resources.document_open_5
+        Me.OpenSimulationToolStripMenuItem.Name = "OpenSimulationToolStripMenuItem"
+        Me.OpenSimulationToolStripMenuItem.Size = New System.Drawing.Size(163, 22)
+        Me.OpenSimulationToolStripMenuItem.Text = "&Open Simulation"
         '
-        'txtWeeklyHeatLoad
+        'SaveSimulationToolStripMenuItem
         '
-        Me.txtWeeklyHeatLoad.Enabled = False
-        Me.txtWeeklyHeatLoad.Location = New System.Drawing.Point(106, 149)
-        Me.txtWeeklyHeatLoad.Name = "txtWeeklyHeatLoad"
-        Me.txtWeeklyHeatLoad.Size = New System.Drawing.Size(65, 20)
-        Me.txtWeeklyHeatLoad.TabIndex = 52
-        Me.txtWeeklyHeatLoad.TextAlign = System.Windows.Forms.HorizontalAlignment.Right
+        Me.SaveSimulationToolStripMenuItem.Image = Global.VRTM_Simulator.My.Resources.Resources.document_save_5
+        Me.SaveSimulationToolStripMenuItem.Name = "SaveSimulationToolStripMenuItem"
+        Me.SaveSimulationToolStripMenuItem.Size = New System.Drawing.Size(163, 22)
+        Me.SaveSimulationToolStripMenuItem.Text = "&Save Simulation"
         '
-        'Label50
+        'RunProcessSimulationToolStripMenuItem
         '
-        Me.Label50.AutoSize = True
-        Me.Label50.Location = New System.Drawing.Point(7, 152)
-        Me.Label50.Name = "Label50"
-        Me.Label50.Size = New System.Drawing.Size(99, 13)
-        Me.Label50.TabIndex = 51
-        Me.Label50.Text = "Weekly Heat Load:"
+        Me.RunProcessSimulationToolStripMenuItem.Image = Global.VRTM_Simulator.My.Resources.Resources.script_gear
+        Me.RunProcessSimulationToolStripMenuItem.Name = "RunProcessSimulationToolStripMenuItem"
+        Me.RunProcessSimulationToolStripMenuItem.Size = New System.Drawing.Size(202, 22)
+        Me.RunProcessSimulationToolStripMenuItem.Text = "Run Process Simulation"
+        '
+        'RunThermalSimulationToolStripMenuItem
+        '
+        Me.RunThermalSimulationToolStripMenuItem.Image = Global.VRTM_Simulator.My.Resources.Resources.pictograms_hazard_signs_xtremely_flammable
+        Me.RunThermalSimulationToolStripMenuItem.Name = "RunThermalSimulationToolStripMenuItem"
+        Me.RunThermalSimulationToolStripMenuItem.Size = New System.Drawing.Size(202, 22)
+        Me.RunThermalSimulationToolStripMenuItem.Text = "Run Thermal Simulation"
+        '
+        'ReduceSpeedToolStripMenuItem
+        '
+        Me.ReduceSpeedToolStripMenuItem.Image = Global.VRTM_Simulator.My.Resources.Resources.media_seek_backward_3
+        Me.ReduceSpeedToolStripMenuItem.Name = "ReduceSpeedToolStripMenuItem"
+        Me.ReduceSpeedToolStripMenuItem.Size = New System.Drawing.Size(152, 22)
+        Me.ReduceSpeedToolStripMenuItem.Text = "Reduce Speed"
+        '
+        'StopToolStripMenuItem
+        '
+        Me.StopToolStripMenuItem.Image = Global.VRTM_Simulator.My.Resources.Resources.media_playback_stop_3
+        Me.StopToolStripMenuItem.Name = "StopToolStripMenuItem"
+        Me.StopToolStripMenuItem.Size = New System.Drawing.Size(152, 22)
+        Me.StopToolStripMenuItem.Text = "Stop"
+        '
+        'PlayToolStripMenuItem
+        '
+        Me.PlayToolStripMenuItem.Image = Global.VRTM_Simulator.My.Resources.Resources.media_playback_start_3
+        Me.PlayToolStripMenuItem.Name = "PlayToolStripMenuItem"
+        Me.PlayToolStripMenuItem.Size = New System.Drawing.Size(152, 22)
+        Me.PlayToolStripMenuItem.Text = "Play"
+        '
+        'IncreaseSpeedToolStripMenuItem
+        '
+        Me.IncreaseSpeedToolStripMenuItem.Image = Global.VRTM_Simulator.My.Resources.Resources.media_seek_forward_3
+        Me.IncreaseSpeedToolStripMenuItem.Name = "IncreaseSpeedToolStripMenuItem"
+        Me.IncreaseSpeedToolStripMenuItem.Size = New System.Drawing.Size(152, 22)
+        Me.IncreaseSpeedToolStripMenuItem.Text = "Increase Speed"
+        '
+        'Label51
+        '
+        Me.Label51.AutoSize = True
+        Me.Label51.Location = New System.Drawing.Point(7, 69)
+        Me.Label51.Name = "Label51"
+        Me.Label51.Size = New System.Drawing.Size(88, 13)
+        Me.Label51.TabIndex = 2
+        Me.Label51.Text = "Total Fan Power:"
+        '
+        'txtFanPower
+        '
+        Me.txtFanPower.Location = New System.Drawing.Point(97, 66)
+        Me.txtFanPower.Name = "txtFanPower"
+        Me.txtFanPower.Size = New System.Drawing.Size(74, 20)
+        Me.txtFanPower.TabIndex = 7
+        Me.txtFanPower.TextAlign = System.Windows.Forms.HorizontalAlignment.Right
+        '
+        'Label52
+        '
+        Me.Label52.AutoSize = True
+        Me.Label52.Location = New System.Drawing.Point(177, 69)
+        Me.Label52.Name = "Label52"
+        Me.Label52.Size = New System.Drawing.Size(24, 13)
+        Me.Label52.TabIndex = 7
+        Me.Label52.Text = "kW"
         '
         'MainWindow
         '
@@ -1748,6 +1780,8 @@ Partial Class MainWindow
         Me.GroupBox5.ResumeLayout(False)
         Me.GroupBox5.PerformLayout()
         Me.SimParams.ResumeLayout(False)
+        Me.GroupBox4.ResumeLayout(False)
+        Me.GroupBox4.PerformLayout()
         Me.GroupBox9.ResumeLayout(False)
         Me.GroupBox9.PerformLayout()
         Me.Divisor2.Panel1.ResumeLayout(False)
@@ -1760,8 +1794,6 @@ Partial Class MainWindow
         Me.MidPanel.ResumeLayout(False)
         CType(Me.VRTMTable, System.ComponentModel.ISupportInitialize).EndInit()
         CType(Me.ErrorProvider1, System.ComponentModel.ISupportInitialize).EndInit()
-        Me.GroupBox4.ResumeLayout(False)
-        Me.GroupBox4.PerformLayout()
         Me.ResumeLayout(False)
 
     End Sub
@@ -1916,4 +1948,7 @@ Partial Class MainWindow
     Friend WithEvents Label47 As Label
     Friend WithEvents txtWeeklyHeatLoad As TextBox
     Friend WithEvents Label50 As Label
+    Friend WithEvents Label52 As Label
+    Friend WithEvents txtFanPower As TextBox
+    Friend WithEvents Label51 As Label
 End Class

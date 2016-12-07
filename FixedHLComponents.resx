@@ -117,53 +117,36 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
-  <data name="media-playback-start-3" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\media-playback-start-3.ico;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="document-open-5" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\document-open-5.ico;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="media-playback-stop-3" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\media-playback-stop-3.ico;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="media-seek-forward-3" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\media-seek-forward-3.ico;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="Tray_and_Levels" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Tray and Levels.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="list-remove-4" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\list-remove-4.ico;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="script-gear" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\script-gear.ico;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="Tunnel_Size" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Tunnel_Size.jpg;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="pictograms-hazard_signs-xtremely_flammable" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\pictograms-hazard_signs-xtremely_flammable.ico;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="document-save-5" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\document-save-5.ico;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="edit-remove-2" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\edit-remove-2.ico;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="media-playback-pause-3" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\media-playback-pause-3.ico;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="media-seek-backward-3" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\media-seek-backward-3.ico;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="Product_Shapes_and_Dimensions" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Product Shapes and Dimensions.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="edit-add-2" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\edit-add-2.ico;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="Tunnel_Size2" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Tunnel_Size2.jpg;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <metadata name="ErrorProvider1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>17, 17</value>
+  </metadata>
+  <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
+  <data name="$this.Icon" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        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
+        AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
+</value>
   </data>
 </root>

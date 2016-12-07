@@ -75,8 +75,15 @@
   <ItemGroup>
     <Compile Include="Crank-Nicolson.vb" />
     <Compile Include="CurveFitting.vb" />
+    <Compile Include="FixedHLComponents.Designer.vb">
+      <DependentUpon>FixedHLComponents.vb</DependentUpon>
+    </Compile>
+    <Compile Include="FixedHLComponents.vb">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="FluidConvection.vb" />
     <Compile Include="FoodPropertiesModel.vb" />
+    <Compile Include="GeneralFunctions.vb" />
     <Compile Include="ImageTip.vb">
       <SubType>Component</SubType>
     </Compile>
@@ -114,6 +121,9 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="FixedHLComponents.resx">
+      <DependentUpon>FixedHLComponents.vb</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="MainWindow.resx">
       <DependentUpon>MainWindow.vb</DependentUpon>
     </EmbeddedResource>
@@ -180,6 +190,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\Product Shapes and Dimensions.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Tunnel_Size.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Tunnel_Size2.jpg" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -13,6 +13,7 @@
         Public boxesPerTray As Integer
 
         Public fanFlowRate As Double
+        Public fanPower As Double
         Public evapSurfArea As Double
         Public globalHX_Coeff As Double
 
@@ -49,8 +50,8 @@
         '===========================================
         '----Data containers for each form opened---
         '===========================================
+        Public FixedHeatLoadData As HeatLoadData 'Contains the fixed heat load data
         Public ProductMix() As ProductData 'Contains all the product data in the mix, listed in an array
-
 
         '===================================
         '----Hidden simulation variables----
@@ -67,6 +68,7 @@
             Me.boxesPerTray = 60
 
             Me.fanFlowRate = 600000
+            Me.fanPower = 200
             Me.evapSurfArea = 15000
             Me.globalHX_Coeff = 22
 
@@ -120,6 +122,27 @@
             Me.ProductMix(0).DeltaHSimulated = 262367 'Simulated already for this product
 
             Me.ProductMix(0).FoodThermalPropertiesModel = New FoodProperties()
+
+            'Initializes the heat load data
+            Me.FixedHeatLoadData = New HeatLoadData
+            Me.FixedHeatLoadData.Height = 15000
+            Me.FixedHeatLoadData.Width = 12000
+            Me.FixedHeatLoadData.Length = 30000
+            Me.FixedHeatLoadData.OutsideT = 35
+            Me.FixedHeatLoadData.WallMaterialIdx = 0
+            Me.FixedHeatLoadData.WallThickness = 150
+
+            Me.FixedHeatLoadData.MotorPower = 50
+            Me.FixedHeatLoadData.MotorHours = 16
+            Me.FixedHeatLoadData.IllumPowerArea = 15
+            Me.FixedHeatLoadData.IllumHours = 16
+            Me.FixedHeatLoadData.DailyVolumeChange = 1
+
+            Me.FixedHeatLoadData.ConductionPower = 0
+            Me.FixedHeatLoadData.EquipPower = 0
+            Me.FixedHeatLoadData.InfiltrPower = 0
+
+            Me.FixedHeatLoadData.FixedHL = 50
         End Sub
     End Class
 
@@ -158,6 +181,28 @@
         Public CarbContent As Double '0-1 value
         Public AshContent As Double '0-1 value
         Public FreezingTemp As Double 'ºC
+    End Class
+
+    Public Class HeatLoadData
+        'Models the Fixed HL Data in the form
+        Public Height As Double 'Tunnel room height in mm
+        Public Width As Double 'Tunnel room width in mm
+        Public Length As Double 'Tunnel room length in mm
+        Public OutsideT As Double 'Outside temperature in ºC
+        Public WallMaterialIdx As Integer 'Materials available: 0=PUR, 1=EPS
+        Public WallThickness As Double 'Wall thickness in mm
+
+        Public MotorPower As Double 'Motor without fans kW
+        Public MotorHours As Double 'Motor hours per day
+        Public IllumPowerArea As Double 'Illumination  W/m²
+        Public IllumHours As Double 'Illumination hours per day
+        Public DailyVolumeChange As Double 'Number of changes in the air volume
+
+        Public ConductionPower As Double 'kW
+        Public EquipPower As Double 'kW
+        Public InfiltrPower As Double 'kW
+
+        Public FixedHL As Double 'kW
     End Class
 
     Public Sub LoadFoodPropertiesCSVIntoMemory()

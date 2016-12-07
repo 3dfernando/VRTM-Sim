@@ -14,7 +14,9 @@ Public Class MainWindow
         txtBoxesPerTray.Text = Trim(Str(VRTM_SimVariables.boxesPerTray))
         txtStCap.Text = Trim(Str(VRTM_SimVariables.nTrays * VRTM_SimVariables.nLevels * VRTM_SimVariables.boxesPerTray))
 
+        txtHL.Text = Trim(Str(VRTM_SimVariables.FixedHeatLoadData.FixedHL))
         txtFanFlow.Text = Trim(Str(VRTM_SimVariables.fanFlowRate))
+        txtFanPower.Text = Trim(Str(VRTM_SimVariables.fanPower))
         txtEvapSurf.Text = Trim(Str(VRTM_SimVariables.evapSurfArea))
         txtGlobalHX.Text = Trim(Str(VRTM_SimVariables.globalHX_Coeff))
 
@@ -176,11 +178,20 @@ Public Class MainWindow
     Private Sub RunProcessSimulationToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles RunProcessSimulationToolStripMenuItem.Click
         Init_DGV(VRTM_SimVariables.nLevels, VRTM_SimVariables.nTrays)
     End Sub
+
+    Private Sub cmdHLEdit_Click(sender As Object, e As EventArgs) Handles cmdHLEdit.Click
+        'Shows the fixed heat load form
+        Dim F As New FixedHLComponents
+        F.ShowDialog()
+
+        txtHL.Text = Trim(Str(Round(VRTM_SimVariables.FixedHeatLoadData.FixedHL, 2)))
+    End Sub
+
 #End Region
 
 #Region "Validations ====Tab VRTM Params===="
     Private Sub Validate_Positive(ByVal sender As Object, ByVal e As System.ComponentModel.CancelEventArgs) Handles _
-        txtNLevels.Validating, txtNTrays.Validating, txtBoxesPerTray.Validating, txtFanFlow.Validating, txtEvapSurf.Validating, txtGlobalHX.Validating
+        txtNLevels.Validating, txtNTrays.Validating, txtBoxesPerTray.Validating, txtFanFlow.Validating, txtEvapSurf.Validating, txtGlobalHX.Validating, txtFanPower.Validating
         'Validates several textboxes that have a numeric input
         If Not (IsNumeric(sender.Text) And Val(sender.text) > 0) Then
             ' Cancel the event and select the text to be corrected by the user.
@@ -217,7 +228,7 @@ Public Class MainWindow
     End Sub
 
     Private Sub Validated_Textbox_Evaporators(ByVal sender As Object, ByVal e As System.EventArgs) Handles _
-        txtFanFlow.Validated, txtEvapSurf.Validated, txtGlobalHX.Validated
+        txtFanFlow.Validated, txtEvapSurf.Validated, txtGlobalHX.Validated, txtFanPower.Validated
         ' If all conditions have been met, clear the error provider of errors.
         ErrorProvider1.SetError(sender, "")
 
@@ -494,8 +505,8 @@ Public Class MainWindow
         txtAvgBoxflowIn.Text = Trim(Str(TotalBoxFlowIn))
         txtAvgMassFlowIn.Text = Trim(Str(TotalMassFlowIn))
         txtAvgBoxMass.Text = Trim(Str(TotalMassFlowIn / TotalBoxFlowIn))
-        txtAvgHeatLoad.Text = Trim(Str(DailyAvgHL))
-        txtWeeklyHeatLoad.Text = Trim(Str(WeeklyAvgHL))
+        txtAvgHeatLoad.Text = Trim(Str(Round(DailyAvgHL, 2)))
+        txtWeeklyHeatLoad.Text = Trim(Str(Round(WeeklyAvgHL, 2)))
 
     End Sub
 
