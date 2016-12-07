@@ -120,28 +120,28 @@ Partial Class FixedHLComponents
         Me.txtLength.Location = New System.Drawing.Point(215, 209)
         Me.txtLength.Name = "txtLength"
         Me.txtLength.Size = New System.Drawing.Size(60, 20)
-        Me.txtLength.TabIndex = 4
+        Me.txtLength.TabIndex = 2
         '
         'txtWidth
         '
         Me.txtWidth.Location = New System.Drawing.Point(73, 218)
         Me.txtWidth.Name = "txtWidth"
         Me.txtWidth.Size = New System.Drawing.Size(60, 20)
-        Me.txtWidth.TabIndex = 4
+        Me.txtWidth.TabIndex = 1
         '
         'txtOuterT
         '
         Me.txtOuterT.Location = New System.Drawing.Point(315, 101)
         Me.txtOuterT.Name = "txtOuterT"
         Me.txtOuterT.Size = New System.Drawing.Size(60, 20)
-        Me.txtOuterT.TabIndex = 4
+        Me.txtOuterT.TabIndex = 3
         '
         'txtWallThickness
         '
         Me.txtWallThickness.Location = New System.Drawing.Point(108, 275)
         Me.txtWallThickness.Name = "txtWallThickness"
         Me.txtWallThickness.Size = New System.Drawing.Size(71, 20)
-        Me.txtWallThickness.TabIndex = 4
+        Me.txtWallThickness.TabIndex = 6
         '
         'Label5
         '
@@ -183,7 +183,7 @@ Partial Class FixedHLComponents
         Me.txtHeight.Location = New System.Drawing.Point(11, 101)
         Me.txtHeight.Name = "txtHeight"
         Me.txtHeight.Size = New System.Drawing.Size(60, 20)
-        Me.txtHeight.TabIndex = 4
+        Me.txtHeight.TabIndex = 0
         '
         'Label3
         '
@@ -267,28 +267,28 @@ Partial Class FixedHLComponents
         Me.txtHoursIllum.Location = New System.Drawing.Point(204, 106)
         Me.txtHoursIllum.Name = "txtHoursIllum"
         Me.txtHoursIllum.Size = New System.Drawing.Size(71, 20)
-        Me.txtHoursIllum.TabIndex = 4
+        Me.txtHoursIllum.TabIndex = 10
         '
         'txtHoursMotor
         '
         Me.txtHoursMotor.Location = New System.Drawing.Point(204, 48)
         Me.txtHoursMotor.Name = "txtHoursMotor"
         Me.txtHoursMotor.Size = New System.Drawing.Size(71, 20)
-        Me.txtHoursMotor.TabIndex = 4
+        Me.txtHoursMotor.TabIndex = 8
         '
         'txtIllumination
         '
         Me.txtIllumination.Location = New System.Drawing.Point(204, 83)
         Me.txtIllumination.Name = "txtIllumination"
         Me.txtIllumination.Size = New System.Drawing.Size(71, 20)
-        Me.txtIllumination.TabIndex = 4
+        Me.txtIllumination.TabIndex = 9
         '
         'txtTotalMotorPower
         '
         Me.txtTotalMotorPower.Location = New System.Drawing.Point(204, 25)
         Me.txtTotalMotorPower.Name = "txtTotalMotorPower"
         Me.txtTotalMotorPower.Size = New System.Drawing.Size(71, 20)
-        Me.txtTotalMotorPower.TabIndex = 4
+        Me.txtTotalMotorPower.TabIndex = 7
         '
         'Label13
         '
@@ -429,7 +429,6 @@ Partial Class FixedHLComponents
         Me.txtFixedHeatLoad.Name = "txtFixedHeatLoad"
         Me.txtFixedHeatLoad.Size = New System.Drawing.Size(56, 20)
         Me.txtFixedHeatLoad.TabIndex = 4
-        Me.txtFixedHeatLoad.Text = "10"
         '
         'txtInfiltrationPower
         '

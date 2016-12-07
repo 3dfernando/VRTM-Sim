@@ -75,6 +75,7 @@ Public Class MainWindow
         'Creates tooltips for the imaged tooltip components
         Try
             Dim T As New ImageTip
+            T.InitialDelay = 100
             T.SetToolTip(txtNLevels, "Tray_and_Levels")
             T.SetToolTip(txtNTrays, "Tray_and_Levels")
 

@@ -47,6 +47,7 @@
         'Inits the tooltips with images
         Try
             Dim T As New ImageTip
+            T.InitialDelay = 100
             T.SetToolTip(txtSimDiameter, "Product_Shapes_and_Dimensions")
             T.SetToolTip(txtSimGeom, "Product_Shapes_and_Dimensions")
             T.SetToolTip(txtSimLength, "Product_Shapes_and_Dimensions")
