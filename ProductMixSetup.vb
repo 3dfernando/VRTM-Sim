@@ -10,10 +10,11 @@
 
         lstProductMix.Columns.Clear()
         lstProductMix.Columns.Add("Product Name", 100)
+        lstProductMix.Columns.Add("Conveyor", 60)
         lstProductMix.Columns.Add("Box Weight [kg]", 90)
         lstProductMix.Columns.Add("Avg Flow [box/h]", 100)
-        lstProductMix.Columns.Add("Inlet Temp. [ºC]", 100)
-        lstProductMix.Columns.Add("Outlet Temp. [ºC]", 100)
+        lstProductMix.Columns.Add("Inlet Temp. [ºC]", 90)
+        lstProductMix.Columns.Add("Outlet Temp. [ºC]", 95)
         lstProductMix.Columns.Add("Thermal Model", 100)
 
         'Loads the columns in the product model properties view
@@ -65,6 +66,7 @@
         If Not IsNothing(VRTM_SimVariables.ProductMix) Then
             For Each Prod As ProductData In VRTM_SimVariables.ProductMix
                 lstProductMix.Items.Add(Prod.ProdName)
+                lstProductMix.Items(lstProductMix.Items.Count - 1).SubItems.Add(Trim(Str(Prod.ConveyorNumber)))
                 lstProductMix.Items(lstProductMix.Items.Count - 1).SubItems.Add(Trim(Str(Prod.BoxWeight)))
                 lstProductMix.Items(lstProductMix.Items.Count - 1).SubItems.Add(Trim(Str(Prod.AvgFlowRate)))
                 lstProductMix.Items(lstProductMix.Items.Count - 1).SubItems.Add(Trim(Str(Prod.InletTemperature)))
@@ -101,6 +103,7 @@
                                 txtStdDev.Text = Trim(Str(p.BoxRateStdDev))
                                 txtStdDev.Enabled = True
                         End Select
+                        txtConveyor.Text = Trim(Str(p.ConveyorNumber))
 
                         txtSimGeom.SelectedItem = p.SimGeometry
                         Select Case p.SimGeometry
@@ -141,8 +144,10 @@
                         txtMinStayTime.Text = Trim(Str(p.MinimumStayTime))
                         txtAirSpeed.Text = Trim(Str(p.AirSpeed))
                         txtConvectionMultFactor.Text = Trim(Str(p.ConvCoeffMultiplier))
-                        txtConvCoeff.Text = Trim(Str(p.ConvCoefficientUsed))
+                        txtConvCoeff.Text = Trim(Str(Round(p.ConvCoefficientUsed, 2)))
+                        txtDeltaH.Text = Trim(Str(Round(p.DeltaHSimulated / 1000, 2)))
                         txtProductModel.SelectedItem = p.FoodThermalPropertiesModel.FoodModelUsed.ProductName
+
                     End If
                 Next
 
@@ -151,8 +156,6 @@
 
                 SimulateFood_UpdateChartData()
             End With
-
-            'UpdateGraph("Sample Temperature Distribution", {0, 1, 2.1, 3, 4, 5.5}, {12, 0, -2, -2, -18, -18}, {12, 11, 5, 2, -2, -7}) 'Delete me
 
         Else
             'Nothing has been selected, so clears the form
@@ -172,6 +175,7 @@
         'Exponential
         txtStdDev.Text = ""
         txtStdDev.Enabled = False
+        txtConveyor.Text = ""
 
         txtSimGeom.SelectedIndex = 0
         'Thin Slab
@@ -190,6 +194,7 @@
         txtAirSpeed.Text = ""
         txtConvectionMultFactor.Text = ""
         txtConvCoeff.Text = ""
+        txtDeltaH.Text = ""
 
         txtProductModel.SelectedIndex = 0
 
@@ -252,7 +257,22 @@
         Dim food As New FoodProperties(p, True)
 
         Solve_Crank_Nicolson_OneProduct(L, nx, totalt, nt, Ti, h, Tf, G, food, t, Ts, Tc, DH)
-        UpdateGraph("Product freezing curve for " & txtProductModel.SelectedItem, t, Ts, Tc)
+
+        Dim t_scale As String = "Time [s]"
+        If totalt > (3600 * 2.5) Then
+            For i = 0 To t.Count - 1
+                t(i) = t(i) / 3600 'Converts seconds to hours
+            Next
+            t_scale = "Time [h]"
+        ElseIf totalt > (3600 * 0.3) Then
+            For i = 0 To t.Count - 1
+                t(i) = t(i) / 60 'Converts seconds to minutes
+            Next
+            t_scale = "Time [min]"
+        End If
+
+
+        UpdateGraph("Product freezing curve for " & txtProductModel.SelectedItem, t, t_scale, Ts, Tc)
 
         'Updates DH in the VRTMSimVariables
         VRTM_SimVariables.ProductMix(lstProductMix.SelectedIndices(0)).DeltaHSimulated = DH
@@ -337,6 +357,7 @@
                 VRTM_SimVariables.ProductMix(I).BoxRateStdDev = txtStdDev.Text
                 txtStdDev.Enabled = True
         End Select
+        VRTM_SimVariables.ProductMix(I).ConveyorNumber = CLng(txtConveyor.Text)
 
         VRTM_SimVariables.ProductMix(I).SimGeometry = txtSimGeom.SelectedItem
         VRTM_SimVariables.ProductMix(I).SimThickness = Val(txtSimThickness.Text)
@@ -412,7 +433,6 @@
         DarkGrayColor = Color.FromArgb(100, 100, 100)
 
         With ProductFreezingChart
-            .ChartAreas(0).AxisX.Title = "Time [h]"
             .ChartAreas(0).AxisY.Title = "Temperature [ºC]"
 
             .ChartAreas(0).AxisX.LineColor = DarkGrayColor
@@ -434,12 +454,15 @@
         End With
     End Sub
 
-    Private Sub UpdateGraph(Title As String, TimeArray() As Double, TemperatureArraySurf() As Double, TemperatureArrayCenter() As Double)
+    Private Sub UpdateGraph(Title As String, TimeArray() As Double, Time_AxisLabel As String, TemperatureArraySurf() As Double, TemperatureArrayCenter() As Double)
         'Updates the graph with the three results from the simulation
         Dim I As Integer
 
         If UBound(TimeArray) <> UBound(TemperatureArraySurf) Then Exit Sub
         If UBound(TimeArray) <> UBound(TemperatureArrayCenter) Then Exit Sub
+
+        'Axis title
+        ProductFreezingChart.ChartAreas(0).AxisX.Title = Time_AxisLabel
 
         'Titles
         ProductFreezingChart.Titles.Clear()
@@ -553,7 +576,7 @@
     Private Sub GeneralValidated(ByVal sender As Object, ByVal e As System.EventArgs) Handles _
         txtProductName.Validated, txtBoxWeight.Validated, txtBoxFlowRate.Validated, txtStdDev.Validated, txtSimThickness.Validated, txtSimLength.Validated,
         txtSimWidth.Validated, txtSimDiameter.Validated, txtMinStayTime.Validated, txtAirSpeed.Validated, txtConvectionMultFactor.Validated,
-        txtInletTemp.Validated, txtOutletTemp.Validated
+        txtInletTemp.Validated, txtOutletTemp.Validated, txtConveyor.Validated
         ' If all conditions have been met, clear the error provider of errors.
         ErrorProvider1.SetError(sender, "")
 
@@ -589,7 +612,7 @@
     End Sub
     Private Sub Validate_Positive(ByVal sender As Object, ByVal e As System.ComponentModel.CancelEventArgs) Handles _
         txtBoxWeight.Validating, txtBoxFlowRate.Validating, txtStdDev.Validating, txtSimThickness.Validating, txtSimLength.Validating, txtSimWidth.Validating,
-        txtSimDiameter.Validating, txtMinStayTime.Validating, txtAirSpeed.Validating, txtConvectionMultFactor.Validating
+        txtSimDiameter.Validating, txtMinStayTime.Validating, txtAirSpeed.Validating, txtConvectionMultFactor.Validating, txtConveyor.Validating
         'Validates several textboxes that have a numeric input
         If sender.Enabled = False Then Exit Sub
         If Not (IsNumeric(sender.Text) And Val(sender.text) > 0) Then

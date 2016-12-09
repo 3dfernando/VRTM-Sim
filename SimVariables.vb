@@ -56,7 +56,7 @@
         '===================================
         '----Hidden simulation variables----
         '===================================
-
+        Public SimData As SimulationData
 
         '========================
         '----Subs and Methods----
@@ -106,6 +106,7 @@
             Me.ProductMix(0).AvgFlowRate = 1200
             Me.ProductMix(0).BoxRateStatisticalDistr = "Exponential"
             Me.ProductMix(0).BoxRateStdDev = 0
+            Me.ProductMix(0).ConveyorNumber = 1
 
             Me.ProductMix(0).SimGeometry = "Thin Slab"
             Me.ProductMix(0).SimThickness = 120
@@ -153,6 +154,7 @@
         Public AvgFlowRate As Double 'In boxes/h
         Public BoxRateStatisticalDistr As String 'Exponential, Gaussian, etc
         Public BoxRateStdDev As Double 'boxes/h
+        Public ConveyorNumber As Long 'Number of the conveyor this product will be received at
 
         Public SimGeometry As String
         Public SimThickness As Double 'mm
@@ -210,6 +212,7 @@
             If Not System.IO.File.Exists(My.Settings.FoodProductCSVPath) Then
 TryAgain:
                 Dim fDiag As New System.Windows.Forms.OpenFileDialog
+                fDiag.Title = "Select a CSV file for the food properties table"
                 fDiag.Filter = "CSV Files|*.csv"
                 fDiag.ShowDialog()
                 If Not System.IO.File.Exists(fDiag.FileName) Then
@@ -235,12 +238,12 @@ TryAgain:
                                 Dim TempFood As New FoodPropertiesListItem
                                 With TempFood
                                     .ProductName = currentRow(0)
-                                    .WaterContent = Double.Parse(currentRow(1))
-                                    .ProteinContent = Double.Parse(currentRow(2))
-                                    .FatContent = Double.Parse(currentRow(3))
-                                    .CarbContent = Double.Parse(currentRow(4))
-                                    .AshContent = Double.Parse(currentRow(5))
-                                    .FreezingTemp = Double.Parse(currentRow(6))
+                                    .WaterContent = Double.Parse(currentRow(1).Replace(",", "."), System.Globalization.CultureInfo.InvariantCulture)
+                                    .ProteinContent = Double.Parse(currentRow(2).Replace(",", "."), System.Globalization.CultureInfo.InvariantCulture)
+                                    .FatContent = Double.Parse(currentRow(3).Replace(",", "."), System.Globalization.CultureInfo.InvariantCulture)
+                                    .CarbContent = Double.Parse(currentRow(4).Replace(",", "."), System.Globalization.CultureInfo.InvariantCulture)
+                                    .AshContent = Double.Parse(currentRow(5).Replace(",", "."), System.Globalization.CultureInfo.InvariantCulture)
+                                    .FreezingTemp = Double.Parse(currentRow(6).Replace(",", "."), System.Globalization.CultureInfo.InvariantCulture)
 
                                     If ((TempFood.WaterContent + TempFood.ProteinContent + TempFood.FatContent + TempFood.CarbContent + TempFood.AshContent) - 1) < 0.00001 Then 'Allow for double imprecision
                                         FoodPropertiesList.Add(TempFood)
@@ -267,4 +270,23 @@ TryAgain:
         End Try
     End Sub
 
+    Public Class SimulationData
+        'This class will contain all the variables in the process simulation data (variables of the process simulation)
+        Public TRVMTrayIndices(,,) As TrayData  'ARRAY OF TRAY DATA IN THE FORMAT of timestep, Tray no, Level no
+        Public TrayEntryTimes() As Double 'Array of simulation entry time indices for each tray index mentioned in TRVMTrayIndices
+        Public TrayExitTimes() As Double 'Array of simulation exit time indices for each tray index mentioned in TRVMTrayIndices
+        Public TrayStayTime() As Double 'Array of stay times for each tray
+        Public TrayAirTemperatures() As Double 'Air temperatures on the trays
+        Public TrayEntryLevels() As Double 'Array of levels where each tray was entering onto for the tray index mentioned in TRVMTrayIndices
+
+    End Class
+
+    Public Class TrayData
+        'This class contains the data of a tray after simulation has been processed
+        Public TrayIndex As Long ' Sequential tray index (Starts at 1)
+        Public ProductIndex As Long 'Product index in the array of ProduxtMix() [In other words, the SKU]
+        Public SurfTemperature As Double 'Surface temperature of the product after thermal sim [ºC]
+        Public CenterTemperature As Double 'Center temperature of the product after thermal sim [ºC]
+        Public TrayPower As Double 'Heat power released in the current timestep after thermal sim [W]
+    End Class
 End Module

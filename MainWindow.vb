@@ -116,7 +116,6 @@ Public Class MainWindow
         Catch ex As Exception
 
         End Try
-
     End Sub
 
 #End Region
@@ -168,7 +167,6 @@ Public Class MainWindow
     End Sub
 #End Region
 
-
 #Region "Button Press"
     Private Sub cmdPrdMixSetup_Click(sender As Object, e As EventArgs) Handles cmdPrdMixSetup.Click
         Dim F As New ProductMixSetup
@@ -178,6 +176,7 @@ Public Class MainWindow
 
     Private Sub RunProcessSimulationToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles RunProcessSimulationToolStripMenuItem.Click
         Init_DGV(VRTM_SimVariables.nLevels, VRTM_SimVariables.nTrays)
+        RunProcessSimulation()
     End Sub
 
     Private Sub cmdHLEdit_Click(sender As Object, e As EventArgs) Handles cmdHLEdit.Click
@@ -186,8 +185,36 @@ Public Class MainWindow
         F.ShowDialog()
 
         txtHL.Text = Trim(Str(Round(VRTM_SimVariables.FixedHeatLoadData.FixedHL, 2)))
+        UpdateProductMixStats()
     End Sub
 
+    Private Sub cmdCopyMR(sender As Object, e As EventArgs) Handles cmdCopyMachineRoom.Click
+        'Copies the checkboxes from the machine room to the VRTM
+        VRTM_SimVariables.IdleDaysVRTM = VRTM_SimVariables.IdleDaysMRoom
+        FormShown = False
+        chkMondayVRTM.Checked = VRTM_SimVariables.IdleDaysVRTM(0)
+        chkTuesdayVRTM.Checked = VRTM_SimVariables.IdleDaysVRTM(1)
+        chkWednesdayVRTM.Checked = VRTM_SimVariables.IdleDaysVRTM(2)
+        chkThursdayVRTM.Checked = VRTM_SimVariables.IdleDaysVRTM(3)
+        chkFridayVRTM.Checked = VRTM_SimVariables.IdleDaysVRTM(4)
+        chkSaturdayVRTM.Checked = VRTM_SimVariables.IdleDaysVRTM(5)
+        chkSundayVRTM.Checked = VRTM_SimVariables.IdleDaysVRTM(6)
+        FormShown = True
+    End Sub
+
+    Private Sub cmdCopyVRTMClick(sender As Object, e As EventArgs) Handles cmdCopyVRTM.Click
+        'Copies the checkboxes from the machine room to the VRTM
+        VRTM_SimVariables.IdleDaysMRoom = VRTM_SimVariables.IdleDaysVRTM
+        FormShown = False
+        chkMondayMR.Checked = VRTM_SimVariables.IdleDaysMRoom(0)
+        chkTuesdayMR.Checked = VRTM_SimVariables.IdleDaysMRoom(1)
+        chkWednesdayMR.Checked = VRTM_SimVariables.IdleDaysMRoom(2)
+        chkThursdayMR.Checked = VRTM_SimVariables.IdleDaysMRoom(3)
+        chkFridayMR.Checked = VRTM_SimVariables.IdleDaysMRoom(4)
+        chkSaturdayMR.Checked = VRTM_SimVariables.IdleDaysMRoom(5)
+        chkSundayMR.Checked = VRTM_SimVariables.IdleDaysMRoom(6)
+        FormShown = True
+    End Sub
 #End Region
 
 #Region "Validations ====Tab VRTM Params===="
@@ -334,6 +361,7 @@ Public Class MainWindow
         ErrorProvider1.SetError(sender, "")
 
         VRTM_SimVariables.SafetyFactorVRTM = Val(txtSafetyFactorVRTM.Text)
+        UpdateProductMixStats()
     End Sub
 
     Private Sub Checkboxes_Production() Handles _
@@ -413,8 +441,6 @@ Public Class MainWindow
     End Sub
 #End Region
 
-
-
 #Region "Other Functions"
     Private Function HourStringToDayFraction(Hour As String) As Double
         'This function converts an hour string in the format 24:00 to a day fraction (0 to 1).
@@ -488,24 +514,39 @@ Public Class MainWindow
 
         Dim ProductiveDays As Integer = 0
         Dim MRDays As Integer = 0
+        Dim VRTMDays As Integer = 0
         For i As Integer = 0 To 6
             ProductiveDays -= VRTM_SimVariables.ProductionDays(i)
             MRDays -= VRTM_SimVariables.IdleDaysMRoom(i)
+            VRTMDays -= VRTM_SimVariables.IdleDaysVRTM(i)
         Next
 
         Dim ProductiveHours As Double = 24 * (Delta_Day(VRTM_SimVariables.SecondTurnEnd, VRTM_SimVariables.SecondTurnBegin) +
                                         Delta_Day(VRTM_SimVariables.FirstTurnEnd, VRTM_SimVariables.FirstTurnBegin))
         Dim MRHours As Double = 24 * (1 - Delta_Day(VRTM_SimVariables.IdleHourEndMRoom, VRTM_SimVariables.IdleHourBeginMRoom))
+        Dim VRTMHours As Double = 24 * (1 - Delta_Day(VRTM_SimVariables.IdleHourEndVRTM, VRTM_SimVariables.IdleHourBeginVRTM))
 
         Dim DailyAvgHL As Double
         Dim WeeklyAvgHL As Double
-        DailyAvgHL = ((ProductiveHours / MRHours) * TotalInstHeatLoad) / 1000
-        WeeklyAvgHL = (((ProductiveHours * ProductiveDays) / (MRHours * MRDays + 24 * 2)) * TotalInstHeatLoad) / 1000
-        TotalInstHeatLoad = TotalInstHeatLoad / 1000 'W to kW
+
+
+        DailyAvgHL = ((ProductiveHours / MRHours) * TotalInstHeatLoad) / 1000 'Averages the instant HL throughout the day
+        DailyAvgHL += (VRTMHours / MRHours) * Val(txtFanPower.Text) 'Adds the fan power averaged through the day in the same fashion
+        DailyAvgHL += VRTM_SimVariables.FixedHeatLoadData.FixedHL 'Adds the fixed HL component
+        DailyAvgHL *= VRTM_SimVariables.SafetyFactorVRTM 'Adds the safety factor
+
+
+        WeeklyAvgHL = (ProductiveHours * ProductiveDays) / (168 - (24 - MRHours) * MRDays) ' Gets the ratio between inlet HL and MR HL
+        WeeklyAvgHL *= TotalInstHeatLoad / 1000 'Multiplies that by the heat load of the product
+        WeeklyAvgHL += ((168 - (24 - VRTMHours) * VRTMDays) / (168 - (24 - MRHours) * MRDays)) * Val(txtFanPower.Text) 'Adds the fan HL
+        WeeklyAvgHL += VRTM_SimVariables.FixedHeatLoadData.FixedHL 'Adds the fixed HL component
+        WeeklyAvgHL *= VRTM_SimVariables.SafetyFactorVRTM 'Adds the safety factor
+
+
 
         txtAvgBoxflowIn.Text = Trim(Str(TotalBoxFlowIn))
         txtAvgMassFlowIn.Text = Trim(Str(TotalMassFlowIn))
-        txtAvgBoxMass.Text = Trim(Str(TotalMassFlowIn / TotalBoxFlowIn))
+        txtAvgBoxMass.Text = Trim(Str(Round(TotalMassFlowIn / TotalBoxFlowIn, 2)))
         txtAvgHeatLoad.Text = Trim(Str(Round(DailyAvgHL, 2)))
         txtWeeklyHeatLoad.Text = Trim(Str(Round(WeeklyAvgHL, 2)))
 
@@ -529,8 +570,7 @@ Public Class MainWindow
             Next
         Next
     End Sub
-
-
 #End Region
+
 
 End Class
