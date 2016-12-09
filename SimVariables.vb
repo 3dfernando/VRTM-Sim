@@ -97,6 +97,8 @@
             Me.MinimumSimDt = 300
             Me.AssumedDTForPreviews = 7
 
+            Me.SimData = New SimulationData
+
 
             'Initializes one product in the mix
             ReDim Me.ProductMix(2)

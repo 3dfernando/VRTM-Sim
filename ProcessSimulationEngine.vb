@@ -16,6 +16,7 @@
             For idx = 0 To .ProductMix.Count - 1
                 T = 0
                 Do While T < .TotalSimTime
+
                     If .ProductMix(idx).BoxRateStatisticalDistr.ToLower = "exponential" Then
                         tCurrent = GetExponentialT(3600 / .ProductMix(idx).AvgFlowRate)
                     ElseIf .ProductMix(idx).BoxRateStatisticalDistr.ToLower = "gaussian" Then
@@ -45,18 +46,38 @@
             Next
 
 
-            'Gets the seeded products and forms trays as the box quantity needed to fill up a tray is achieved
             Dim BoxLimit As Long = .boxesPerTray
             Dim currentTrayIndex As Long = 1
             Dim currentLevel As Long
 
+            'Sizes the tray data array
+            ReDim .SimData.TrayEntryTimes(Int(ArrivalTimes.Count / BoxLimit))
+            ReDim .SimData.TrayEntryLevels(Int(ArrivalTimes.Count / BoxLimit))
             ReDim .SimData.VRTMTrayData(Int(ArrivalTimes.Count / BoxLimit), .nTrays - 1, .nLevels - 1)
+            For I As Long = 0 To UBound(.SimData.VRTMTrayData, 1)
+                For J As Long = 0 To UBound(.SimData.VRTMTrayData, 2)
+                    For K As Long = 0 To UBound(.SimData.VRTMTrayData, 3)
+                        .SimData.VRTMTrayData(I, J, K) = New TrayData
+                    Next
+                Next
+            Next
 
+
+            '#######Gets the seeded products and forms trays as the box quantity needed to fill up a tray is achieved#######
             For Each k In ArrivalTimes
                 Conveyors(ConveyorPosition_To_Index(VRTM_SimVariables.ProductMix(k.Value).ConveyorNumber)).BoxesInConveyor.Add(k.Value)
                 If Conveyors(ConveyorPosition_To_Index(VRTM_SimVariables.ProductMix(k.Value).ConveyorNumber)).BoxesInConveyor.Count >= BoxLimit Then
                     'Unload the conveyor and create a tray
                     currentLevel = Int(Rnd() * (.nLevels - 1))
+
+                    If currentTrayIndex <> 0 Then
+                        For I As Long = 0 To .nTrays - 1
+                            For J As Long = 0 To .nLevels - 1
+                                'Copies the last timestep onto the current timestep
+                                .SimData.VRTMTrayData(currentTrayIndex, I, J) = .SimData.VRTMTrayData(currentTrayIndex - 1, I, J)
+                            Next
+                        Next
+                    End If
 
                     'Advances all the other trays in this level
                     For I As Long = .nTrays - 1 To 1 Step -1
@@ -66,14 +87,17 @@
                     'Puts the current tray here
                     .SimData.VRTMTrayData(currentTrayIndex, 0, currentLevel).TrayIndex = currentTrayIndex
                     Conveyors(ConveyorPosition_To_Index(VRTM_SimVariables.ProductMix(k.Value).ConveyorNumber)).BoxesInConveyor.Clear()
+
+                    'Updates the arrival and exit times
+                    .SimData.TrayEntryTimes(currentTrayIndex) = k.Key
+                    .SimData.TrayEntryLevels(currentTrayIndex) = currentLevel
+
                     currentTrayIndex += 1
                 End If
             Next
 
-
         End With
     End Sub
-
 
     Public Class Conveyor
         'Models the array of products inside a conveyor belt (will store only the indices)

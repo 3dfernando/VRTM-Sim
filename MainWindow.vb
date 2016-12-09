@@ -83,6 +83,8 @@ Public Class MainWindow
 
         End Try
 
+        'Inits panel size
+        PrevMidPanelSize = MidPanel.Size
     End Sub
 
     Private Sub MainWindow_Shown(sender As Object, e As EventArgs) Handles Me.Shown
@@ -90,6 +92,7 @@ Public Class MainWindow
         PrevMidPanelSize = MidPanel.Size
         FormShown = True
         Me.WindowState = FormWindowState.Maximized
+        MidPanel.SplitterDistance = 55
     End Sub
 
     Private Sub Init_DGV(RowNumber As Integer, ColNumber As Integer)
@@ -177,6 +180,11 @@ Public Class MainWindow
     Private Sub RunProcessSimulationToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles RunProcessSimulationToolStripMenuItem.Click
         Init_DGV(VRTM_SimVariables.nLevels, VRTM_SimVariables.nTrays)
         RunProcessSimulation()
+
+        hsSimPosition.Minimum = 0
+        hsSimPosition.Maximum = VRTM_SimVariables.TotalSimTime
+        hsSimPosition.SmallChange = VRTM_SimVariables.MinimumSimDt
+        hsSimPosition.LargeChange = VRTM_SimVariables.MinimumSimDt * 10
     End Sub
 
     Private Sub cmdHLEdit_Click(sender As Object, e As EventArgs) Handles cmdHLEdit.Click
@@ -569,6 +577,20 @@ Public Class MainWindow
                 VRTMTable.Item(i, j).Value = Data(i, j)
             Next
         Next
+    End Sub
+#End Region
+
+#Region "Simulation playback"
+    Private Sub UpdateDGVPlayback(sender As Object, e As ScrollEventArgs) Handles hsSimPosition.Scroll
+        'This triggers the update of the DGV. ALL UPDATE CALLS must change this hs position.
+        lblCurrentPos.Text = GetCurrentTimeString(hsSimPosition.Value)
+
+        For I As Integer = 0 To VRTM_SimVariables.nTrays - 1
+            For J As Integer = 0 To VRTM_SimVariables.nLevels - 1
+                VRTMTable.Item(I, J).Value = VRTM_SimVariables.SimData.VRTMTrayData(300, I, J).TrayIndex
+            Next
+        Next
+        VRTMTable.Item(0, 0).Value = "vaisefude"
     End Sub
 #End Region
 
