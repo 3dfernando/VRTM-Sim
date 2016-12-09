@@ -1,5 +1,6 @@
 ﻿Module ProcessSimulationEngine
     'This module will contain all subs needed to perform the process simulation.
+    Private ConveyorPosition_To_Index As New Dictionary(Of Long, Long)
 
     Public Sub RunProcessSimulation()
         'This will run the process simulation.
@@ -25,14 +26,61 @@
                 Loop
             Next
 
-            'Gets the seeded products and forms trays as the box quantity needed to fill up a tray is achieved
-            For Each k In ArrivalTimes
+            'Determines how many conveyors are there
+            Dim CList As New List(Of Long)
+            For I As Long = 0 To .ProductMix.Count - 1
+                CList.add(.ProductMix(I).ConveyorNumber)
+            Next
 
+            Dim UniqueList As List(Of Long)
+            UniqueList = CList.Distinct().ToList
+
+            Dim Conveyors() As Conveyor
+            ReDim Conveyors(UniqueList.Count - 1)
+
+            For I As Long = 0 To UniqueList.Count - 1
+                Conveyors(I) = New Conveyor
+                Conveyors(I).ConveyorIndex = UniqueList(I)
+                ConveyorPosition_To_Index.Add(UniqueList(I), I) 'Fills up the dictionary to lookup the keys in the next step
+            Next
+
+
+            'Gets the seeded products and forms trays as the box quantity needed to fill up a tray is achieved
+            Dim BoxLimit As Long = .boxesPerTray
+            Dim currentTrayIndex As Long = 1
+            Dim currentLevel As Long
+
+            ReDim .SimData.VRTMTrayData(Int(ArrivalTimes.Count / BoxLimit), .nTrays - 1, .nLevels - 1)
+
+            For Each k In ArrivalTimes
+                Conveyors(ConveyorPosition_To_Index(VRTM_SimVariables.ProductMix(k.Value).ConveyorNumber)).BoxesInConveyor.Add(k.Value)
+                If Conveyors(ConveyorPosition_To_Index(VRTM_SimVariables.ProductMix(k.Value).ConveyorNumber)).BoxesInConveyor.Count >= BoxLimit Then
+                    'Unload the conveyor and create a tray
+                    currentLevel = Int(Rnd() * (.nLevels - 1))
+
+                    'Advances all the other trays in this level
+                    For I As Long = .nTrays - 1 To 1 Step -1
+                        .SimData.VRTMTrayData(currentTrayIndex, I, currentLevel).TrayIndex = .SimData.VRTMTrayData(currentTrayIndex, I - 1, currentLevel).TrayIndex
+                    Next
+
+                    'Puts the current tray here
+                    .SimData.VRTMTrayData(currentTrayIndex, 0, currentLevel).TrayIndex = currentTrayIndex
+                    Conveyors(ConveyorPosition_To_Index(VRTM_SimVariables.ProductMix(k.Value).ConveyorNumber)).BoxesInConveyor.Clear()
+                    currentTrayIndex += 1
+                End If
             Next
 
 
         End With
     End Sub
+
+
+    Public Class Conveyor
+        'Models the array of products inside a conveyor belt (will store only the indices)
+        Public BoxesInConveyor As New List(Of Double)
+        Public ConveyorIndex As Long
+    End Class
+
 
     Public Function GetExponentialT(MeanArrivalTime As Double) As Double
         'Outputs an exponentially distributed arrival time given an average rate

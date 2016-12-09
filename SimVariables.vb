@@ -99,7 +99,7 @@
 
 
             'Initializes one product in the mix
-            ReDim Me.ProductMix(0)
+            ReDim Me.ProductMix(2)
             Me.ProductMix(0) = New ProductData
             Me.ProductMix(0).ProdName = "Chicken"
             Me.ProductMix(0).BoxWeight = 20
@@ -124,6 +124,56 @@
 
             Me.ProductMix(0).FoodThermalPropertiesModel = New FoodProperties()
 
+
+            Me.ProductMix(1) = New ProductData
+            Me.ProductMix(1).ProdName = "Chicken"
+            Me.ProductMix(1).BoxWeight = 20
+            Me.ProductMix(1).AvgFlowRate = 1200
+            Me.ProductMix(1).BoxRateStatisticalDistr = "Exponential"
+            Me.ProductMix(1).BoxRateStdDev = 0
+            Me.ProductMix(1).ConveyorNumber = 3
+
+            Me.ProductMix(1).SimGeometry = "Thin Slab"
+            Me.ProductMix(1).SimThickness = 120
+            Me.ProductMix(1).SimLength = 600
+            Me.ProductMix(1).SimWidth = 400
+            Me.ProductMix(1).SimDiameter = 0
+
+            Me.ProductMix(1).InletTemperature = 12
+            Me.ProductMix(1).OutletTemperatureDesign = -18
+            Me.ProductMix(1).MinimumStayTime = 24
+            Me.ProductMix(1).AirSpeed = 4
+            Me.ProductMix(1).ConvCoeffMultiplier = 1.0
+            Me.ProductMix(1).ConvCoefficientUsed = 10
+            Me.ProductMix(1).DeltaHSimulated = 262367 'Simulated already for this product
+
+            Me.ProductMix(1).FoodThermalPropertiesModel = New FoodProperties()
+
+
+            Me.ProductMix(2) = New ProductData
+            Me.ProductMix(2).ProdName = "Chicken"
+            Me.ProductMix(2).BoxWeight = 20
+            Me.ProductMix(2).AvgFlowRate = 1200
+            Me.ProductMix(2).BoxRateStatisticalDistr = "Exponential"
+            Me.ProductMix(2).BoxRateStdDev = 0
+            Me.ProductMix(2).ConveyorNumber = 1
+
+            Me.ProductMix(2).SimGeometry = "Thin Slab"
+            Me.ProductMix(2).SimThickness = 120
+            Me.ProductMix(2).SimLength = 600
+            Me.ProductMix(2).SimWidth = 400
+            Me.ProductMix(2).SimDiameter = 0
+
+            Me.ProductMix(2).InletTemperature = 12
+            Me.ProductMix(2).OutletTemperatureDesign = -18
+            Me.ProductMix(2).MinimumStayTime = 24
+            Me.ProductMix(2).AirSpeed = 4
+            Me.ProductMix(2).ConvCoeffMultiplier = 1.0
+            Me.ProductMix(2).ConvCoefficientUsed = 10
+            Me.ProductMix(2).DeltaHSimulated = 262367 'Simulated already for this product
+
+            Me.ProductMix(2).FoodThermalPropertiesModel = New FoodProperties()
+
             'Initializes the heat load data
             Me.FixedHeatLoadData = New HeatLoadData
             Me.FixedHeatLoadData.Height = 15000
@@ -144,6 +194,7 @@
             Me.FixedHeatLoadData.InfiltrPower = 0
 
             Me.FixedHeatLoadData.FixedHL = 50
+
         End Sub
     End Class
 
@@ -272,7 +323,7 @@ TryAgain:
 
     Public Class SimulationData
         'This class will contain all the variables in the process simulation data (variables of the process simulation)
-        Public TRVMTrayIndices(,,) As TrayData  'ARRAY OF TRAY DATA IN THE FORMAT of timestep, Tray no, Level no
+        Public VRTMTrayData(,,) As TrayData   'ARRAY OF TRAY DATA IN THE FORMAT of timestep, Tray no, Level no
         Public TrayEntryTimes() As Double 'Array of simulation entry time indices for each tray index mentioned in TRVMTrayIndices
         Public TrayExitTimes() As Double 'Array of simulation exit time indices for each tray index mentioned in TRVMTrayIndices
         Public TrayStayTime() As Double 'Array of stay times for each tray
