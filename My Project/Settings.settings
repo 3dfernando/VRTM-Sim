@@ -5,5 +5,23 @@
     <Setting Name="FoodProductCSVPath" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
+    <Setting Name="DisplayParameter" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">0</Value>
+    </Setting>
+    <Setting Name="Display_boolHighlight" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="Display_boolConditionalFormatting" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="Display_HighlightColor" Type="System.Drawing.Color" Scope="User">
+      <Value Profile="(Default)">OliveDrab</Value>
+    </Setting>
+    <Setting Name="Display_MinimumColor" Type="System.Drawing.Color" Scope="User">
+      <Value Profile="(Default)">Lavender</Value>
+    </Setting>
+    <Setting Name="Display_MaximumColor" Type="System.Drawing.Color" Scope="User">
+      <Value Profile="(Default)">Red</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

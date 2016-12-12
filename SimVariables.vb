@@ -128,7 +128,7 @@
 
 
             Me.ProductMix(1) = New ProductData
-            Me.ProductMix(1).ProdName = "Chicken"
+            Me.ProductMix(1).ProdName = "Pizza"
             Me.ProductMix(1).BoxWeight = 20
             Me.ProductMix(1).AvgFlowRate = 1200
             Me.ProductMix(1).BoxRateStatisticalDistr = "Exponential"
@@ -153,7 +153,7 @@
 
 
             Me.ProductMix(2) = New ProductData
-            Me.ProductMix(2).ProdName = "Chicken"
+            Me.ProductMix(2).ProdName = "Butter"
             Me.ProductMix(2).BoxWeight = 20
             Me.ProductMix(2).AvgFlowRate = 1200
             Me.ProductMix(2).BoxRateStatisticalDistr = "Exponential"
@@ -332,14 +332,20 @@ TryAgain:
         Public TrayAirTemperatures() As Double 'Air temperatures on the trays
         Public TrayEntryLevels() As Double 'Array of levels where each tray was entering onto for the tray index mentioned in TRVMTrayIndices
 
+        Public SimulationComplete As Boolean = False
     End Class
 
     Public Class TrayData
         'This class contains the data of a tray after simulation has been processed
         Public TrayIndex As Long ' Sequential tray index (Starts at 1)
+        Public ConveyorIndex As Long ' Conveyor index
         Public ProductIndex As Long 'Product index in the array of ProduxtMix() [In other words, the SKU]
         Public SurfTemperature As Double 'Surface temperature of the product after thermal sim [ºC]
         Public CenterTemperature As Double 'Center temperature of the product after thermal sim [ºC]
         Public TrayPower As Double 'Heat power released in the current timestep after thermal sim [W]
+
+        Public Function Clone() As TrayData
+            Return DirectCast(Me.MemberwiseClone(), TrayData)
+        End Function
     End Class
 End Module

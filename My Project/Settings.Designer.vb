@@ -65,6 +65,78 @@ Namespace My
                 Me("FoodProductCSVPath") = value
             End Set
         End Property
+        
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("0")>  _
+        Public Property DisplayParameter() As Integer
+            Get
+                Return CType(Me("DisplayParameter"),Integer)
+            End Get
+            Set
+                Me("DisplayParameter") = value
+            End Set
+        End Property
+        
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("True")>  _
+        Public Property Display_boolHighlight() As Boolean
+            Get
+                Return CType(Me("Display_boolHighlight"),Boolean)
+            End Get
+            Set
+                Me("Display_boolHighlight") = value
+            End Set
+        End Property
+        
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("True")>  _
+        Public Property Display_boolConditionalFormatting() As Boolean
+            Get
+                Return CType(Me("Display_boolConditionalFormatting"),Boolean)
+            End Get
+            Set
+                Me("Display_boolConditionalFormatting") = value
+            End Set
+        End Property
+        
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("OliveDrab")>  _
+        Public Property Display_HighlightColor() As Global.System.Drawing.Color
+            Get
+                Return CType(Me("Display_HighlightColor"),Global.System.Drawing.Color)
+            End Get
+            Set
+                Me("Display_HighlightColor") = value
+            End Set
+        End Property
+        
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("Lavender")>  _
+        Public Property Display_MinimumColor() As Global.System.Drawing.Color
+            Get
+                Return CType(Me("Display_MinimumColor"),Global.System.Drawing.Color)
+            End Get
+            Set
+                Me("Display_MinimumColor") = value
+            End Set
+        End Property
+        
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("Red")>  _
+        Public Property Display_MaximumColor() As Global.System.Drawing.Color
+            Get
+                Return CType(Me("Display_MaximumColor"),Global.System.Drawing.Color)
+            End Get
+            Set
+                Me("Display_MaximumColor") = value
+            End Set
+        End Property
     End Class
 End Namespace
 

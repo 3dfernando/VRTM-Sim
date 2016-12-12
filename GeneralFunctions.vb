@@ -47,4 +47,32 @@
         GetCurrentTimeString = DaysOfTheWeek(WeekDay) & " D" & DaysString & " " & HoursString & ":" & MinutesString
 
     End Function
+
+    Public Function Return_1_if_0(t As Double) As Double
+        If t = 0 Then Return 1
+        Return t
+    End Function
+
+    Public Function Interpolate_Color(Pos As Double, C1 As Color, C2 As Color) As Color
+        'Interpolates colors C1 and C2
+        If Pos <= 1 And Pos >= 0 Then
+            Dim R, G, B As Integer
+            Try
+                R = Int(Pos * (Convert.ToDouble(C2.R) -
+                        Convert.ToDouble(C1.R)) +
+                        Convert.ToDouble(C1.R))
+
+                G = Int(Pos * (Convert.ToDouble(C2.G) -
+                        Convert.ToDouble(C1.G)) +
+                        Convert.ToDouble(C1.G))
+
+                B = Int(Pos * (Convert.ToDouble(C2.B) -
+                        Convert.ToDouble(C1.B)) +
+                        Convert.ToDouble(C1.B))
+
+                Return Color.FromArgb(R, G, B)
+            Catch
+            End Try
+        End If
+    End Function
 End Module

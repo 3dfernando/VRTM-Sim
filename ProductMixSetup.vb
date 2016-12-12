@@ -148,6 +148,8 @@
                         txtDeltaH.Text = Trim(Str(Round(p.DeltaHSimulated / 1000, 2)))
                         txtProductModel.SelectedItem = p.FoodThermalPropertiesModel.FoodModelUsed.ProductName
 
+                        txtConveyor.Text = Trim(Str(p.ConveyorNumber))
+                        Exit For
                     End If
                 Next
 

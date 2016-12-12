@@ -117,41 +117,35 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <metadata name="ToolStrip1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+  <metadata name="ColorDialog1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>17, 17</value>
   </metadata>
-  <metadata name="MenuStrip1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>124, 17</value>
-  </metadata>
-  <metadata name="ErrorProvider1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>239, 17</value>
+  <metadata name="Timer.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>140, 17</value>
   </metadata>
   <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
   <data name="$this.Icon" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         AAABAAEAEBAAAAAAAABoBAAAFgAAACgAAAAQAAAAIAAAAAEAIAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAA
-        AAD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP//
-        /wD///8AG1mJtxtYiP8aVob/GlWF/xlUg/8ZVIL/GFOA/xhSf/8XUX7/F1B9/xZPe/8WTnr/Fk55/xZN
-        ef8VTXj/FUx3wBxai/B+reD/ga/k/3+r4v9+qOD/fKbf/3qi3v95oN3/d57c/3ab2/91mdr/dJja/3SY
-        2v90mNr/dJja/xVNeP8cW4zwgLLj/1GU3P9Eitj/QoXV/0CA1P89fNH/O3fP/zhzzf82cMz/NG3K/zJp
-        yf8xZ8j/MGXI/3SY2v8WTXn/HVyO8IO35f9Vnd//SpLb/0eN2f9Eidf/QYPV/z9/0/88e9D/OnbO/zdy
-        zf81bsv/M2vK/zJoyf91mNr/Fk56/x1dj/CFveb/WaTj/0+b3v9Mltz/SZHa/0eM2P9Dh9b/QILU/z59
-        0f88etD/OHTO/zdxzP80bsv/dpvb/xZPe/8eXpHwiMHo/16s5v9Uo+P/UJ7h/02Z3v9LlNz/SI/a/0SK
-        2P9ChdX/QIDU/z180f87d8//OHPN/3if3f8XUHz/Hl+S8IvG6v9is+n/WKrm/1Wm5P9SouL/T5zg/02Y
-        3f9Kktv/R43Z/0SJ1/9Bg9X/P3/T/zx70P97o97/F1F+/x9glPCNyO3/Zbjr/1uy6f9Zruf/V6nl/1Sl
-        4/9RoOL/T5ve/0yW3P9Jkdr/R4zY/0OH1v9AgtT/fqjg/xhSf/8fYZXwj8zu/4/M9P+HxfL/g8Px/4C/
-        7/99vO7/erjr/3W06v9xsOj/bqvm/2mn5f9mo+P/Yp7h/4Ct4/8YU4H/H2KW8Hex2f8pbqT/F2Gb/xde
-        mf8XXJb/FluS/xVZjv8VVov/FFSH/xRRgv8STn7/Ekx6/zlojP9njrD/GVSC/yBil9tBfKr/ZJa+/ytv
-        pv8gaKH/IGWf/yBknP8fYpn/H2CV/x5fkf8eXY//HVmK/z9wmP9bhKb/OGuU/xlVhK8gY5gSIGKX7j96
-        qP9gk7z/YZS8/2GTvP9gkrv/YJG5/2CQt/9gj7X/X46z/1+MsP9aiKv/OG2Y/xpXh4P///8A////ACBj
-        mAwgYpekH2KW8R9hlvMfYZXzH2CU8x5fkvMeXpHzHV2Q8x1cj/McW43zHFuM5xtainz///8A////AP//
-        /wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP//
-        /wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP//
-        /wD///8A//8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAEAAMAH
-        AAD//wAA//8AAA==
+        AAAAAAAdAAAANAAAADYAAAA2AAAANgAAADYAAAA2AAAANgAAADYAAAA2AAAANgAAADYAAAAzAAAAHf//
+        /wD///8AAAAANPn5+fX8/Pz9/Pz8//z8/P/8/Pz//Pz8//z8/P/8/Pz//Pz8//z8/P/8/Pz9+fn58wAA
+        ADP///8A////AAAAADb8/Pz+/Pz8//z8/P/8/Pz//Pz8//z8/P/8/Pz//Pz8//z8/P/8/Pz//Pz8//z8
+        /P0AAAA2////AP///wAAAAA2/Pz8//z8/P+finH/pIlt/6yIaP+mfF3/u4tt/9vMwv/7+/v/+/v7//v7
+        +//8/Pz/AAAANgAAAAH///8AAAAANvz8/P/8/Pz/4+Lb/7qumv/StZL/y6eE/8GFWP+0jnH/4Obp//r6
+        +v/6+vr//Pz8/wAAADYAAAAB////AAAAADb8/Pz//Pz8//z8/P/e3dX/rqOP/8XEvP/O4+b/qsXM/06Q
+        sf+avtX/+Pj4//z8/P8AAAA2AAAAAf///wAAAAA2/Pz8//z8/P/8/Pz//Pz8/9bd3/+otbz/mK+2/1Cd
+        u/9Cttr/PKXL/7LM3f/8/Pz/AAAANgAAAAH///8AAAAANvz8/P/8/Pz//Pz8//z8/P/8/Pz/6Ozt/7jO
+        1f9eutn/ru/5/2zc8f8wkb3/z9/q/wAAADYAAAAB////AAAAADb8/Pz//Pz8//z8/P/8/Pz//Pz8//z8
+        /P/7+/v/2uzx/4zJ3/+z7vj/ZNbs/z6XwP8LL0dSAAAAAf///wAAAAA2/Pz8//z8/P/8/Pz//Pz8//z8
+        /P/7+/v/+Pj4//X19f/X5+z/icne/7Pu+P9f0en/HnypzBhwoRL///8AAAAANvz8/P/7+/v//Pz8//z8
+        /P/7+/v/+Pj4//X19f/x8fH/7Ozs/9Xi5v+Ix93/te/5/13M5/8XfrGaF3irBgAAADb8/Pz/+fn5//n5
+        +f/5+fn/9/f3//b29v/y8vL/6+vr//z8/P/8/Pz/4/H2/4/M4f+y7Pf/PavQ/xZ9sJEAAAA2/Pz8//f3
+        9//5+fn/9/f3//f39//z8/P/8PDw/+rq6v/8/Pz/9vb2//T09P+BmaCddb3V0qTj8f8ikb31AAAANvv7
+        +/309PT/9fX1//X19f/19fX/8fHx/+/v7//p6en//Pz8/+fn5/+VlZWRAAAAIBKOtRk1psu2GJK+jwAA
+        ADP4+Pjw+/v7/fz8/P/8/Pz//Pz8//z8/P/8/Pz//Pz8//j4+P+UlJSRAAAAIAAAAAL///8A////AP//
+        /wAAAAAcAAAAMwAAADYAAAA2AAAANgAAADYAAAA2AAAANgAAADYAAAA2AAAAIAAAAAL///8A////AP//
+        /wD///8A//8AAIAHAACABwAAgAcAAIAHAACABwAAgAcAAIAHAACABwAAgAMAAIABAACAAAAAgAAAAIAM
+        AACAHwAA//8AAA==
 </value>
   </data>
-  <metadata name="ErrorProvider2.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>369, 17</value>
-  </metadata>
 </root>

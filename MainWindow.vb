@@ -68,9 +68,14 @@ Public Class MainWindow
         LoadFoodPropertiesCSVIntoMemory()
         Try
             VRTM_SimVariables.ProductMix(0).FoodThermalPropertiesModel.FoodModelUsed = FoodPropertiesList(18)
+            VRTM_SimVariables.ProductMix(1).FoodThermalPropertiesModel.FoodModelUsed = FoodPropertiesList(18)
+            VRTM_SimVariables.ProductMix(2).FoodThermalPropertiesModel.FoodModelUsed = FoodPropertiesList(18)
         Catch ex As Exception
             VRTM_SimVariables.ProductMix(0).FoodThermalPropertiesModel.FoodModelUsed = FoodPropertiesList(0)
+            VRTM_SimVariables.ProductMix(1).FoodThermalPropertiesModel.FoodModelUsed = FoodPropertiesList(0)
+            VRTM_SimVariables.ProductMix(2).FoodThermalPropertiesModel.FoodModelUsed = FoodPropertiesList(0)
         End Try
+
 
         'Creates tooltips for the imaged tooltip components
         Try
@@ -222,6 +227,12 @@ Public Class MainWindow
         chkSaturdayMR.Checked = VRTM_SimVariables.IdleDaysMRoom(5)
         chkSundayMR.Checked = VRTM_SimVariables.IdleDaysMRoom(6)
         FormShown = True
+    End Sub
+
+    Private Sub DisplayParametersToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles DisplayParametersToolStripMenuItem.Click
+        Dim F As New frmDisplaySettings
+        F.ShowDialog()
+        UpdateDGVPlayback(Nothing, Nothing)
     End Sub
 #End Region
 
@@ -582,16 +593,115 @@ Public Class MainWindow
 
 #Region "Simulation playback"
     Private Sub UpdateDGVPlayback(sender As Object, e As ScrollEventArgs) Handles hsSimPosition.Scroll
-        'This triggers the update of the DGV. ALL UPDATE CALLS must change this hs position.
-        lblCurrentPos.Text = GetCurrentTimeString(hsSimPosition.Value)
+        If VRTM_SimVariables.SimData.SimulationComplete Then
+            'This triggers the update of the DGV. ALL UPDATE CALLS must change this hs position.
+            lblCurrentPos.Text = GetCurrentTimeString(hsSimPosition.Value)
 
-        For I As Integer = 0 To VRTM_SimVariables.nTrays - 1
-            For J As Integer = 0 To VRTM_SimVariables.nLevels - 1
-                VRTMTable.Item(I, J).Value = VRTM_SimVariables.SimData.VRTMTrayData(300, I, J).TrayIndex
-            Next
-        Next
-        VRTMTable.Item(0, 0).Value = "vaisefude"
+            'Gets the current time index
+            Dim thisT_index As Long
+            thisT_index = Array.BinarySearch(Of Double)(VRTM_SimVariables.SimData.TrayEntryTimes, hsSimPosition.Value)
+            If thisT_index < 0 Then
+                thisT_index = (Not thisT_index) - 1
+            End If
+
+            'Highlights the row header of the current level
+            If My.Settings.Display_boolHighlight Then
+                For J As Integer = 0 To VRTM_SimVariables.nLevels - 1
+                    VRTMTable.Rows(J).HeaderCell.Style.BackColor = Color.FromArgb(255, 255, 150)
+                Next
+                VRTMTable.Rows(VRTM_SimVariables.SimData.TrayEntryLevels(thisT_index)).HeaderCell.Style.BackColor = My.Settings.Display_HighlightColor
+            End If
+
+            'Highlights 
+            Select Case My.Settings.DisplayParameter
+                Case 0 'Tray Index
+                    lblDisplayVariable.Text = "Displaying Tray Index"
+
+                    Dim min As Long = Long.MaxValue
+                    Dim max As Long = Long.MinValue
+                    If My.Settings.Display_boolConditionalFormatting Then
+                        'Gets the minimum and maximum to make colors
+                        Dim idx As Long
+                        For I As Integer = 0 To VRTM_SimVariables.nTrays - 1
+                            For J As Integer = 0 To VRTM_SimVariables.nLevels - 1
+                                idx = VRTM_SimVariables.SimData.VRTMTrayData(thisT_index, I, J).TrayIndex
+                                If min > idx Then min = idx
+                                If max < idx Then max = idx
+                            Next
+                        Next
+                    End If
+
+                    Dim ColorPos As Double
+                    For I As Integer = 0 To VRTM_SimVariables.nTrays - 1
+                        For J As Integer = 0 To VRTM_SimVariables.nLevels - 1
+                            If VRTM_SimVariables.SimData.VRTMTrayData(thisT_index, I, J).TrayIndex = 0 Then
+                                VRTMTable.Item(I, J).Value = ""
+                                VRTMTable.Item(I, J).Style.BackColor = Color.FromArgb(255, 255, 204)
+                            Else
+                                VRTMTable.Item(I, J).Value = VRTM_SimVariables.SimData.VRTMTrayData(thisT_index, I, J).TrayIndex
+                                If My.Settings.Display_boolConditionalFormatting Then
+                                    'Colors the trays according to index
+                                    ColorPos = (VRTM_SimVariables.SimData.VRTMTrayData(thisT_index, I, J).TrayIndex - min) / (max - min)
+                                    VRTMTable.Item(I, J).Style.BackColor = Interpolate_Color(ColorPos, My.Settings.Display_MinimumColor, My.Settings.Display_MaximumColor)
+                                End If
+                            End If
+                        Next
+                    Next
+                Case 1 'Conveyor Index
+                    lblDisplayVariable.Text = "Displaying Conveyor Index"
+
+                    Dim min As Long = Long.MaxValue
+                    Dim max As Long = Long.MinValue
+                    If My.Settings.Display_boolConditionalFormatting Then
+                        'Gets the minimum and maximum to make colors
+                        Dim idx As Long
+                        For I As Integer = 0 To VRTM_SimVariables.nTrays - 1
+                            For J As Integer = 0 To VRTM_SimVariables.nLevels - 1
+                                idx = VRTM_SimVariables.SimData.VRTMTrayData(thisT_index, I, J).ConveyorIndex
+                                If idx <> 0 Then
+                                    If min > idx Then min = idx
+                                    If max < idx Then max = idx
+                                End If
+                            Next
+                        Next
+                    End If
+
+                    Dim ColorPos As Double
+                    For I As Integer = 0 To VRTM_SimVariables.nTrays - 1
+                        For J As Integer = 0 To VRTM_SimVariables.nLevels - 1
+                            If VRTM_SimVariables.SimData.VRTMTrayData(thisT_index, I, J).ConveyorIndex = 0 Then
+                                VRTMTable.Item(I, J).Value = ""
+                                VRTMTable.Item(I, J).Style.BackColor = Color.FromArgb(255, 255, 204)
+                            Else
+                                VRTMTable.Item(I, J).Value = VRTM_SimVariables.SimData.VRTMTrayData(thisT_index, I, J).ConveyorIndex
+                                If My.Settings.Display_boolConditionalFormatting Then
+                                    'Colors the trays according to index
+                                    ColorPos = (VRTM_SimVariables.SimData.VRTMTrayData(thisT_index, I, J).ConveyorIndex - min) / (max - min)
+                                    VRTMTable.Item(I, J).Style.BackColor = Interpolate_Color(ColorPos, My.Settings.Display_MinimumColor, My.Settings.Display_MaximumColor)
+                                End If
+                            End If
+                        Next
+                    Next
+                Case 2 'Retention Time
+                    lblDisplayVariable.Text = "Displaying Retention Time"
+
+                Case 3 'Center Temperature
+                    lblDisplayVariable.Text = "Displaying Center Temperature"
+
+                Case 4 'Surface Temperature
+                    lblDisplayVariable.Text = "Displaying Surface Temperature"
+
+                Case 5 'Power Released
+                    lblDisplayVariable.Text = "Displaying Power Released"
+
+            End Select
+
+        End If
+
     End Sub
+
+
+
 #End Region
 
 
