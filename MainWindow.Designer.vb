@@ -27,14 +27,27 @@ Partial Class MainWindow
         Me.Divisor1 = New System.Windows.Forms.SplitContainer()
         Me.LeftPanel = New System.Windows.Forms.SplitContainer()
         Me.ToolStrip1 = New System.Windows.Forms.ToolStrip()
+        Me.btnReduceSpeed = New System.Windows.Forms.ToolStripButton()
+        Me.btnStop = New System.Windows.Forms.ToolStripButton()
+        Me.btnPlay = New System.Windows.Forms.ToolStripButton()
+        Me.btnIncreaseSpeed = New System.Windows.Forms.ToolStripButton()
         Me.ToolStripSeparator2 = New System.Windows.Forms.ToolStripSeparator()
         Me.lblTimeWarp = New System.Windows.Forms.ToolStripLabel()
         Me.ToolStripSeparator3 = New System.Windows.Forms.ToolStripSeparator()
         Me.MenuStrip1 = New System.Windows.Forms.MenuStrip()
         Me.FileToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.OpenSimulationToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.SaveSimulationToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.SimulationToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.RunProcessSimulationToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.RunThermalSimulationToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.PlaybackToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.ReduceSpeedToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.StopToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.PlayToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.IncreaseSpeedToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.ToolStripSeparator1 = New System.Windows.Forms.ToolStripSeparator()
+        Me.DisplayParametersToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.TabControl1 = New System.Windows.Forms.TabControl()
         Me.VRTMParams = New System.Windows.Forms.TabPage()
         Me.Label32 = New System.Windows.Forms.Label()
@@ -166,19 +179,6 @@ Partial Class MainWindow
         Me.hsSimPosition = New System.Windows.Forms.HScrollBar()
         Me.VRTMTable = New System.Windows.Forms.DataGridView()
         Me.ErrorProvider1 = New System.Windows.Forms.ErrorProvider(Me.components)
-        Me.btnReduceSpeed = New System.Windows.Forms.ToolStripButton()
-        Me.btnStop = New System.Windows.Forms.ToolStripButton()
-        Me.btnPlay = New System.Windows.Forms.ToolStripButton()
-        Me.btnIncreaseSpeed = New System.Windows.Forms.ToolStripButton()
-        Me.OpenSimulationToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
-        Me.SaveSimulationToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
-        Me.RunProcessSimulationToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
-        Me.RunThermalSimulationToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
-        Me.ReduceSpeedToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
-        Me.StopToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
-        Me.PlayToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
-        Me.IncreaseSpeedToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
-        Me.DisplayParametersToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.ErrorProvider2 = New System.Windows.Forms.ErrorProvider(Me.components)
         CType(Me.Divisor1, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.Divisor1.Panel1.SuspendLayout()
@@ -264,6 +264,43 @@ Partial Class MainWindow
         Me.ToolStrip1.TabIndex = 0
         Me.ToolStrip1.Text = "ToolStrip1"
         '
+        'btnReduceSpeed
+        '
+        Me.btnReduceSpeed.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image
+        Me.btnReduceSpeed.Image = Global.VRTM_Simulator.My.Resources.Resources.media_seek_backward_3
+        Me.btnReduceSpeed.ImageTransparentColor = System.Drawing.Color.Magenta
+        Me.btnReduceSpeed.Name = "btnReduceSpeed"
+        Me.btnReduceSpeed.Size = New System.Drawing.Size(24, 24)
+        Me.btnReduceSpeed.Text = "Decrease Speed"
+        '
+        'btnStop
+        '
+        Me.btnStop.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image
+        Me.btnStop.Image = Global.VRTM_Simulator.My.Resources.Resources.media_playback_stop_3
+        Me.btnStop.ImageTransparentColor = System.Drawing.Color.Magenta
+        Me.btnStop.Name = "btnStop"
+        Me.btnStop.Size = New System.Drawing.Size(24, 24)
+        Me.btnStop.Text = "Stop Simulation"
+        '
+        'btnPlay
+        '
+        Me.btnPlay.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image
+        Me.btnPlay.Image = Global.VRTM_Simulator.My.Resources.Resources.media_playback_start_3
+        Me.btnPlay.ImageTransparentColor = System.Drawing.Color.Magenta
+        Me.btnPlay.Name = "btnPlay"
+        Me.btnPlay.Size = New System.Drawing.Size(24, 24)
+        Me.btnPlay.Text = "ToolStripButton5"
+        Me.btnPlay.ToolTipText = "Play Simulation"
+        '
+        'btnIncreaseSpeed
+        '
+        Me.btnIncreaseSpeed.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image
+        Me.btnIncreaseSpeed.Image = Global.VRTM_Simulator.My.Resources.Resources.media_seek_forward_3
+        Me.btnIncreaseSpeed.ImageTransparentColor = System.Drawing.Color.Magenta
+        Me.btnIncreaseSpeed.Name = "btnIncreaseSpeed"
+        Me.btnIncreaseSpeed.Size = New System.Drawing.Size(24, 24)
+        Me.btnIncreaseSpeed.Text = "Increase Speed"
+        '
         'ToolStripSeparator2
         '
         Me.ToolStripSeparator2.Name = "ToolStripSeparator2"
@@ -297,12 +334,40 @@ Partial Class MainWindow
         Me.FileToolStripMenuItem.Size = New System.Drawing.Size(37, 20)
         Me.FileToolStripMenuItem.Text = "&File"
         '
+        'OpenSimulationToolStripMenuItem
+        '
+        Me.OpenSimulationToolStripMenuItem.Image = Global.VRTM_Simulator.My.Resources.Resources.document_open_5
+        Me.OpenSimulationToolStripMenuItem.Name = "OpenSimulationToolStripMenuItem"
+        Me.OpenSimulationToolStripMenuItem.Size = New System.Drawing.Size(163, 22)
+        Me.OpenSimulationToolStripMenuItem.Text = "&Open Simulation"
+        '
+        'SaveSimulationToolStripMenuItem
+        '
+        Me.SaveSimulationToolStripMenuItem.Image = Global.VRTM_Simulator.My.Resources.Resources.document_save_5
+        Me.SaveSimulationToolStripMenuItem.Name = "SaveSimulationToolStripMenuItem"
+        Me.SaveSimulationToolStripMenuItem.Size = New System.Drawing.Size(163, 22)
+        Me.SaveSimulationToolStripMenuItem.Text = "&Save Simulation"
+        '
         'SimulationToolStripMenuItem
         '
         Me.SimulationToolStripMenuItem.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.RunProcessSimulationToolStripMenuItem, Me.RunThermalSimulationToolStripMenuItem})
         Me.SimulationToolStripMenuItem.Name = "SimulationToolStripMenuItem"
         Me.SimulationToolStripMenuItem.Size = New System.Drawing.Size(76, 20)
         Me.SimulationToolStripMenuItem.Text = "Si&mulation"
+        '
+        'RunProcessSimulationToolStripMenuItem
+        '
+        Me.RunProcessSimulationToolStripMenuItem.Image = Global.VRTM_Simulator.My.Resources.Resources.script_gear
+        Me.RunProcessSimulationToolStripMenuItem.Name = "RunProcessSimulationToolStripMenuItem"
+        Me.RunProcessSimulationToolStripMenuItem.Size = New System.Drawing.Size(202, 22)
+        Me.RunProcessSimulationToolStripMenuItem.Text = "Run Process Simulation"
+        '
+        'RunThermalSimulationToolStripMenuItem
+        '
+        Me.RunThermalSimulationToolStripMenuItem.Image = Global.VRTM_Simulator.My.Resources.Resources.pictograms_hazard_signs_xtremely_flammable
+        Me.RunThermalSimulationToolStripMenuItem.Name = "RunThermalSimulationToolStripMenuItem"
+        Me.RunThermalSimulationToolStripMenuItem.Size = New System.Drawing.Size(202, 22)
+        Me.RunThermalSimulationToolStripMenuItem.Text = "Run Thermal Simulation"
         '
         'PlaybackToolStripMenuItem
         '
@@ -311,10 +376,45 @@ Partial Class MainWindow
         Me.PlaybackToolStripMenuItem.Size = New System.Drawing.Size(66, 20)
         Me.PlaybackToolStripMenuItem.Text = "&Playback"
         '
+        'ReduceSpeedToolStripMenuItem
+        '
+        Me.ReduceSpeedToolStripMenuItem.Image = Global.VRTM_Simulator.My.Resources.Resources.media_seek_backward_3
+        Me.ReduceSpeedToolStripMenuItem.Name = "ReduceSpeedToolStripMenuItem"
+        Me.ReduceSpeedToolStripMenuItem.Size = New System.Drawing.Size(174, 22)
+        Me.ReduceSpeedToolStripMenuItem.Text = "Reduce Speed"
+        '
+        'StopToolStripMenuItem
+        '
+        Me.StopToolStripMenuItem.Image = Global.VRTM_Simulator.My.Resources.Resources.media_playback_stop_3
+        Me.StopToolStripMenuItem.Name = "StopToolStripMenuItem"
+        Me.StopToolStripMenuItem.Size = New System.Drawing.Size(174, 22)
+        Me.StopToolStripMenuItem.Text = "Stop"
+        '
+        'PlayToolStripMenuItem
+        '
+        Me.PlayToolStripMenuItem.Image = Global.VRTM_Simulator.My.Resources.Resources.media_playback_start_3
+        Me.PlayToolStripMenuItem.Name = "PlayToolStripMenuItem"
+        Me.PlayToolStripMenuItem.Size = New System.Drawing.Size(174, 22)
+        Me.PlayToolStripMenuItem.Text = "Play"
+        '
+        'IncreaseSpeedToolStripMenuItem
+        '
+        Me.IncreaseSpeedToolStripMenuItem.Image = Global.VRTM_Simulator.My.Resources.Resources.media_seek_forward_3
+        Me.IncreaseSpeedToolStripMenuItem.Name = "IncreaseSpeedToolStripMenuItem"
+        Me.IncreaseSpeedToolStripMenuItem.Size = New System.Drawing.Size(174, 22)
+        Me.IncreaseSpeedToolStripMenuItem.Text = "Increase Speed"
+        '
         'ToolStripSeparator1
         '
         Me.ToolStripSeparator1.Name = "ToolStripSeparator1"
-        Me.ToolStripSeparator1.Size = New System.Drawing.Size(175, 6)
+        Me.ToolStripSeparator1.Size = New System.Drawing.Size(171, 6)
+        '
+        'DisplayParametersToolStripMenuItem
+        '
+        Me.DisplayParametersToolStripMenuItem.Image = Global.VRTM_Simulator.My.Resources.Resources.page_white_paintbrush
+        Me.DisplayParametersToolStripMenuItem.Name = "DisplayParametersToolStripMenuItem"
+        Me.DisplayParametersToolStripMenuItem.Size = New System.Drawing.Size(174, 22)
+        Me.DisplayParametersToolStripMenuItem.Text = "Displa&y Parameters"
         '
         'TabControl1
         '
@@ -784,10 +884,10 @@ Partial Class MainWindow
         '
         Me.MachRoom.Controls.Add(Me.GroupBox6)
         Me.MachRoom.Controls.Add(Me.GroupBox3)
-        Me.MachRoom.Location = New System.Drawing.Point(4, 22)
+        Me.MachRoom.Location = New System.Drawing.Point(4, 40)
         Me.MachRoom.Name = "MachRoom"
         Me.MachRoom.Padding = New System.Windows.Forms.Padding(3)
-        Me.MachRoom.Size = New System.Drawing.Size(242, 710)
+        Me.MachRoom.Size = New System.Drawing.Size(242, 692)
         Me.MachRoom.TabIndex = 1
         Me.MachRoom.Text = "Machine Room"
         Me.MachRoom.UseVisualStyleBackColor = True
@@ -1049,9 +1149,9 @@ Partial Class MainWindow
         '
         Me.Production.Controls.Add(Me.GroupBox8)
         Me.Production.Controls.Add(Me.GroupBox5)
-        Me.Production.Location = New System.Drawing.Point(4, 22)
+        Me.Production.Location = New System.Drawing.Point(4, 40)
         Me.Production.Name = "Production"
-        Me.Production.Size = New System.Drawing.Size(242, 710)
+        Me.Production.Size = New System.Drawing.Size(242, 692)
         Me.Production.TabIndex = 2
         Me.Production.Text = "Production"
         Me.Production.UseVisualStyleBackColor = True
@@ -1650,105 +1750,6 @@ Partial Class MainWindow
         'ErrorProvider1
         '
         Me.ErrorProvider1.ContainerControl = Me
-        '
-        'btnReduceSpeed
-        '
-        Me.btnReduceSpeed.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image
-        Me.btnReduceSpeed.Image = Global.VRTM_Simulator.My.Resources.Resources.media_seek_backward_3
-        Me.btnReduceSpeed.ImageTransparentColor = System.Drawing.Color.Magenta
-        Me.btnReduceSpeed.Name = "btnReduceSpeed"
-        Me.btnReduceSpeed.Size = New System.Drawing.Size(24, 24)
-        Me.btnReduceSpeed.Text = "ToolStripButton3"
-        '
-        'btnStop
-        '
-        Me.btnStop.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image
-        Me.btnStop.Image = Global.VRTM_Simulator.My.Resources.Resources.media_playback_stop_3
-        Me.btnStop.ImageTransparentColor = System.Drawing.Color.Magenta
-        Me.btnStop.Name = "btnStop"
-        Me.btnStop.Size = New System.Drawing.Size(24, 24)
-        Me.btnStop.Text = "ToolStripButton4"
-        '
-        'btnPlay
-        '
-        Me.btnPlay.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image
-        Me.btnPlay.Image = Global.VRTM_Simulator.My.Resources.Resources.media_playback_start_3
-        Me.btnPlay.ImageTransparentColor = System.Drawing.Color.Magenta
-        Me.btnPlay.Name = "btnPlay"
-        Me.btnPlay.Size = New System.Drawing.Size(24, 24)
-        Me.btnPlay.Text = "ToolStripButton5"
-        '
-        'btnIncreaseSpeed
-        '
-        Me.btnIncreaseSpeed.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image
-        Me.btnIncreaseSpeed.Image = Global.VRTM_Simulator.My.Resources.Resources.media_seek_forward_3
-        Me.btnIncreaseSpeed.ImageTransparentColor = System.Drawing.Color.Magenta
-        Me.btnIncreaseSpeed.Name = "btnIncreaseSpeed"
-        Me.btnIncreaseSpeed.Size = New System.Drawing.Size(24, 24)
-        Me.btnIncreaseSpeed.Text = "ToolStripButton6"
-        '
-        'OpenSimulationToolStripMenuItem
-        '
-        Me.OpenSimulationToolStripMenuItem.Image = Global.VRTM_Simulator.My.Resources.Resources.document_open_5
-        Me.OpenSimulationToolStripMenuItem.Name = "OpenSimulationToolStripMenuItem"
-        Me.OpenSimulationToolStripMenuItem.Size = New System.Drawing.Size(163, 22)
-        Me.OpenSimulationToolStripMenuItem.Text = "&Open Simulation"
-        '
-        'SaveSimulationToolStripMenuItem
-        '
-        Me.SaveSimulationToolStripMenuItem.Image = Global.VRTM_Simulator.My.Resources.Resources.document_save_5
-        Me.SaveSimulationToolStripMenuItem.Name = "SaveSimulationToolStripMenuItem"
-        Me.SaveSimulationToolStripMenuItem.Size = New System.Drawing.Size(163, 22)
-        Me.SaveSimulationToolStripMenuItem.Text = "&Save Simulation"
-        '
-        'RunProcessSimulationToolStripMenuItem
-        '
-        Me.RunProcessSimulationToolStripMenuItem.Image = Global.VRTM_Simulator.My.Resources.Resources.script_gear
-        Me.RunProcessSimulationToolStripMenuItem.Name = "RunProcessSimulationToolStripMenuItem"
-        Me.RunProcessSimulationToolStripMenuItem.Size = New System.Drawing.Size(202, 22)
-        Me.RunProcessSimulationToolStripMenuItem.Text = "Run Process Simulation"
-        '
-        'RunThermalSimulationToolStripMenuItem
-        '
-        Me.RunThermalSimulationToolStripMenuItem.Image = Global.VRTM_Simulator.My.Resources.Resources.pictograms_hazard_signs_xtremely_flammable
-        Me.RunThermalSimulationToolStripMenuItem.Name = "RunThermalSimulationToolStripMenuItem"
-        Me.RunThermalSimulationToolStripMenuItem.Size = New System.Drawing.Size(202, 22)
-        Me.RunThermalSimulationToolStripMenuItem.Text = "Run Thermal Simulation"
-        '
-        'ReduceSpeedToolStripMenuItem
-        '
-        Me.ReduceSpeedToolStripMenuItem.Image = Global.VRTM_Simulator.My.Resources.Resources.media_seek_backward_3
-        Me.ReduceSpeedToolStripMenuItem.Name = "ReduceSpeedToolStripMenuItem"
-        Me.ReduceSpeedToolStripMenuItem.Size = New System.Drawing.Size(178, 26)
-        Me.ReduceSpeedToolStripMenuItem.Text = "Reduce Speed"
-        '
-        'StopToolStripMenuItem
-        '
-        Me.StopToolStripMenuItem.Image = Global.VRTM_Simulator.My.Resources.Resources.media_playback_stop_3
-        Me.StopToolStripMenuItem.Name = "StopToolStripMenuItem"
-        Me.StopToolStripMenuItem.Size = New System.Drawing.Size(178, 26)
-        Me.StopToolStripMenuItem.Text = "Stop"
-        '
-        'PlayToolStripMenuItem
-        '
-        Me.PlayToolStripMenuItem.Image = Global.VRTM_Simulator.My.Resources.Resources.media_playback_start_3
-        Me.PlayToolStripMenuItem.Name = "PlayToolStripMenuItem"
-        Me.PlayToolStripMenuItem.Size = New System.Drawing.Size(178, 26)
-        Me.PlayToolStripMenuItem.Text = "Play"
-        '
-        'IncreaseSpeedToolStripMenuItem
-        '
-        Me.IncreaseSpeedToolStripMenuItem.Image = Global.VRTM_Simulator.My.Resources.Resources.media_seek_forward_3
-        Me.IncreaseSpeedToolStripMenuItem.Name = "IncreaseSpeedToolStripMenuItem"
-        Me.IncreaseSpeedToolStripMenuItem.Size = New System.Drawing.Size(178, 26)
-        Me.IncreaseSpeedToolStripMenuItem.Text = "Increase Speed"
-        '
-        'DisplayParametersToolStripMenuItem
-        '
-        Me.DisplayParametersToolStripMenuItem.Image = Global.VRTM_Simulator.My.Resources.Resources.page_white_paintbrush
-        Me.DisplayParametersToolStripMenuItem.Name = "DisplayParametersToolStripMenuItem"
-        Me.DisplayParametersToolStripMenuItem.Size = New System.Drawing.Size(178, 26)
-        Me.DisplayParametersToolStripMenuItem.Text = "Displa&y Parameters"
         '
         'ErrorProvider2
         '

@@ -116,25 +116,145 @@ Namespace My
         
         <Global.System.Configuration.UserScopedSettingAttribute(),  _
          Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
-         Global.System.Configuration.DefaultSettingValueAttribute("Lavender")>  _
-        Public Property Display_MinimumColor() As Global.System.Drawing.Color
+         Global.System.Configuration.DefaultSettingValueAttribute("Yellow")>  _
+        Public Property Display_MinColor_Tray() As Global.System.Drawing.Color
             Get
-                Return CType(Me("Display_MinimumColor"),Global.System.Drawing.Color)
+                Return CType(Me("Display_MinColor_Tray"),Global.System.Drawing.Color)
             End Get
             Set
-                Me("Display_MinimumColor") = value
+                Me("Display_MinColor_Tray") = value
+            End Set
+        End Property
+        
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("White")>  _
+        Public Property Display_MaxColor_Tray() As Global.System.Drawing.Color
+            Get
+                Return CType(Me("Display_MaxColor_Tray"),Global.System.Drawing.Color)
+            End Get
+            Set
+                Me("Display_MaxColor_Tray") = value
+            End Set
+        End Property
+        
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("Yellow")>  _
+        Public Property Display_MinColor_Conveyor() As Global.System.Drawing.Color
+            Get
+                Return CType(Me("Display_MinColor_Conveyor"),Global.System.Drawing.Color)
+            End Get
+            Set
+                Me("Display_MinColor_Conveyor") = value
+            End Set
+        End Property
+        
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("White")>  _
+        Public Property Display_MaxColor_Conveyor() As Global.System.Drawing.Color
+            Get
+                Return CType(Me("Display_MaxColor_Conveyor"),Global.System.Drawing.Color)
+            End Get
+            Set
+                Me("Display_MaxColor_Conveyor") = value
             End Set
         End Property
         
         <Global.System.Configuration.UserScopedSettingAttribute(),  _
          Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
          Global.System.Configuration.DefaultSettingValueAttribute("Red")>  _
-        Public Property Display_MaximumColor() As Global.System.Drawing.Color
+        Public Property Display_MinColor_Ret() As Global.System.Drawing.Color
             Get
-                Return CType(Me("Display_MaximumColor"),Global.System.Drawing.Color)
+                Return CType(Me("Display_MinColor_Ret"),Global.System.Drawing.Color)
             End Get
             Set
-                Me("Display_MaximumColor") = value
+                Me("Display_MinColor_Ret") = value
+            End Set
+        End Property
+        
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("192, 255, 255")>  _
+        Public Property Display_MaxColor_Ret() As Global.System.Drawing.Color
+            Get
+                Return CType(Me("Display_MaxColor_Ret"),Global.System.Drawing.Color)
+            End Get
+            Set
+                Me("Display_MaxColor_Ret") = value
+            End Set
+        End Property
+        
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("192, 255, 255")>  _
+        Public Property Display_MinColor_Center() As Global.System.Drawing.Color
+            Get
+                Return CType(Me("Display_MinColor_Center"),Global.System.Drawing.Color)
+            End Get
+            Set
+                Me("Display_MinColor_Center") = value
+            End Set
+        End Property
+        
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("Red")>  _
+        Public Property Display_MaxColor_Center() As Global.System.Drawing.Color
+            Get
+                Return CType(Me("Display_MaxColor_Center"),Global.System.Drawing.Color)
+            End Get
+            Set
+                Me("Display_MaxColor_Center") = value
+            End Set
+        End Property
+        
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("192, 255, 255")>  _
+        Public Property Display_MinColor_Surf() As Global.System.Drawing.Color
+            Get
+                Return CType(Me("Display_MinColor_Surf"),Global.System.Drawing.Color)
+            End Get
+            Set
+                Me("Display_MinColor_Surf") = value
+            End Set
+        End Property
+        
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("Red")>  _
+        Public Property Display_MaxColor_Surf() As Global.System.Drawing.Color
+            Get
+                Return CType(Me("Display_MaxColor_Surf"),Global.System.Drawing.Color)
+            End Get
+            Set
+                Me("Display_MaxColor_Surf") = value
+            End Set
+        End Property
+        
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("192, 255, 255")>  _
+        Public Property Display_MinColor_Pow() As Global.System.Drawing.Color
+            Get
+                Return CType(Me("Display_MinColor_Pow"),Global.System.Drawing.Color)
+            End Get
+            Set
+                Me("Display_MinColor_Pow") = value
+            End Set
+        End Property
+        
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("Red")>  _
+        Public Property Display_MaxColor_Pow() As Global.System.Drawing.Color
+            Get
+                Return CType(Me("Display_MaxColor_Pow"),Global.System.Drawing.Color)
+            End Get
+            Set
+                Me("Display_MaxColor_Pow") = value
             End Set
         End Property
     End Class

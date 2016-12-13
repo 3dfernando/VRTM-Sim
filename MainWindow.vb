@@ -272,6 +272,7 @@ Public Class MainWindow
         VRTM_SimVariables.nLevels = Int(txtNLevels.Text)
         VRTM_SimVariables.nTrays = Int(txtNTrays.Text)
         VRTM_SimVariables.boxesPerTray = Int(txtBoxesPerTray.Text)
+        txtStCap.Text = Trim(Str(VRTM_SimVariables.nLevels * VRTM_SimVariables.nTrays * VRTM_SimVariables.boxesPerTray))
     End Sub
 
     Private Sub Validated_Textbox_Evaporators(ByVal sender As Object, ByVal e As System.EventArgs) Handles _
@@ -642,7 +643,7 @@ Public Class MainWindow
                                 If My.Settings.Display_boolConditionalFormatting Then
                                     'Colors the trays according to index
                                     ColorPos = (VRTM_SimVariables.SimData.VRTMTrayData(thisT_index, I, J).TrayIndex - min) / (max - min)
-                                    VRTMTable.Item(I, J).Style.BackColor = Interpolate_Color(ColorPos, My.Settings.Display_MinimumColor, My.Settings.Display_MaximumColor)
+                                    VRTMTable.Item(I, J).Style.BackColor = Interpolate_Color(ColorPos, My.Settings.Display_MinColor_Tray, My.Settings.Display_MaxColor_Tray)
                                 End If
                             End If
                         Next
@@ -677,7 +678,7 @@ Public Class MainWindow
                                 If My.Settings.Display_boolConditionalFormatting Then
                                     'Colors the trays according to index
                                     ColorPos = (VRTM_SimVariables.SimData.VRTMTrayData(thisT_index, I, J).ConveyorIndex - min) / (max - min)
-                                    VRTMTable.Item(I, J).Style.BackColor = Interpolate_Color(ColorPos, My.Settings.Display_MinimumColor, My.Settings.Display_MaximumColor)
+                                    VRTMTable.Item(I, J).Style.BackColor = Interpolate_Color(ColorPos, My.Settings.Display_MinColor_Ret, My.Settings.Display_MaxColor_Ret)
                                 End If
                             End If
                         Next
@@ -685,6 +686,43 @@ Public Class MainWindow
                 Case 2 'Retention Time
                     lblDisplayVariable.Text = "Displaying Retention Time"
 
+                    Dim min As Long = Long.MaxValue
+                    Dim max As Long = Long.MinValue
+                    Dim idx As Long
+                    Dim t As Double
+
+                    If My.Settings.Display_boolConditionalFormatting Then
+                        'Gets the minimum and maximum to make colors
+                        For I As Integer = 0 To VRTM_SimVariables.nTrays - 1
+                            For J As Integer = 0 To VRTM_SimVariables.nLevels - 1
+                                idx = VRTM_SimVariables.SimData.VRTMTrayData(thisT_index, I, J).TrayIndex
+                                t = hsSimPosition.Value - VRTM_SimVariables.SimData.TrayEntryTimes(idx)
+                                If t > 0 And idx <> 0 Then
+                                    If min > t Then min = t
+                                    If max < t Then max = t
+                                End If
+                            Next
+                        Next
+                    End If
+
+                    Dim ColorPos As Double
+                    For I As Integer = 0 To VRTM_SimVariables.nTrays - 1
+                        For J As Integer = 0 To VRTM_SimVariables.nLevels - 1
+                            idx = VRTM_SimVariables.SimData.VRTMTrayData(thisT_index, I, J).TrayIndex
+                            t = hsSimPosition.Value - VRTM_SimVariables.SimData.TrayEntryTimes(idx)
+                            If idx = 0 Or t <= 0 Then
+                                VRTMTable.Item(I, J).Value = ""
+                                VRTMTable.Item(I, J).Style.BackColor = Color.FromArgb(255, 255, 204)
+                            Else
+                                VRTMTable.Item(I, J).Value = Round(t / 3600, 1)
+                                If My.Settings.Display_boolConditionalFormatting Then
+                                    'Colors the trays according to index
+                                    ColorPos = (t - min) / (max - min)
+                                    VRTMTable.Item(I, J).Style.BackColor = Interpolate_Color(ColorPos, My.Settings.Display_MinColor_Ret, My.Settings.Display_MaxColor_Ret)
+                                End If
+                            End If
+                        Next
+                    Next
                 Case 3 'Center Temperature
                     lblDisplayVariable.Text = "Displaying Center Temperature"
 
@@ -697,6 +735,10 @@ Public Class MainWindow
             End Select
 
         End If
+
+    End Sub
+
+    Private Sub btnPlay_Click(sender As Object, e As EventArgs) Handles btnPlay.Click
 
     End Sub
 

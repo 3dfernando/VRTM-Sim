@@ -1,4 +1,5 @@
 ﻿Module GeneralFunctions
+
     'A lot of general functions needed to parse stuff
     Public Function Round(Value As Double, nDigits As Integer) As Double
         Round = Int(Value * (10 ^ nDigits)) / (10 ^ nDigits)
@@ -55,24 +56,27 @@
 
     Public Function Interpolate_Color(Pos As Double, C1 As Color, C2 As Color) As Color
         'Interpolates colors C1 and C2
-        If Pos <= 1 And Pos >= 0 Then
-            Dim R, G, B As Integer
-            Try
-                R = Int(Pos * (Convert.ToDouble(C2.R) -
+        If Pos > 1 Then Pos = 1
+        If Pos < 0 Then Pos = 0
+
+        Dim R, G, B As Integer
+        Try
+            R = Int(Pos * (Convert.ToDouble(C2.R) -
                         Convert.ToDouble(C1.R)) +
                         Convert.ToDouble(C1.R))
 
-                G = Int(Pos * (Convert.ToDouble(C2.G) -
+            G = Int(Pos * (Convert.ToDouble(C2.G) -
                         Convert.ToDouble(C1.G)) +
                         Convert.ToDouble(C1.G))
 
-                B = Int(Pos * (Convert.ToDouble(C2.B) -
+            B = Int(Pos * (Convert.ToDouble(C2.B) -
                         Convert.ToDouble(C1.B)) +
                         Convert.ToDouble(C1.B))
 
-                Return Color.FromArgb(R, G, B)
-            Catch
-            End Try
-        End If
+            Return Color.FromArgb(R, G, B)
+        Catch
+            Return Color.White
+        End Try
     End Function
+
 End Module

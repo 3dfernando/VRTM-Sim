@@ -339,7 +339,7 @@ TryAgain:
         'This class contains the data of a tray after simulation has been processed
         Public TrayIndex As Long ' Sequential tray index (Starts at 1)
         Public ConveyorIndex As Long ' Conveyor index
-        Public ProductIndex As Long 'Product index in the array of ProduxtMix() [In other words, the SKU]
+        Public ProductIndices As Dictionary(Of Long, Long) 'Product index in the array of ProductMix() [In other words, the SKU]. 
         Public SurfTemperature As Double 'Surface temperature of the product after thermal sim [ºC]
         Public CenterTemperature As Double 'Center temperature of the product after thermal sim [ºC]
         Public TrayPower As Double 'Heat power released in the current timestep after thermal sim [W]
@@ -348,4 +348,5 @@ TryAgain:
             Return DirectCast(Me.MemberwiseClone(), TrayData)
         End Function
     End Class
+
 End Module

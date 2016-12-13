@@ -7,8 +7,24 @@
         chkConditionalForm.Checked = My.Settings.Display_boolConditionalFormatting
 
         pcbHighlight.BackColor = My.Settings.Display_HighlightColor
-        pcbMinTray.BackColor = My.Settings.Display_MinimumColor
-        pcbMaxTray.BackColor = My.Settings.Display_MaximumColor
+
+        pcbMinTray.BackColor = My.Settings.Display_MinColor_Tray
+        pcbMaxTray.BackColor = My.Settings.Display_MaxColor_Tray
+
+        pcbMinConv.BackColor = My.Settings.Display_MinColor_Conveyor
+        pcbMaxConv.BackColor = My.Settings.Display_MaxColor_Conveyor
+
+        pcbMinRet.BackColor = My.Settings.Display_MinColor_Ret
+        pcbMaxRet.BackColor = My.Settings.Display_MaxColor_Ret
+
+        pcbMinCenter.BackColor = My.Settings.Display_MinColor_Center
+        pcbMaxCenter.BackColor = My.Settings.Display_MaxColor_Center
+
+        pcbMinSurf.BackColor = My.Settings.Display_MinColor_Surf
+        pcbMaxSurf.BackColor = My.Settings.Display_MaxColor_Surf
+
+        pcbMinPow.BackColor = My.Settings.Display_MinColor_Pow
+        pcbMaxPow.BackColor = My.Settings.Display_MaxColor_Pow
     End Sub
 
     Private Sub frmDisplaySettings_Closed(sender As Object, e As EventArgs) Handles Me.Closed
@@ -18,8 +34,23 @@
         My.Settings.Display_boolConditionalFormatting = chkConditionalForm.Checked
 
         My.Settings.Display_HighlightColor = pcbHighlight.BackColor
-        My.Settings.Display_MinimumColor = pcbMinTray.BackColor
-        My.Settings.Display_MaximumColor = pcbMaxTray.BackColor
+
+        My.Settings.Display_MinColor_Tray = pcbMinTray.BackColor
+        My.Settings.Display_MaxColor_Tray = pcbMaxTray.BackColor
+
+        My.Settings.Display_MinColor_Conveyor = pcbMinConv.BackColor
+        My.Settings.Display_MaxColor_Conveyor = pcbMaxConv.BackColor
+
+        My.Settings.Display_MinColor_Ret = pcbMinRet.BackColor
+        My.Settings.Display_MaxColor_Ret = pcbMaxRet.BackColor
+
+        My.Settings.Display_MinColor_Center = pcbMinCenter.BackColor
+        My.Settings.Display_MaxColor_Center = pcbMaxCenter.BackColor
+        My.Settings.Display_MinColor_Surf = pcbMinSurf.BackColor
+        My.Settings.Display_MaxColor_Surf = pcbMaxSurf.BackColor
+
+        My.Settings.Display_MinColor_Pow = pcbMinPow.BackColor
+        My.Settings.Display_MaxColor_Pow = pcbMaxPow.BackColor
 
         My.Settings.Save()
     End Sub

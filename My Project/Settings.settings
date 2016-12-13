@@ -17,10 +17,40 @@
     <Setting Name="Display_HighlightColor" Type="System.Drawing.Color" Scope="User">
       <Value Profile="(Default)">OliveDrab</Value>
     </Setting>
-    <Setting Name="Display_MinimumColor" Type="System.Drawing.Color" Scope="User">
-      <Value Profile="(Default)">Lavender</Value>
+    <Setting Name="Display_MinColor_Tray" Type="System.Drawing.Color" Scope="User">
+      <Value Profile="(Default)">Yellow</Value>
     </Setting>
-    <Setting Name="Display_MaximumColor" Type="System.Drawing.Color" Scope="User">
+    <Setting Name="Display_MaxColor_Tray" Type="System.Drawing.Color" Scope="User">
+      <Value Profile="(Default)">White</Value>
+    </Setting>
+    <Setting Name="Display_MinColor_Conveyor" Type="System.Drawing.Color" Scope="User">
+      <Value Profile="(Default)">Yellow</Value>
+    </Setting>
+    <Setting Name="Display_MaxColor_Conveyor" Type="System.Drawing.Color" Scope="User">
+      <Value Profile="(Default)">White</Value>
+    </Setting>
+    <Setting Name="Display_MinColor_Ret" Type="System.Drawing.Color" Scope="User">
+      <Value Profile="(Default)">Red</Value>
+    </Setting>
+    <Setting Name="Display_MaxColor_Ret" Type="System.Drawing.Color" Scope="User">
+      <Value Profile="(Default)">192, 255, 255</Value>
+    </Setting>
+    <Setting Name="Display_MinColor_Center" Type="System.Drawing.Color" Scope="User">
+      <Value Profile="(Default)">192, 255, 255</Value>
+    </Setting>
+    <Setting Name="Display_MaxColor_Center" Type="System.Drawing.Color" Scope="User">
+      <Value Profile="(Default)">Red</Value>
+    </Setting>
+    <Setting Name="Display_MinColor_Surf" Type="System.Drawing.Color" Scope="User">
+      <Value Profile="(Default)">192, 255, 255</Value>
+    </Setting>
+    <Setting Name="Display_MaxColor_Surf" Type="System.Drawing.Color" Scope="User">
+      <Value Profile="(Default)">Red</Value>
+    </Setting>
+    <Setting Name="Display_MinColor_Pow" Type="System.Drawing.Color" Scope="User">
+      <Value Profile="(Default)">192, 255, 255</Value>
+    </Setting>
+    <Setting Name="Display_MaxColor_Pow" Type="System.Drawing.Color" Scope="User">
       <Value Profile="(Default)">Red</Value>
     </Setting>
   </Settings>
