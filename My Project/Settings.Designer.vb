@@ -257,6 +257,18 @@ Namespace My
                 Me("Display_MaxColor_Pow") = value
             End Set
         End Property
+        
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("8")>  _
+        Public Property Main_PlaybackSpeed() As Long
+            Get
+                Return CType(Me("Main_PlaybackSpeed"),Long)
+            End Get
+            Set
+                Me("Main_PlaybackSpeed") = value
+            End Set
+        End Property
     End Class
 End Namespace
 

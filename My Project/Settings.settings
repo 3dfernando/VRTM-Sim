@@ -53,5 +53,8 @@
     <Setting Name="Display_MaxColor_Pow" Type="System.Drawing.Color" Scope="User">
       <Value Profile="(Default)">Red</Value>
     </Setting>
+    <Setting Name="Main_PlaybackSpeed" Type="System.Int64" Scope="User">
+      <Value Profile="(Default)">8</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

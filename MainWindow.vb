@@ -4,6 +4,12 @@ Public Class MainWindow
 #Region "Declares and Private Variables"
     Dim PrevMidPanelSize As System.Drawing.Size
     Dim FormShown As Boolean = False
+
+    Dim playbackTimerPeriod As Long = 250 'Playback timer frame refresh rate in ms
+    Dim currentPlaybackSpeedIndex As Long 'Playback speed index on lists
+    Dim playbackSpeed As Double 'Playback speed in seconds/timer tick
+    Public playbackDefaultSpeeds As List(Of Long) 'Contains all the default playback speeds
+    Public playbackDefaultSpeedNames As List(Of String) 'Contains all the default playback speed names (ie. "1.0 h/s")
 #End Region
 
 #Region "Initialization"
@@ -90,6 +96,13 @@ Public Class MainWindow
 
         'Inits panel size
         PrevMidPanelSize = MidPanel.Size
+
+        'Inits the timer playback variable
+        InitPlaybackSpeedSettings()
+        tmrPlayback.Interval = playbackTimerPeriod
+        currentPlaybackSpeedIndex = My.Settings.Main_PlaybackSpeed
+        playbackSpeed = (playbackTimerPeriod / 1000) * playbackDefaultSpeeds(currentPlaybackSpeedIndex)
+        lblTimeWarp.Text = playbackDefaultSpeedNames(currentPlaybackSpeedIndex)
     End Sub
 
     Private Sub MainWindow_Shown(sender As Object, e As EventArgs) Handles Me.Shown
@@ -98,6 +111,12 @@ Public Class MainWindow
         FormShown = True
         Me.WindowState = FormWindowState.Maximized
         MidPanel.SplitterDistance = 55
+    End Sub
+
+    Private Sub MainWindow_Closed(sender As Object, e As EventArgs) Handles Me.Closed
+        'Closed the window
+        My.Settings.Main_PlaybackSpeed = currentPlaybackSpeedIndex
+        My.Settings.Save()
     End Sub
 
     Private Sub Init_DGV(RowNumber As Integer, ColNumber As Integer)
@@ -684,7 +703,7 @@ Public Class MainWindow
                         Next
                     Next
                 Case 2 'Retention Time
-                    lblDisplayVariable.Text = "Displaying Retention Time"
+                    lblDisplayVariable.Text = "Displaying Retention Time [h]"
 
                     Dim min As Long = Long.MaxValue
                     Dim max As Long = Long.MinValue
@@ -724,13 +743,13 @@ Public Class MainWindow
                         Next
                     Next
                 Case 3 'Center Temperature
-                    lblDisplayVariable.Text = "Displaying Center Temperature"
+                    lblDisplayVariable.Text = "Displaying Center Temperature [ºC]"
 
                 Case 4 'Surface Temperature
-                    lblDisplayVariable.Text = "Displaying Surface Temperature"
+                    lblDisplayVariable.Text = "Displaying Surface Temperature [ºC]"
 
                 Case 5 'Power Released
-                    lblDisplayVariable.Text = "Displaying Power Released"
+                    lblDisplayVariable.Text = "Displaying Power Released [W]"
 
             End Select
 
@@ -738,11 +757,43 @@ Public Class MainWindow
 
     End Sub
 
-    Private Sub btnPlay_Click(sender As Object, e As EventArgs) Handles btnPlay.Click
-
+    Private Sub btnPlay_Click(sender As Object, e As EventArgs) Handles btnPlay.Click, PlaybackToolStripMenuItem.Click
+        tmrPlayback.Enabled = True
     End Sub
 
+    Private Sub btnStop_CheckedChanged(sender As Object, e As EventArgs) Handles btnStop.Click, StopToolStripMenuItem.Click
+        tmrPlayback.Enabled = False
+    End Sub
 
+    Private Sub btnIncreaseSpeed_Click(sender As Object, e As EventArgs) Handles btnIncreaseSpeed.Click, IncreaseSpeedToolStripMenuItem.Click
+        'Increases the counter
+        If currentPlaybackSpeedIndex < (playbackDefaultSpeeds.Count - 1) Then
+            currentPlaybackSpeedIndex += 1
+            playbackSpeed = (playbackTimerPeriod / 1000) * playbackDefaultSpeeds(currentPlaybackSpeedIndex)
+            lblTimeWarp.Text = playbackDefaultSpeedNames(currentPlaybackSpeedIndex)
+        End If
+    End Sub
+
+    Private Sub btnReduceSpeed_Click(sender As Object, e As EventArgs) Handles btnReduceSpeed.Click, ReduceSpeedToolStripMenuItem.Click
+        'Decreases the counter
+        If currentPlaybackSpeedIndex > 0 Then
+            currentPlaybackSpeedIndex -= 1
+            playbackSpeed = (playbackTimerPeriod / 1000) * playbackDefaultSpeeds(currentPlaybackSpeedIndex)
+            lblTimeWarp.Text = playbackDefaultSpeedNames(currentPlaybackSpeedIndex)
+        End If
+    End Sub
+
+    Private Sub tmrPlayback_Tick(sender As Object, e As EventArgs) Handles tmrPlayback.Tick
+        'The playback timer will just increase the scrollbar and its change event will deal with the rest
+        If VRTM_SimVariables.SimData.SimulationComplete Then
+            'Tries to set the new value to the scrollbar.
+            Dim newValue As Integer = hsSimPosition.Value + Int(playbackSpeed)
+            If newValue < hsSimPosition.Maximum And newValue > hsSimPosition.Minimum Then
+                hsSimPosition.Value = newValue
+                UpdateDGVPlayback(Nothing, Nothing)
+            End If
+        End If
+    End Sub
 
 #End Region
 

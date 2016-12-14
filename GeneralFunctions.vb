@@ -79,4 +79,43 @@
         End Try
     End Function
 
+    Public Sub InitPlaybackSpeedSettings()
+        'This will fill up the default playback speeds in the initialization
+        'playbackDefaultSpeeds is the variable that contains this dictionary
+        With MainWindow
+            .playbackDefaultSpeeds = New List(Of Long)
+            .playbackDefaultSpeedNames = New List(Of String)
+
+            .playbackDefaultSpeeds.Add(1) 'list item (0)
+            .playbackDefaultSpeedNames.Add("1 s/s")
+            .playbackDefaultSpeeds.Add(2) 'list item (1)
+            .playbackDefaultSpeedNames.Add("2 s/s")
+            .playbackDefaultSpeeds.Add(5) 'list item (2)
+            .playbackDefaultSpeedNames.Add("5 s/s")
+            .playbackDefaultSpeeds.Add(10) 'list item (3)
+            .playbackDefaultSpeedNames.Add("10 s/s")
+            .playbackDefaultSpeeds.Add(30) 'list item (4)
+            .playbackDefaultSpeedNames.Add("30 s/s")
+            .playbackDefaultSpeeds.Add(60) 'list item (5)
+            .playbackDefaultSpeedNames.Add("1 min/s")
+            .playbackDefaultSpeeds.Add(120) 'list item (6)
+            .playbackDefaultSpeedNames.Add("2 min/s")
+            .playbackDefaultSpeeds.Add(300) 'list item (7)
+            .playbackDefaultSpeedNames.Add("5 min/s")
+            .playbackDefaultSpeeds.Add(600) 'list item (8)
+            .playbackDefaultSpeedNames.Add("10 min/s")
+            .playbackDefaultSpeeds.Add(1800) 'list item (9)
+            .playbackDefaultSpeedNames.Add("30 min/s")
+            .playbackDefaultSpeeds.Add(3600) 'list item (10)
+            .playbackDefaultSpeedNames.Add("1 h/s")
+            .playbackDefaultSpeeds.Add(7200) 'list item (11)
+            .playbackDefaultSpeedNames.Add("2 h/s")
+            .playbackDefaultSpeeds.Add(18000) 'list item (12)
+            .playbackDefaultSpeedNames.Add("5 h/s")
+            .playbackDefaultSpeeds.Add(43200) 'list item (13)
+            .playbackDefaultSpeedNames.Add("12 h/s")
+            .playbackDefaultSpeeds.Add(86400) 'list item (14)
+            .playbackDefaultSpeedNames.Add("1 day/s")
+        End With
+    End Sub
 End Module
