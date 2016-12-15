@@ -229,9 +229,9 @@
     Private Sub SimulateFood_UpdateChartData()
         'This sub will simulate the selected food and update the chart dataset to show the new simulation results.
 
-        Dim t() As Double
-        Dim Ts() As Double
-        Dim Tc() As Double
+        Dim t() As Double = {}
+        Dim Ts() As Double = {}
+        Dim Tc() As Double = {}
         Dim DH As Double
 
         Dim G As String = txtSimGeom.SelectedItem
@@ -248,7 +248,7 @@
         Dim Ti As Double = Val(txtInletTemp.Text)
         Dim h As Double = Val(txtConvCoeff.Text)
         Dim Tf As Double = VRTM_SimVariables.Tevap_Setpoint + VRTM_SimVariables.AssumedDTForPreviews
-        Dim p As FoodPropertiesListItem
+        Dim p As New FoodPropertiesListItem
 
         For Each p In FoodPropertiesList
             If p.ProductName = txtProductModel.SelectedItem Then

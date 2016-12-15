@@ -233,7 +233,7 @@ Partial Class MainWindow
         '
         Me.Divisor1.Panel2.Controls.Add(Me.Divisor2)
         Me.Divisor1.Size = New System.Drawing.Size(1552, 975)
-        Me.Divisor1.SplitterDistance = 250
+        Me.Divisor1.SplitterDistance = 324
         Me.Divisor1.SplitterWidth = 5
         Me.Divisor1.TabIndex = 1
         '
@@ -254,7 +254,7 @@ Partial Class MainWindow
         'LeftPanel.Panel2
         '
         Me.LeftPanel.Panel2.Controls.Add(Me.TabControl1)
-        Me.LeftPanel.Size = New System.Drawing.Size(250, 975)
+        Me.LeftPanel.Size = New System.Drawing.Size(324, 975)
         Me.LeftPanel.SplitterDistance = 52
         Me.LeftPanel.SplitterWidth = 5
         Me.LeftPanel.TabIndex = 0
@@ -265,7 +265,7 @@ Partial Class MainWindow
         Me.ToolStrip1.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.btnReduceSpeed, Me.btnStop, Me.btnPlay, Me.btnIncreaseSpeed, Me.ToolStripSeparator2, Me.lblTimeWarp, Me.ToolStripSeparator3})
         Me.ToolStrip1.Location = New System.Drawing.Point(0, 28)
         Me.ToolStrip1.Name = "ToolStrip1"
-        Me.ToolStrip1.Size = New System.Drawing.Size(250, 27)
+        Me.ToolStrip1.Size = New System.Drawing.Size(324, 27)
         Me.ToolStrip1.TabIndex = 0
         Me.ToolStrip1.Text = "ToolStrip1"
         '
@@ -329,7 +329,7 @@ Partial Class MainWindow
         Me.MenuStrip1.Location = New System.Drawing.Point(0, 0)
         Me.MenuStrip1.Name = "MenuStrip1"
         Me.MenuStrip1.Padding = New System.Windows.Forms.Padding(8, 2, 0, 2)
-        Me.MenuStrip1.Size = New System.Drawing.Size(250, 28)
+        Me.MenuStrip1.Size = New System.Drawing.Size(324, 28)
         Me.MenuStrip1.TabIndex = 1
         Me.MenuStrip1.Text = "MenuStrip1"
         '
@@ -435,7 +435,7 @@ Partial Class MainWindow
         Me.TabControl1.Multiline = True
         Me.TabControl1.Name = "TabControl1"
         Me.TabControl1.SelectedIndex = 0
-        Me.TabControl1.Size = New System.Drawing.Size(250, 918)
+        Me.TabControl1.Size = New System.Drawing.Size(324, 918)
         Me.TabControl1.TabIndex = 20
         '
         'VRTMParams
@@ -444,11 +444,11 @@ Partial Class MainWindow
         Me.VRTMParams.Controls.Add(Me.GroupBox7)
         Me.VRTMParams.Controls.Add(Me.GroupBox1)
         Me.VRTMParams.Controls.Add(Me.GroupBox2)
-        Me.VRTMParams.Location = New System.Drawing.Point(4, 67)
+        Me.VRTMParams.Location = New System.Drawing.Point(4, 46)
         Me.VRTMParams.Margin = New System.Windows.Forms.Padding(4)
         Me.VRTMParams.Name = "VRTMParams"
         Me.VRTMParams.Padding = New System.Windows.Forms.Padding(4)
-        Me.VRTMParams.Size = New System.Drawing.Size(242, 847)
+        Me.VRTMParams.Size = New System.Drawing.Size(316, 868)
         Me.VRTMParams.TabIndex = 0
         Me.VRTMParams.Text = "VRTM Params"
         Me.VRTMParams.UseVisualStyleBackColor = True
@@ -1817,8 +1817,8 @@ Partial Class MainWindow
         'Divisor2.Panel1
         '
         Me.Divisor2.Panel1.Controls.Add(Me.MidPanel)
-        Me.Divisor2.Size = New System.Drawing.Size(1297, 975)
-        Me.Divisor2.SplitterDistance = 895
+        Me.Divisor2.Size = New System.Drawing.Size(1223, 975)
+        Me.Divisor2.SplitterDistance = 820
         Me.Divisor2.SplitterWidth = 5
         Me.Divisor2.TabIndex = 0
         '
@@ -1840,7 +1840,7 @@ Partial Class MainWindow
         'MidPanel.Panel2
         '
         Me.MidPanel.Panel2.Controls.Add(Me.VRTMTable)
-        Me.MidPanel.Size = New System.Drawing.Size(895, 975)
+        Me.MidPanel.Size = New System.Drawing.Size(820, 975)
         Me.MidPanel.SplitterDistance = 67
         Me.MidPanel.SplitterWidth = 5
         Me.MidPanel.TabIndex = 2
@@ -1890,7 +1890,7 @@ Partial Class MainWindow
         Me.VRTMTable.ReadOnly = True
         Me.VRTMTable.RowHeadersWidthSizeMode = System.Windows.Forms.DataGridViewRowHeadersWidthSizeMode.DisableResizing
         Me.VRTMTable.ShowEditingIcon = False
-        Me.VRTMTable.Size = New System.Drawing.Size(895, 903)
+        Me.VRTMTable.Size = New System.Drawing.Size(820, 903)
         Me.VRTMTable.TabIndex = 0
         '
         'ErrorProvider1

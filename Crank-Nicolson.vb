@@ -133,7 +133,7 @@
             Diag_Upper(0) = -1
             Constants(0) = (h_Boundary_1 * dx / k(0)) * T_Boundary_1
         Else
-            Exit Function
+            Return Nothing
         End If
         '----Boundary 2----
         If Boundary_Type_2 = Boundary.Dirichlet Then
@@ -152,7 +152,7 @@
             Diag_Upper(n - 1) = 0 'It doesn't matter as it won't be used in the tridiag solver
             Constants(n - 1) = (h_Boundary_2 * dx / k(n - 1)) * T_Boundary_2
         Else
-            Exit Function
+            Return Nothing
         End If
 
         Dim Lambda As Double

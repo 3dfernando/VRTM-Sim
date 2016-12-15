@@ -96,6 +96,9 @@ Public Class MainWindow
 
         'Inits panel size
         PrevMidPanelSize = MidPanel.Size
+        Divisor1.SplitterDistance = 250
+        lblCurrentPos.Location = New Point(Divisor2.SplitterDistance - 100, lblCurrentPos.Location.Y)
+        hsSimPosition.Width = Divisor2.SplitterDistance - 120
 
         'Inits the timer playback variable
         InitPlaybackSpeedSettings()

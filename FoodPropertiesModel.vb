@@ -463,7 +463,6 @@
             Dim i As Long
             Dim H_Accum As Double = 0
             Dim cp As Double
-            Dim Errore As Double
 
             nPoints = 1000
             H.Clear()
