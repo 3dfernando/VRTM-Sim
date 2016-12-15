@@ -52,6 +52,7 @@
         '===========================================
         Public FixedHeatLoadData As HeatLoadData 'Contains the fixed heat load data
         Public ProductMix() As ProductData 'Contains all the product data in the mix, listed in an array
+        Public InletConveyors() As InletConveyor 'Contains the data for all conveyors in this VRTM
 
         '===================================
         '----Hidden simulation variables----
@@ -94,7 +95,7 @@
             Me.ProductionDays = {True, True, True, True, True, False, False}
 
             Me.TotalSimTime = 3600 * 24 * 7
-            Me.MinimumSimDt = 300
+            Me.MinimumSimDt = 100
             Me.AssumedDTForPreviews = 7
 
             Me.SimData = New SimulationData
@@ -108,7 +109,7 @@
             Me.ProductMix(0).AvgFlowRate = 1200
             Me.ProductMix(0).BoxRateStatisticalDistr = "Exponential"
             Me.ProductMix(0).BoxRateStdDev = 0
-            Me.ProductMix(0).ConveyorNumber = 1
+            Me.ProductMix(0).ConveyorNumber = 0
 
             Me.ProductMix(0).SimGeometry = "Thin Slab"
             Me.ProductMix(0).SimThickness = 120
@@ -133,7 +134,7 @@
             Me.ProductMix(1).AvgFlowRate = 1200
             Me.ProductMix(1).BoxRateStatisticalDistr = "Exponential"
             Me.ProductMix(1).BoxRateStdDev = 0
-            Me.ProductMix(1).ConveyorNumber = 3
+            Me.ProductMix(1).ConveyorNumber = 1
 
             Me.ProductMix(1).SimGeometry = "Thin Slab"
             Me.ProductMix(1).SimThickness = 120
@@ -175,6 +176,18 @@
             Me.ProductMix(2).DeltaHSimulated = 262367 'Simulated already for this product
 
             Me.ProductMix(2).FoodThermalPropertiesModel = New FoodProperties()
+
+            'Initializes the conveyors
+            ReDim Me.InletConveyors(1)
+            Me.InletConveyors(0) = New InletConveyor
+            Me.InletConveyors(0).ConveyorTag = "Chicken Only"
+            Me.InletConveyors(0).LoadingLevel = 15
+            Me.InletConveyors(0).MinRetTime = 24
+
+            Me.InletConveyors(1) = New InletConveyor
+            Me.InletConveyors(1).ConveyorTag = "Pizza and Butter"
+            Me.InletConveyors(1).LoadingLevel = 15
+            Me.InletConveyors(1).MinRetTime = 36
 
             'Initializes the heat load data
             Me.FixedHeatLoadData = New HeatLoadData
@@ -326,6 +339,8 @@ TryAgain:
     Public Class SimulationData
         'This class will contain all the variables in the process simulation data (variables of the process simulation)
         Public VRTMTrayData(,,) As TrayData   'ARRAY OF TRAY DATA IN THE FORMAT of timestep, Tray no, Level no
+        Public VRTMTimePositions() As Double 'This array links the TrayEntryPositions with VRTMTrayData through the time array
+        Public TrayEntryPositions() As Long 'This array contains the "timesteps" where the given tray indices entered the TRVM.
         Public TrayEntryTimes() As Double 'Array of simulation entry time indices for each tray index mentioned in TRVMTrayIndices
         Public TrayExitTimes() As Double 'Array of simulation exit time indices for each tray index mentioned in TRVMTrayIndices
         Public TrayStayTime() As Double 'Array of stay times for each tray
@@ -347,6 +362,13 @@ TryAgain:
         Public Function Clone() As TrayData
             Return DirectCast(Me.MemberwiseClone(), TrayData)
         End Function
+    End Class
+
+    Public Class InletConveyor
+        'Defines the properties of a conveyor that are important
+        Public ConveyorTag As String
+        Public MinRetTime As Double 'hours
+        Public LoadingLevel As Long
     End Class
 
 End Module

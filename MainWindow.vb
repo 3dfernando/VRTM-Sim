@@ -622,7 +622,7 @@ Public Class MainWindow
 
             'Gets the current time index
             Dim thisT_index As Long
-            thisT_index = Array.BinarySearch(Of Double)(VRTM_SimVariables.SimData.TrayEntryTimes, hsSimPosition.Value)
+            thisT_index = Array.BinarySearch(Of Double)(VRTM_SimVariables.SimData.VRTMTimePositions, hsSimPosition.Value)
             If thisT_index < 0 Then
                 thisT_index = (Not thisT_index) - 1
             End If
@@ -632,7 +632,7 @@ Public Class MainWindow
                 For J As Integer = 0 To VRTM_SimVariables.nLevels - 1
                     VRTMTable.Rows(J).HeaderCell.Style.BackColor = Color.FromArgb(255, 255, 150)
                 Next
-                VRTMTable.Rows(VRTM_SimVariables.SimData.TrayEntryLevels(thisT_index)).HeaderCell.Style.BackColor = My.Settings.Display_HighlightColor
+                VRTMTable.Rows(VRTM_SimVariables.SimData.TrayEntryLevels(VRTM_SimVariables.SimData.TrayEntryPositions(thisT_index))).HeaderCell.Style.BackColor = My.Settings.Display_HighlightColor
             End If
 
             'Highlights 
@@ -760,7 +760,7 @@ Public Class MainWindow
 
     End Sub
 
-    Private Sub btnPlay_Click(sender As Object, e As EventArgs) Handles btnPlay.Click, PlaybackToolStripMenuItem.Click
+    Private Sub btnPlay_Click(sender As Object, e As EventArgs) Handles btnPlay.Click, PlayToolStripMenuItem.Click
         tmrPlayback.Enabled = True
     End Sub
 

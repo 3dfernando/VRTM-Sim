@@ -66,7 +66,7 @@
         If Not IsNothing(VRTM_SimVariables.ProductMix) Then
             For Each Prod As ProductData In VRTM_SimVariables.ProductMix
                 lstProductMix.Items.Add(Prod.ProdName)
-                lstProductMix.Items(lstProductMix.Items.Count - 1).SubItems.Add(Trim(Str(Prod.ConveyorNumber)))
+                lstProductMix.Items(lstProductMix.Items.Count - 1).SubItems.Add(VRTM_SimVariables.InletConveyors(Prod.ConveyorNumber).ConveyorTag)
                 lstProductMix.Items(lstProductMix.Items.Count - 1).SubItems.Add(Trim(Str(Prod.BoxWeight)))
                 lstProductMix.Items(lstProductMix.Items.Count - 1).SubItems.Add(Trim(Str(Prod.AvgFlowRate)))
                 lstProductMix.Items(lstProductMix.Items.Count - 1).SubItems.Add(Trim(Str(Prod.InletTemperature)))
@@ -103,7 +103,7 @@
                                 txtStdDev.Text = Trim(Str(p.BoxRateStdDev))
                                 txtStdDev.Enabled = True
                         End Select
-                        txtConveyor.Text = Trim(Str(p.ConveyorNumber))
+                        txtConveyorNumber.SelectedIndex = p.ConveyorNumber
 
                         txtSimGeom.SelectedItem = p.SimGeometry
                         Select Case p.SimGeometry
@@ -141,14 +141,14 @@
 
                         txtInletTemp.Text = Trim(Str(p.InletTemperature))
                         txtOutletTemp.Text = Trim(Str(p.OutletTemperatureDesign))
-                        txtMinStayTime.Text = Trim(Str(p.MinimumStayTime))
+                        txtMinStayTime.Text = Trim(Str(VRTM_SimVariables.InletConveyors(p.ConveyorNumber).MinRetTime))
                         txtAirSpeed.Text = Trim(Str(p.AirSpeed))
                         txtConvectionMultFactor.Text = Trim(Str(p.ConvCoeffMultiplier))
                         txtConvCoeff.Text = Trim(Str(Round(p.ConvCoefficientUsed, 2)))
-                        txtDeltaH.Text = Trim(Str(Round(p.DeltaHSimulated / 1000, 2)))
+
                         txtProductModel.SelectedItem = p.FoodThermalPropertiesModel.FoodModelUsed.ProductName
 
-                        txtConveyor.Text = Trim(Str(p.ConveyorNumber))
+                        txtConveyorNumber.SelectedIndex = p.ConveyorNumber
                         Exit For
                     End If
                 Next
@@ -157,6 +157,7 @@
                 p.FoodThermalPropertiesModel.Initialize()
 
                 SimulateFood_UpdateChartData()
+                txtDeltaH.Text = Trim(Str(Round(p.DeltaHSimulated / 1000, 2)))
             End With
 
         Else
@@ -177,7 +178,7 @@
         'Exponential
         txtStdDev.Text = ""
         txtStdDev.Enabled = False
-        txtConveyor.Text = ""
+        txtConveyorNumber.SelectedIndex = 0
 
         txtSimGeom.SelectedIndex = 0
         'Thin Slab
@@ -198,10 +199,20 @@
         txtConvCoeff.Text = ""
         txtDeltaH.Text = ""
 
+        UpdateConveyorList()
         txtProductModel.SelectedIndex = 0
 
         ClearGraph()
     End Sub
+
+    Private Sub UpdateConveyorList()
+        'Gets the conveyors currently in memory and updates the list
+        txtConveyorNumber.Items.Clear()
+        For I As Long = 0 To UBound(VRTM_SimVariables.InletConveyors)
+            txtConveyorNumber.Items.Add(VRTM_SimVariables.InletConveyors(I).ConveyorTag)
+        Next
+    End Sub
+
 
     Private Sub UpdateFoodPropertiesList()
         'This updates the little list of "Product Model Properties"
@@ -296,7 +307,7 @@
         Dim ProdNameObj As Object
         Dim errorOccurred As Boolean = False
 
-        objectsToValidatePositive = {txtBoxWeight, txtBoxFlowRate, txtStdDev, txtSimThickness, txtSimLength, txtSimWidth, txtSimDiameter, txtMinStayTime,
+        objectsToValidatePositive = {txtBoxWeight, txtBoxFlowRate, txtStdDev, txtSimThickness, txtSimLength, txtSimWidth, txtSimDiameter,
              txtAirSpeed, txtConvectionMultFactor}
         objectsToValidateTemperature = {txtInletTemp, txtOutletTemp}
         ProdNameObj = txtProductName
@@ -359,7 +370,7 @@
                 VRTM_SimVariables.ProductMix(I).BoxRateStdDev = txtStdDev.Text
                 txtStdDev.Enabled = True
         End Select
-        VRTM_SimVariables.ProductMix(I).ConveyorNumber = CLng(txtConveyor.Text)
+        VRTM_SimVariables.ProductMix(I).ConveyorNumber = txtConveyorNumber.SelectedIndex
 
         VRTM_SimVariables.ProductMix(I).SimGeometry = txtSimGeom.SelectedItem
         VRTM_SimVariables.ProductMix(I).SimThickness = Val(txtSimThickness.Text)
@@ -577,8 +588,8 @@
 #Region "Validation of fields"
     Private Sub GeneralValidated(ByVal sender As Object, ByVal e As System.EventArgs) Handles _
         txtProductName.Validated, txtBoxWeight.Validated, txtBoxFlowRate.Validated, txtStdDev.Validated, txtSimThickness.Validated, txtSimLength.Validated,
-        txtSimWidth.Validated, txtSimDiameter.Validated, txtMinStayTime.Validated, txtAirSpeed.Validated, txtConvectionMultFactor.Validated,
-        txtInletTemp.Validated, txtOutletTemp.Validated, txtConveyor.Validated
+        txtSimWidth.Validated, txtSimDiameter.Validated, txtAirSpeed.Validated, txtConvectionMultFactor.Validated,
+        txtInletTemp.Validated, txtOutletTemp.Validated
         ' If all conditions have been met, clear the error provider of errors.
         ErrorProvider1.SetError(sender, "")
 
@@ -614,7 +625,7 @@
     End Sub
     Private Sub Validate_Positive(ByVal sender As Object, ByVal e As System.ComponentModel.CancelEventArgs) Handles _
         txtBoxWeight.Validating, txtBoxFlowRate.Validating, txtStdDev.Validating, txtSimThickness.Validating, txtSimLength.Validating, txtSimWidth.Validating,
-        txtSimDiameter.Validating, txtMinStayTime.Validating, txtAirSpeed.Validating, txtConvectionMultFactor.Validating, txtConveyor.Validating
+        txtSimDiameter.Validating, txtAirSpeed.Validating, txtConvectionMultFactor.Validating
         'Validates several textboxes that have a numeric input
         If sender.Enabled = False Then Exit Sub
         If Not (IsNumeric(sender.Text) And Val(sender.text) > 0) Then
@@ -689,6 +700,10 @@
         End Select
     End Sub
 
+    Private Sub txtConveyorNumber_SelectedIndexChanged(sender As Object, e As EventArgs) Handles txtConveyorNumber.SelectedIndexChanged
+        'Updates the minimum stay time
+        txtMinStayTime.Text = Trim(Str(VRTM_SimVariables.InletConveyors(txtConveyorNumber.SelectedIndex).MinRetTime))
+    End Sub
 
 
 #End Region

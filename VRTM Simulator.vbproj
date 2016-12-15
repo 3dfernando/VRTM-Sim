@@ -23,6 +23,7 @@
     <OutputPath>bin\Debug\</OutputPath>
     <DocumentationFile>VRTM Simulator.xml</DocumentationFile>
     <NoWarn>42016,41999,42017,42018,42019,42032,42036,42020,42021,42022</NoWarn>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -73,6 +74,12 @@
     <Import Include="System.Threading.Tasks" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ConveyorSetup.Designer.vb">
+      <DependentUpon>ConveyorSetup.vb</DependentUpon>
+    </Compile>
+    <Compile Include="ConveyorSetup.vb">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="Crank-Nicolson.vb" />
     <Compile Include="CurveFitting.vb" />
     <Compile Include="DisplaySettings.Designer.vb">
@@ -128,6 +135,9 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="ConveyorSetup.resx">
+      <DependentUpon>ConveyorSetup.vb</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="DisplaySettings.resx">
       <DependentUpon>DisplaySettings.vb</DependentUpon>
     </EmbeddedResource>
@@ -209,6 +219,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\page-white_paintbrush.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\page-white_gear.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
