@@ -436,6 +436,13 @@
         IndexOfProductBeingEdited = -1
     End Sub
 
+
+    Private Sub cmdConveyor_Click(sender As Object, e As EventArgs) Handles cmdConveyor.Click
+        'Opens up the conveyor setup diag
+        Dim f As New frmConveyorSetup
+        f.ShowDialog()
+
+    End Sub
 #End Region
 
 #Region "Chart update"
@@ -704,6 +711,7 @@
         'Updates the minimum stay time
         txtMinStayTime.Text = Trim(Str(VRTM_SimVariables.InletConveyors(txtConveyorNumber.SelectedIndex).MinRetTime))
     End Sub
+
 
 
 #End Region

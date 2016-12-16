@@ -798,7 +798,11 @@ Public Class MainWindow
         End If
     End Sub
 
+
 #End Region
 
+    Private Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click
+        Solve_A_Star_Search(Nothing, Nothing)
+    End Sub
 
 End Class

@@ -74,6 +74,7 @@
     <Import Include="System.Threading.Tasks" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="A_Star.vb" />
     <Compile Include="ConveyorSetup.Designer.vb">
       <DependentUpon>ConveyorSetup.vb</DependentUpon>
     </Compile>
