@@ -34,21 +34,6 @@
                 End If
             Next
 
-            'If Fringe.Count >= 50000 Then
-            '    'For debug purposes
-            '    Dim T1 As DateTime = DateTime.Now
-
-            '    For Reps As Long = 1 To 10000
-            '        Fringe.Remove(MinFringe)
-            '        Fringe.Add(MinFringe)
-            '    Next
-
-            '    Dim T2 As DateTime = DateTime.Now
-
-            '    Dim DT As TimeSpan = T2 - T1
-            '    Dim k As Double = DT.TotalMilliseconds
-            'End If
-
             'Expands this fringe
             If MinFringe.GoalTest(GoalState) Then
                 Dim A As Integer = 1
@@ -159,6 +144,8 @@
 
             Dim RadiusList As New List(Of PointLong)
             Dim AcumCost As Double = 0
+            Dim Delta_Levels As Double
+            Dim Delta_Trays As Double
 
             For I As Long = 0 To IMax
                 For J As Long = 0 To JMax
@@ -167,7 +154,11 @@
                         For J1 As Long = 0 To JMax
                             If ConvIndices(I1, J1) = GoalState.VRTMStateConv(I, J) Then
                                 ConvIndices(I1, J1) = -99
-                                AcumCost += Math.Abs((I1 - I)) + Math.Abs((J1 - J))
+                                Delta_Levels = Math.Abs((I1 - I)) + Math.Abs((J1 - J))
+                                'Tests the current costs according to the heuristics
+                                Delta_Trays = I + I1
+                                If Delta_Trays > (2 * IMax - I - I1) Then Delta_Trays = (2 * IMax - I - I1)
+                                AcumCost += Delta_Trays * Delta_Levels
                                 GoTo ContinueFor
                             End If
                         Next

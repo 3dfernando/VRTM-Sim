@@ -805,19 +805,17 @@ Public Class MainWindow
 
 
         Dim S As New FringeItem
-        'S.VRTMStateConv = {{1, 1, 1, 1, 1}, {2, 2, 2, 2, 2}, {3, 3, 3, 3, 3}, {4, 4, 4, 4, 4}, {5, 5, 5, 5, 5}}
-        S.VRTMStateConv = {{1, 1, 1, 1}, {2, 2, 2, 2}, {3, 3, 3, 3}, {4, 4, 4, 4}}
+        S.VRTMStateConv = {{1, 1, 2, 2, 2}, {1, 1, 2, 3, 3}, {1, 2, 2, 2, 3}, {1, 2, 2, 3, 3}, {1, 3, 2, 3, 3}}
         S.CurrentLevel = 1
         S.HeuristicCost_H = 0
         S.PlanOfActions = New List(Of Integer)
         S.PrevCost_G = 0
         S.TotalCost_F = 0
-        S.Elevator1 = -2
-        S.Elevator2 = -1
+        S.Elevator1 = 2
+        S.Elevator2 = -2
 
         Dim G As FringeItem = S.Clone
-        'G.VRTMStateConv = {{1, 2, 3, 4, 5}, {1, 2, 3, 4, 5}, {1, 2, 3, 4, 5}, {1, 2, 3, 4, 5}, {1, 2, 3, 4, 5}}
-        G.VRTMStateConv = {{1, 2, 3, 4}, {1, 2, 3, 4}, {1, 2, 3, 4}, {1, 2, 3, 4}}
+        G.VRTMStateConv = {{1, 1, 2, 2, 3}, {1, 1, 2, 2, 3}, {1, 2, 2, 3, 3}, {1, 2, 2, 3, 3}, {1, 2, 2, 3, 3}}
 
         Solve_A_Star_Search(S, G)
     End Sub
