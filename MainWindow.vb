@@ -802,11 +802,23 @@ Public Class MainWindow
 #End Region
 
     Private Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click
-        Dim S As New VRTMState(4, 4, 1, -2, 2)
-        S.ConveyorIndexArray = {{1, 1, 1, 1, 1}, {2, 2, 2, 2, 2}, {3, 3, 3, 3, 3}, {4, 4, 4, 4, 4}, {5, 5, 5, 5, 5}}
 
-        Dim G As New VRTMState(4, 4, 1, -2, 2)
-        G.ConveyorIndexArray = {{1, 2, 3, 4, 5}, {1, 2, 3, 4, 5}, {1, 2, 3, 4, 5}, {1, 2, 3, 4, 5}, {1, 2, 3, 4, 5}}
+
+        Dim S As New FringeItem
+        'S.VRTMStateConv = {{1, 1, 1, 1, 1}, {2, 2, 2, 2, 2}, {3, 3, 3, 3, 3}, {4, 4, 4, 4, 4}, {5, 5, 5, 5, 5}}
+        S.VRTMStateConv = {{1, 1, 1, 1}, {2, 2, 2, 2}, {3, 3, 3, 3}, {4, 4, 4, 4}}
+        S.CurrentLevel = 1
+        S.HeuristicCost_H = 0
+        S.PlanOfActions = New List(Of Integer)
+        S.PrevCost_G = 0
+        S.TotalCost_F = 0
+        S.Elevator1 = -2
+        S.Elevator2 = -1
+
+        Dim G As FringeItem = S.Clone
+        'G.VRTMStateConv = {{1, 2, 3, 4, 5}, {1, 2, 3, 4, 5}, {1, 2, 3, 4, 5}, {1, 2, 3, 4, 5}, {1, 2, 3, 4, 5}}
+        G.VRTMStateConv = {{1, 2, 3, 4}, {1, 2, 3, 4}, {1, 2, 3, 4}, {1, 2, 3, 4}}
+
         Solve_A_Star_Search(S, G)
     End Sub
 
