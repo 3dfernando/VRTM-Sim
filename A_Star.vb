@@ -1,7 +1,7 @@
 ﻿Module A_Star
     'This module contains the functions needed to solve the "puzzle" of reorganizing the VRTM shelves
     Public Const H_Weight As Double = 1 'Weight Attributed to the heuristics (G weight is always 1)
-
+    Public Const N_Plies As Integer = 3 'Number of plies used in each fringe group iteration
 
     Public Function Solve_A_Star_Search(CurrentState As FringeItem) As List(Of Integer)
         'This will solve the A star algorithm for the current VRTM state
@@ -21,8 +21,8 @@
             End If
         Next
 
-        Dim CostWeight As Double = 0.5
-        Dim RewardWeight As Double = 0.5
+        Dim CostWeight As Double = 0
+        Dim RewardWeight As Double = 1
 
         Do While 1
             'Locates the minimum cost fringe
@@ -43,19 +43,33 @@
                 Return MinFringe.PlanOfActions
             End If
 
+            Dim LocalTreeNode As New List(Of FringeItem)
+            LocalTreeNode.Add(MinFringe)
 
-            For I As Long = 0 To UBound(CurrentState.VRTMStateConv, 2)
-                If I <> MinFringe.CurrentLevel Then
-                    Dim tF As New FringeItem
-                    tF = MinFringe.Clone
-                    tF.Perform_Operation(I)
+            For K As Long = 1 To N_Plies
+                Dim listOfNodes As New List(Of FringeItem)
+                For Each fr As FringeItem In LocalTreeNode
+                    For I As Long = 0 To UBound(CurrentState.VRTMStateConv, 2)
+                        If I <> fr.CurrentLevel Then
+                            Dim tF As New FringeItem
+                            tF = fr.Clone
+                            tF.Perform_Operation(I)
 
-                    Fringe.Add(tF)
-                End If
+                            listOfNodes.Add(tF)
+                        End If
+                    Next
+                Next
+
+                LocalTreeNode = listOfNodes
+
             Next
 
             'Dequeues it
             Fringe.Remove(MinFringe)
+            For Each fr As FringeItem In LocalTreeNode
+                Fringe.Add(fr)
+            Next
+
             Count += 1
         Loop
 
