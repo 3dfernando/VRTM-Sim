@@ -692,7 +692,7 @@ Public Class MainWindow
                     Dim ColorPos As Double
                     For I As Integer = 0 To VRTM_SimVariables.nTrays - 1
                         For J As Integer = 0 To VRTM_SimVariables.nLevels - 1
-                            If VRTM_SimVariables.SimData.VRTMTrayData(thisT_index, I, J).ConveyorIndex = 0 Then
+                            If VRTM_SimVariables.SimData.VRTMTrayData(thisT_index, I, J).ConveyorIndex = -1 Then
                                 VRTMTable.Item(I, J).Value = ""
                                 VRTMTable.Item(I, J).Style.BackColor = Color.FromArgb(255, 255, 204)
                             Else
@@ -821,4 +821,35 @@ Public Class MainWindow
         Solve_A_Star_Search(S)
     End Sub
 
+    Private Sub SaveSimulationToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles SaveSimulationToolStripMenuItem.Click
+        Dim F As String
+        SaveFileDialog1.Filter = "VRTM Config Files (*.vcfg)|*.vcfg"
+        SaveFileDialog1.Title = "Save the Simulation Setup"
+        SaveFileDialog1.ShowDialog()
+
+        F = SaveFileDialog1.FileName
+
+        Try
+            SaveTRVMVariables(VRTM_SimVariables, F)
+        Catch ex As Exception
+        End Try
+
+    End Sub
+
+    Private Sub OpenSimulationToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles OpenSimulationToolStripMenuItem.Click
+        Dim F As String
+        OpenFileDialog1.Filter = "VRTM Config Files (*.vcfg)|*.vcfg"
+        OpenFileDialog1.Title = "Open a Simulation Setup"
+        OpenFileDialog1.ShowDialog()
+
+        F = OpenFileDialog1.FileName
+
+        Try
+            OpenTRVMVariables(F)
+        Catch ex As Exception
+
+        End Try
+        MainWindow_Load(Nothing, Nothing)
+
+    End Sub
 End Class

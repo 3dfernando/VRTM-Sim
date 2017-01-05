@@ -22,6 +22,7 @@ Partial Class frmConveyorSetup
     'Do not modify it using the code editor.
     <System.Diagnostics.DebuggerStepThrough()> _
     Private Sub InitializeComponent()
+        Me.components = New System.ComponentModel.Container()
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(frmConveyorSetup))
         Me.lstConveyors = New System.Windows.Forms.ListView()
         Me.lstProducts = New System.Windows.Forms.ListView()
@@ -32,12 +33,11 @@ Partial Class frmConveyorSetup
         Me.Label1 = New System.Windows.Forms.Label()
         Me.txtMinTime = New System.Windows.Forms.TextBox()
         Me.Label2 = New System.Windows.Forms.Label()
-        Me.Label3 = New System.Windows.Forms.Label()
-        Me.txtLoadLevel = New System.Windows.Forms.TextBox()
-        Me.Label4 = New System.Windows.Forms.Label()
         Me.GroupBox1 = New System.Windows.Forms.GroupBox()
         Me.Label5 = New System.Windows.Forms.Label()
+        Me.ErrorProvider1 = New System.Windows.Forms.ErrorProvider(Me.components)
         Me.GroupBox1.SuspendLayout()
+        CType(Me.ErrorProvider1, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
         '
         'lstConveyors
@@ -51,9 +51,9 @@ Partial Class frmConveyorSetup
         '
         'lstProducts
         '
-        Me.lstProducts.Location = New System.Drawing.Point(259, 41)
+        Me.lstProducts.Location = New System.Drawing.Point(259, 19)
         Me.lstProducts.Name = "lstProducts"
-        Me.lstProducts.Size = New System.Drawing.Size(181, 149)
+        Me.lstProducts.Size = New System.Drawing.Size(181, 171)
         Me.lstProducts.TabIndex = 18
         Me.lstProducts.UseCompatibleStateImageBehavior = False
         '
@@ -97,7 +97,7 @@ Partial Class frmConveyorSetup
         '
         Me.txtConveyorTag.Location = New System.Drawing.Point(143, 19)
         Me.txtConveyorTag.Name = "txtConveyorTag"
-        Me.txtConveyorTag.Size = New System.Drawing.Size(78, 20)
+        Me.txtConveyorTag.Size = New System.Drawing.Size(97, 20)
         Me.txtConveyorTag.TabIndex = 24
         Me.txtConveyorTag.TextAlign = System.Windows.Forms.HorizontalAlignment.Right
         '
@@ -127,40 +127,11 @@ Partial Class frmConveyorSetup
         Me.Label2.TabIndex = 25
         Me.Label2.Text = "Minimum Retention Time:"
         '
-        'Label3
-        '
-        Me.Label3.AutoSize = True
-        Me.Label3.Location = New System.Drawing.Point(11, 72)
-        Me.Label3.Name = "Label3"
-        Me.Label3.Size = New System.Drawing.Size(77, 13)
-        Me.Label3.TabIndex = 25
-        Me.Label3.Text = "Loading Level:"
-        '
-        'txtLoadLevel
-        '
-        Me.txtLoadLevel.Location = New System.Drawing.Point(143, 69)
-        Me.txtLoadLevel.Name = "txtLoadLevel"
-        Me.txtLoadLevel.Size = New System.Drawing.Size(78, 20)
-        Me.txtLoadLevel.TabIndex = 26
-        Me.txtLoadLevel.TextAlign = System.Windows.Forms.HorizontalAlignment.Right
-        '
-        'Label4
-        '
-        Me.Label4.AutoSize = True
-        Me.Label4.Location = New System.Drawing.Point(256, 19)
-        Me.Label4.Name = "Label4"
-        Me.Label4.Size = New System.Drawing.Size(172, 13)
-        Me.Label4.TabIndex = 27
-        Me.Label4.Text = "Products currently in this conveyor:"
-        '
         'GroupBox1
         '
         Me.GroupBox1.Controls.Add(Me.Label1)
-        Me.GroupBox1.Controls.Add(Me.Label4)
         Me.GroupBox1.Controls.Add(Me.lstProducts)
-        Me.GroupBox1.Controls.Add(Me.txtLoadLevel)
         Me.GroupBox1.Controls.Add(Me.cmdSaveConveyor)
-        Me.GroupBox1.Controls.Add(Me.Label3)
         Me.GroupBox1.Controls.Add(Me.txtConveyorTag)
         Me.GroupBox1.Controls.Add(Me.txtMinTime)
         Me.GroupBox1.Controls.Add(Me.Label5)
@@ -180,6 +151,10 @@ Partial Class frmConveyorSetup
         Me.Label5.TabIndex = 25
         Me.Label5.Text = "h"
         '
+        'ErrorProvider1
+        '
+        Me.ErrorProvider1.ContainerControl = Me
+        '
         'frmConveyorSetup
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
@@ -197,6 +172,7 @@ Partial Class frmConveyorSetup
         Me.Text = "Conveyor Setup"
         Me.GroupBox1.ResumeLayout(False)
         Me.GroupBox1.PerformLayout()
+        CType(Me.ErrorProvider1, System.ComponentModel.ISupportInitialize).EndInit()
         Me.ResumeLayout(False)
 
     End Sub
@@ -210,9 +186,7 @@ Partial Class frmConveyorSetup
     Friend WithEvents Label1 As Label
     Friend WithEvents txtMinTime As TextBox
     Friend WithEvents Label2 As Label
-    Friend WithEvents Label3 As Label
-    Friend WithEvents txtLoadLevel As TextBox
-    Friend WithEvents Label4 As Label
     Friend WithEvents GroupBox1 As GroupBox
     Friend WithEvents Label5 As Label
+    Friend WithEvents ErrorProvider1 As ErrorProvider
 End Class

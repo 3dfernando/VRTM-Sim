@@ -7,6 +7,7 @@
         'Loads the columns in the listview
         lstProductMix.View = View.Details
         lstProductMix.FullRowSelect = True
+        lstProductMix.MultiSelect = False
 
         lstProductMix.Columns.Clear()
         lstProductMix.Columns.Add("Product Name", 100)
@@ -442,6 +443,8 @@
         Dim f As New frmConveyorSetup
         f.ShowDialog()
 
+        UpdateConveyorList()
+        UpdateProductList()
     End Sub
 #End Region
 

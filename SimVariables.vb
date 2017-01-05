@@ -2,7 +2,7 @@
     Public VRTM_SimVariables As New SimulationVariables
     Public FoodPropertiesList As New Collection
 
-    Public Class SimulationVariables
+    <Serializable> Public Class SimulationVariables
         '============================
         '----Variables under tabs----
         '============================
@@ -181,12 +181,10 @@
             ReDim Me.InletConveyors(1)
             Me.InletConveyors(0) = New InletConveyor
             Me.InletConveyors(0).ConveyorTag = "Chicken Only"
-            Me.InletConveyors(0).LoadingLevel = 15
             Me.InletConveyors(0).MinRetTime = 24
 
             Me.InletConveyors(1) = New InletConveyor
             Me.InletConveyors(1).ConveyorTag = "Pizza and Butter"
-            Me.InletConveyors(1).LoadingLevel = 15
             Me.InletConveyors(1).MinRetTime = 36
 
             'Initializes the heat load data
@@ -213,7 +211,7 @@
         End Sub
     End Class
 
-    Public Class ProductData
+    <Serializable> Public Class ProductData
         'This class models one product dataset for mix selection
         Public ProdName As String
         Public BoxWeight As Double 'kg
@@ -240,7 +238,7 @@
 
     End Class
 
-    Public Class FoodPropertiesListItem
+    <Serializable> Public Class FoodPropertiesListItem
         'This models one item of a Food Properties List
         Public ProductName As String
         Public WaterContent As Double '0-1 value
@@ -251,7 +249,7 @@
         Public FreezingTemp As Double 'ºC
     End Class
 
-    Public Class HeatLoadData
+    <Serializable> Public Class HeatLoadData
         'Models the Fixed HL Data in the form
         Public Height As Double 'Tunnel room height in mm
         Public Width As Double 'Tunnel room width in mm
@@ -336,7 +334,7 @@ TryAgain:
         End Try
     End Sub
 
-    Public Class SimulationData
+    <Serializable> Public Class SimulationData
         'This class will contain all the variables in the process simulation data (variables of the process simulation)
         Public VRTMTrayData(,,) As TrayData   'ARRAY OF TRAY DATA IN THE FORMAT of timestep, Tray no, Level no
         Public VRTMTimePositions() As Double 'This array links the TrayEntryPositions with VRTMTrayData through the time array
@@ -350,7 +348,7 @@ TryAgain:
         Public SimulationComplete As Boolean = False
     End Class
 
-    Public Class TrayData
+    <Serializable> Public Class TrayData
         'This class contains the data of a tray after simulation has been processed
         Public TrayIndex As Long ' Sequential tray index (Starts at 1)
         Public ConveyorIndex As Long ' Conveyor index
@@ -364,11 +362,10 @@ TryAgain:
         End Function
     End Class
 
-    Public Class InletConveyor
+    <Serializable> Public Class InletConveyor
         'Defines the properties of a conveyor that are important
         Public ConveyorTag As String
         Public MinRetTime As Double 'hours
-        Public LoadingLevel As Long
     End Class
 
 End Module

@@ -178,10 +178,14 @@ Partial Class MainWindow
         Me.lblCurrentPos = New System.Windows.Forms.Label()
         Me.hsSimPosition = New System.Windows.Forms.HScrollBar()
         Me.VRTMTable = New System.Windows.Forms.DataGridView()
+        Me.Button1 = New System.Windows.Forms.Button()
         Me.ErrorProvider1 = New System.Windows.Forms.ErrorProvider(Me.components)
         Me.ErrorProvider2 = New System.Windows.Forms.ErrorProvider(Me.components)
         Me.tmrPlayback = New System.Windows.Forms.Timer(Me.components)
-        Me.Button1 = New System.Windows.Forms.Button()
+        Me.SaveFileDialog1 = New System.Windows.Forms.SaveFileDialog()
+        Me.OpenSimulationVariablesToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.SaveSimulationResultsToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.OpenFileDialog1 = New System.Windows.Forms.OpenFileDialog()
         CType(Me.Divisor1, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.Divisor1.Panel1.SuspendLayout()
         Me.Divisor1.Panel2.SuspendLayout()
@@ -332,7 +336,7 @@ Partial Class MainWindow
         '
         'FileToolStripMenuItem
         '
-        Me.FileToolStripMenuItem.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.OpenSimulationToolStripMenuItem, Me.SaveSimulationToolStripMenuItem})
+        Me.FileToolStripMenuItem.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.OpenSimulationToolStripMenuItem, Me.SaveSimulationToolStripMenuItem, Me.OpenSimulationVariablesToolStripMenuItem, Me.SaveSimulationResultsToolStripMenuItem})
         Me.FileToolStripMenuItem.Name = "FileToolStripMenuItem"
         Me.FileToolStripMenuItem.Size = New System.Drawing.Size(37, 20)
         Me.FileToolStripMenuItem.Text = "&File"
@@ -341,15 +345,15 @@ Partial Class MainWindow
         '
         Me.OpenSimulationToolStripMenuItem.Image = Global.VRTM_Simulator.My.Resources.Resources.document_open_5
         Me.OpenSimulationToolStripMenuItem.Name = "OpenSimulationToolStripMenuItem"
-        Me.OpenSimulationToolStripMenuItem.Size = New System.Drawing.Size(163, 22)
-        Me.OpenSimulationToolStripMenuItem.Text = "&Open Simulation"
+        Me.OpenSimulationToolStripMenuItem.Size = New System.Drawing.Size(207, 26)
+        Me.OpenSimulationToolStripMenuItem.Text = "&Open Simulation Setup"
         '
         'SaveSimulationToolStripMenuItem
         '
         Me.SaveSimulationToolStripMenuItem.Image = Global.VRTM_Simulator.My.Resources.Resources.document_save_5
         Me.SaveSimulationToolStripMenuItem.Name = "SaveSimulationToolStripMenuItem"
-        Me.SaveSimulationToolStripMenuItem.Size = New System.Drawing.Size(163, 22)
-        Me.SaveSimulationToolStripMenuItem.Text = "&Save Simulation"
+        Me.SaveSimulationToolStripMenuItem.Size = New System.Drawing.Size(207, 26)
+        Me.SaveSimulationToolStripMenuItem.Text = "&Save Simulation Setup"
         '
         'SimulationToolStripMenuItem
         '
@@ -442,7 +446,7 @@ Partial Class MainWindow
         Me.VRTMParams.Controls.Add(Me.GroupBox2)
         Me.VRTMParams.Location = New System.Drawing.Point(4, 40)
         Me.VRTMParams.Name = "VRTMParams"
-        Me.VRTMParams.Padding = New System.Windows.Forms.Padding(3, 3, 3, 3)
+        Me.VRTMParams.Padding = New System.Windows.Forms.Padding(3)
         Me.VRTMParams.Size = New System.Drawing.Size(316, 692)
         Me.VRTMParams.TabIndex = 0
         Me.VRTMParams.Text = "VRTM Params"
@@ -889,8 +893,8 @@ Partial Class MainWindow
         Me.MachRoom.Controls.Add(Me.GroupBox3)
         Me.MachRoom.Location = New System.Drawing.Point(4, 40)
         Me.MachRoom.Name = "MachRoom"
-        Me.MachRoom.Padding = New System.Windows.Forms.Padding(3, 3, 3, 3)
-        Me.MachRoom.Size = New System.Drawing.Size(235, 702)
+        Me.MachRoom.Padding = New System.Windows.Forms.Padding(3)
+        Me.MachRoom.Size = New System.Drawing.Size(316, 692)
         Me.MachRoom.TabIndex = 1
         Me.MachRoom.Text = "Machine Room"
         Me.MachRoom.UseVisualStyleBackColor = True
@@ -1154,7 +1158,7 @@ Partial Class MainWindow
         Me.Production.Controls.Add(Me.GroupBox5)
         Me.Production.Location = New System.Drawing.Point(4, 40)
         Me.Production.Name = "Production"
-        Me.Production.Size = New System.Drawing.Size(235, 702)
+        Me.Production.Size = New System.Drawing.Size(316, 692)
         Me.Production.TabIndex = 2
         Me.Production.Text = "Production"
         Me.Production.UseVisualStyleBackColor = True
@@ -1549,7 +1553,7 @@ Partial Class MainWindow
         '
         Me.ProdStats.Location = New System.Drawing.Point(4, 40)
         Me.ProdStats.Name = "ProdStats"
-        Me.ProdStats.Size = New System.Drawing.Size(235, 702)
+        Me.ProdStats.Size = New System.Drawing.Size(316, 692)
         Me.ProdStats.TabIndex = 4
         Me.ProdStats.Text = "Demand"
         Me.ProdStats.UseVisualStyleBackColor = True
@@ -1560,7 +1564,7 @@ Partial Class MainWindow
         Me.SimParams.Controls.Add(Me.GroupBox9)
         Me.SimParams.Location = New System.Drawing.Point(4, 40)
         Me.SimParams.Name = "SimParams"
-        Me.SimParams.Size = New System.Drawing.Size(235, 702)
+        Me.SimParams.Size = New System.Drawing.Size(316, 692)
         Me.SimParams.TabIndex = 3
         Me.SimParams.Text = "Simulation Params"
         Me.SimParams.UseVisualStyleBackColor = True
@@ -1754,6 +1758,15 @@ Partial Class MainWindow
         Me.VRTMTable.Size = New System.Drawing.Size(433, 734)
         Me.VRTMTable.TabIndex = 0
         '
+        'Button1
+        '
+        Me.Button1.Location = New System.Drawing.Point(59, 217)
+        Me.Button1.Name = "Button1"
+        Me.Button1.Size = New System.Drawing.Size(83, 64)
+        Me.Button1.TabIndex = 0
+        Me.Button1.Text = "Button1"
+        Me.Button1.UseVisualStyleBackColor = True
+        '
         'ErrorProvider1
         '
         Me.ErrorProvider1.ContainerControl = Me
@@ -1766,14 +1779,21 @@ Partial Class MainWindow
         '
         Me.tmrPlayback.Interval = 500
         '
-        'Button1
+        'OpenSimulationVariablesToolStripMenuItem
         '
-        Me.Button1.Location = New System.Drawing.Point(59, 217)
-        Me.Button1.Name = "Button1"
-        Me.Button1.Size = New System.Drawing.Size(83, 64)
-        Me.Button1.TabIndex = 0
-        Me.Button1.Text = "Button1"
-        Me.Button1.UseVisualStyleBackColor = True
+        Me.OpenSimulationVariablesToolStripMenuItem.Name = "OpenSimulationVariablesToolStripMenuItem"
+        Me.OpenSimulationVariablesToolStripMenuItem.Size = New System.Drawing.Size(207, 26)
+        Me.OpenSimulationVariablesToolStripMenuItem.Text = "Open Simulation &Results"
+        '
+        'SaveSimulationResultsToolStripMenuItem
+        '
+        Me.SaveSimulationResultsToolStripMenuItem.Name = "SaveSimulationResultsToolStripMenuItem"
+        Me.SaveSimulationResultsToolStripMenuItem.Size = New System.Drawing.Size(207, 26)
+        Me.SaveSimulationResultsToolStripMenuItem.Text = "Save Simulation R&esults"
+        '
+        'OpenFileDialog1
+        '
+        Me.OpenFileDialog1.FileName = "OpenFileDialog1"
         '
         'MainWindow
         '
@@ -1994,4 +2014,8 @@ Partial Class MainWindow
     Friend WithEvents ErrorProvider2 As ErrorProvider
     Friend WithEvents tmrPlayback As Timer
     Friend WithEvents Button1 As Button
+    Friend WithEvents SaveFileDialog1 As SaveFileDialog
+    Friend WithEvents OpenSimulationVariablesToolStripMenuItem As ToolStripMenuItem
+    Friend WithEvents SaveSimulationResultsToolStripMenuItem As ToolStripMenuItem
+    Friend WithEvents OpenFileDialog1 As OpenFileDialog
 End Class

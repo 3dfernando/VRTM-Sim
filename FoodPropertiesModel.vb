@@ -1,5 +1,5 @@
 ﻿Module FoodPropertiesModel
-    Public Class FoodProperties
+    <Serializable> Public Class FoodProperties
         'This class models the food properties model according to what is described in Chapter 9 of the ASHRAE refrigeration handbook.
         'Uses Choi and Okos models for food properties and Schwartzbert specific heat model
         'The model is code-lengthy, but an effort was made to reduce mathemathical operations (and computational cost) on the extraction of the food properties as a function of temperature

@@ -79,6 +79,7 @@
             For I As Long = 0 To UBound(.SimData.VRTMTrayData, 2)
                 For J As Long = 0 To UBound(.SimData.VRTMTrayData, 3)
                     .SimData.VRTMTrayData(0, I, J).TrayIndex = 0
+                    .SimData.VRTMTrayData(0, I, J).ConveyorIndex = -1
                 Next
             Next
 
