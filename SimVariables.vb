@@ -1,5 +1,6 @@
 ﻿Module SimVariables
     Public VRTM_SimVariables As New SimulationVariables
+    Public Simulation_Results As New SimulationData
     Public FoodPropertiesList As New Collection
 
     <Serializable> Public Class SimulationVariables
@@ -57,7 +58,7 @@
         '===================================
         '----Hidden simulation variables----
         '===================================
-        Public SimData As SimulationData
+        'Public SimData As SimulationData
 
         '========================
         '----Subs and Methods----
@@ -98,7 +99,7 @@
             Me.MinimumSimDt = 100
             Me.AssumedDTForPreviews = 7
 
-            Me.SimData = New SimulationData
+            'Me.SimData = New SimulationData
 
 
             'Initializes one product in the mix

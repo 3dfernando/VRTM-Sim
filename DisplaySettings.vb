@@ -5,6 +5,7 @@
         txtDisplayParam.SelectedIndex = My.Settings.DisplayParameter
         chkHighlight.Checked = My.Settings.Display_boolHighlight
         chkConditionalForm.Checked = My.Settings.Display_boolConditionalFormatting
+        chkFrozenProduct.Checked = Not My.Settings.Display_boolConditionalFormatting
 
         pcbHighlight.BackColor = My.Settings.Display_HighlightColor
 
@@ -25,6 +26,10 @@
 
         pcbMinPow.BackColor = My.Settings.Display_MinColor_Pow
         pcbMaxPow.BackColor = My.Settings.Display_MaxColor_Pow
+
+        pcbFrozen.BackColor = My.Settings.Display_FrozenColor
+        pcbUnfrozen.BackColor = My.Settings.Display_UnfrozenColor
+
     End Sub
 
     Private Sub frmDisplaySettings_Closed(sender As Object, e As EventArgs) Handles Me.Closed
@@ -52,10 +57,13 @@
         My.Settings.Display_MinColor_Pow = pcbMinPow.BackColor
         My.Settings.Display_MaxColor_Pow = pcbMaxPow.BackColor
 
+        My.Settings.Display_FrozenColor = pcbFrozen.BackColor
+        My.Settings.Display_UnfrozenColor = pcbUnfrozen.BackColor
+
         My.Settings.Save()
     End Sub
 
-    Private Sub ColorChange(sender As Object, e As EventArgs) Handles pcbHighlight.Click, pcbMinTray.Click, pcbMaxTray.Click, pcbMaxCenter.Click, pcbMinCenter.Click, pcbMaxRet.Click, pcbMinRet.Click, pcbMaxConv.Click, pcbMaxPow.Click, pcbMinPow.Click, pcbMaxSurf.Click, pcbMinSurf.Click, pcbMinConv.Click
+    Private Sub ColorChange(sender As Object, e As EventArgs) Handles pcbHighlight.Click, pcbMinTray.Click, pcbMaxTray.Click, pcbMaxCenter.Click, pcbMinCenter.Click, pcbMaxRet.Click, pcbMinRet.Click, pcbMaxConv.Click, pcbMaxPow.Click, pcbMinPow.Click, pcbMaxSurf.Click, pcbMinSurf.Click, pcbMinConv.Click, pcbFrozen.Click, pcbUnfrozen.Click
         If Not ColorDialog1.ShowDialog() = DialogResult.Cancel Then
             sender.BackColor = ColorDialog1.Color
             UpdateGradients()
@@ -69,6 +77,20 @@
         UpdateGradient(pcbMinCenter.BackColor, pcbMaxCenter.BackColor, pcbGradCenter)
         UpdateGradient(pcbMinSurf.BackColor, pcbMaxSurf.BackColor, pcbGradSurf)
         UpdateGradient(pcbMinPow.BackColor, pcbMaxPow.BackColor, pcbGradPow)
+
+        lblFrozen.BackColor = pcbFrozen.BackColor
+        If pcbFrozen.BackColor.GetBrightness <= 0.5 Then
+            lblFrozen.ForeColor = Color.White
+        Else
+            lblFrozen.ForeColor = Color.Black
+        End If
+
+        lblUnfrozen.BackColor = pcbUnfrozen.BackColor
+        If pcbUnfrozen.BackColor.GetBrightness <= 0.5 Then
+            lblUnfrozen.ForeColor = Color.White
+        Else
+            lblUnfrozen.ForeColor = Color.Black
+        End If
     End Sub
 
     Public Sub UpdateGradient(MinColor As Color, MaxColor As Color, recipient As PictureBox)
@@ -93,4 +115,13 @@
         UpdateGradients()
         Timer.Enabled = False
     End Sub
+
+    Private Sub lblFrozen_Click(sender As Object, e As EventArgs) Handles lblFrozen.Click
+        ColorChange(pcbFrozen, Nothing)
+    End Sub
+
+    Private Sub lblUnfrozen_Click(sender As Object, e As EventArgs) Handles lblUnfrozen.Click
+        ColorChange(pcbUnfrozen, Nothing)
+    End Sub
+
 End Class

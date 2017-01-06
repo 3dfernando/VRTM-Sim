@@ -269,6 +269,30 @@ Namespace My
                 Me("Main_PlaybackSpeed") = value
             End Set
         End Property
+        
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("Blue")>  _
+        Public Property Display_FrozenColor() As Global.System.Drawing.Color
+            Get
+                Return CType(Me("Display_FrozenColor"),Global.System.Drawing.Color)
+            End Get
+            Set
+                Me("Display_FrozenColor") = value
+            End Set
+        End Property
+        
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("Red")>  _
+        Public Property Display_UnfrozenColor() As Global.System.Drawing.Color
+            Get
+                Return CType(Me("Display_UnfrozenColor"),Global.System.Drawing.Color)
+            End Get
+            Set
+                Me("Display_UnfrozenColor") = value
+            End Set
+        End Property
     End Class
 End Namespace
 

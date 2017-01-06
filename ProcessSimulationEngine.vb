@@ -58,28 +58,28 @@
             Dim currentSimulationTimeStep As Long = 1
 
             'Oversizes the tray data array
-            ReDim .SimData.TrayEntryTimes(Int(ArrivalTimes.Count / BoxLimit))
-            ReDim .SimData.TrayEntryLevels(Int(ArrivalTimes.Count / BoxLimit))
-            ReDim .SimData.TrayExitTimes(Int(ArrivalTimes.Count / BoxLimit))
-            ReDim .SimData.TrayStayTime(Int(ArrivalTimes.Count / BoxLimit))
-            ReDim .SimData.TrayEntryPositions(Int(ArrivalTimes.Count / BoxLimit))
+            ReDim Simulation_Results.TrayEntryTimes(Int(ArrivalTimes.Count / BoxLimit))
+            ReDim Simulation_Results.TrayEntryLevels(Int(ArrivalTimes.Count / BoxLimit))
+            ReDim Simulation_Results.TrayExitTimes(Int(ArrivalTimes.Count / BoxLimit))
+            ReDim Simulation_Results.TrayStayTime(Int(ArrivalTimes.Count / BoxLimit))
+            ReDim Simulation_Results.TrayEntryPositions(Int(ArrivalTimes.Count / BoxLimit))
 
-            ReDim .SimData.VRTMTrayData(Int(VRTM_SimVariables.TotalSimTime / VRTM_SimVariables.MinimumSimDt), .nTrays - 1, .nLevels - 1)
-            ReDim .SimData.VRTMTimePositions(Int(VRTM_SimVariables.TotalSimTime / VRTM_SimVariables.MinimumSimDt))
+            ReDim Simulation_Results.VRTMTrayData(Int(VRTM_SimVariables.TotalSimTime / VRTM_SimVariables.MinimumSimDt), .nTrays - 1, .nLevels - 1)
+            ReDim Simulation_Results.VRTMTimePositions(Int(VRTM_SimVariables.TotalSimTime / VRTM_SimVariables.MinimumSimDt))
 
-            For I As Long = 0 To UBound(.SimData.VRTMTrayData, 1)
-                For J As Long = 0 To UBound(.SimData.VRTMTrayData, 2)
-                    For K As Long = 0 To UBound(.SimData.VRTMTrayData, 3)
-                        .SimData.VRTMTrayData(I, J, K) = New TrayData
+            For I As Long = 0 To UBound(Simulation_Results.VRTMTrayData, 1)
+                For J As Long = 0 To UBound(Simulation_Results.VRTMTrayData, 2)
+                    For K As Long = 0 To UBound(Simulation_Results.VRTMTrayData, 3)
+                        Simulation_Results.VRTMTrayData(I, J, K) = New TrayData
                     Next
                 Next
             Next
 
             'Initializes the first time step with no trays
-            For I As Long = 0 To UBound(.SimData.VRTMTrayData, 2)
-                For J As Long = 0 To UBound(.SimData.VRTMTrayData, 3)
-                    .SimData.VRTMTrayData(0, I, J).TrayIndex = 0
-                    .SimData.VRTMTrayData(0, I, J).ConveyorIndex = -1
+            For I As Long = 0 To UBound(Simulation_Results.VRTMTrayData, 2)
+                For J As Long = 0 To UBound(Simulation_Results.VRTMTrayData, 3)
+                    Simulation_Results.VRTMTrayData(0, I, J).TrayIndex = 0
+                    Simulation_Results.VRTMTrayData(0, I, J).ConveyorIndex = -1
                 Next
             Next
 
@@ -101,7 +101,7 @@
 
                 If boxCountInConveyor >= BoxLimit Then
                     'Selects the level according to logic
-                    .SimData.TrayEntryTimes(currentTrayIndex) = k.Key
+                    Simulation_Results.TrayEntryTimes(currentTrayIndex) = k.Key
                     currentLevel = SelectLevel(currentTrayIndex, k.Value)
 
                     If currentLevel = -1 Then
@@ -116,48 +116,48 @@
                         For I As Long = 0 To .nTrays - 1
                             For J As Long = 0 To .nLevels - 1
                                 'Copies the last timestep onto the current timestep
-                                .SimData.VRTMTrayData(currentSimulationTimeStep, I, J) = .SimData.VRTMTrayData(currentSimulationTimeStep - 1, I, J).Clone
+                                Simulation_Results.VRTMTrayData(currentSimulationTimeStep, I, J) = Simulation_Results.VRTMTrayData(currentSimulationTimeStep - 1, I, J).Clone
                             Next
                         Next
                     End If
 
                     'Advances all the other trays in this level
                     For I As Long = .nTrays - 1 To 1 Step -1
-                        .SimData.VRTMTrayData(currentSimulationTimeStep, I, currentLevel) = .SimData.VRTMTrayData(currentSimulationTimeStep, I - 1, currentLevel).Clone
+                        Simulation_Results.VRTMTrayData(currentSimulationTimeStep, I, currentLevel) = Simulation_Results.VRTMTrayData(currentSimulationTimeStep, I - 1, currentLevel).Clone
                     Next
 
                     'Puts the current tray here
-                    VRTM_SimVariables.SimData.VRTMTrayData(currentSimulationTimeStep, 0, currentLevel).TrayIndex = currentTrayIndex
-                    VRTM_SimVariables.SimData.VRTMTrayData(currentSimulationTimeStep, 0, currentLevel).ConveyorIndex = VRTM_SimVariables.ProductMix(k.Value).ConveyorNumber
-                    VRTM_SimVariables.SimData.VRTMTrayData(currentSimulationTimeStep, 0, currentLevel).ProductIndices = Conveyors(ConveyorPosition_To_Index(VRTM_SimVariables.ProductMix(k.Value).ConveyorNumber)).BoxesInConveyor
-                    VRTM_SimVariables.SimData.TrayEntryPositions(currentTrayIndex) = currentSimulationTimeStep
-                    VRTM_SimVariables.SimData.VRTMTimePositions(currentSimulationTimeStep) = k.Key
+                    Simulation_Results.VRTMTrayData(currentSimulationTimeStep, 0, currentLevel).TrayIndex = currentTrayIndex
+                    Simulation_Results.VRTMTrayData(currentSimulationTimeStep, 0, currentLevel).ConveyorIndex = VRTM_SimVariables.ProductMix(k.Value).ConveyorNumber
+                    Simulation_Results.VRTMTrayData(currentSimulationTimeStep, 0, currentLevel).ProductIndices = Conveyors(ConveyorPosition_To_Index(VRTM_SimVariables.ProductMix(k.Value).ConveyorNumber)).BoxesInConveyor
+                    Simulation_Results.TrayEntryPositions(currentTrayIndex) = currentSimulationTimeStep
+                    Simulation_Results.VRTMTimePositions(currentSimulationTimeStep) = k.Key
 
                     'Clears the conveyor
                     Conveyors(ConveyorPosition_To_Index(VRTM_SimVariables.ProductMix(k.Value).ConveyorNumber)).BoxesInConveyor.Clear()
 
                     'Updates the level and exit times
-                    .SimData.TrayEntryLevels(currentTrayIndex) = currentLevel
+                    Simulation_Results.TrayEntryLevels(currentTrayIndex) = currentLevel
                     Dim ExitingTrayIndex As Long
-                    ExitingTrayIndex = VRTM_SimVariables.SimData.VRTMTrayData(currentSimulationTimeStep - 1, .nTrays - 1, currentLevel).TrayIndex
-                    If Not ExitingTrayIndex <= 0 Then .SimData.TrayExitTimes(ExitingTrayIndex) = k.Key
+                    ExitingTrayIndex = Simulation_Results.VRTMTrayData(currentSimulationTimeStep - 1, .nTrays - 1, currentLevel).TrayIndex
+                    If Not ExitingTrayIndex <= 0 Then Simulation_Results.TrayExitTimes(ExitingTrayIndex) = k.Key
 
                     currentTrayIndex += 1
                     currentSimulationTimeStep += 1
                 End If
             Next
 
-            For I = 0 To UBound(.SimData.TrayEntryTimes)
-                .SimData.TrayStayTime(I) = .SimData.TrayExitTimes(I) - .SimData.TrayEntryTimes(I)
-                If .SimData.TrayStayTime(I) <= 0 Then
-                    .SimData.TrayStayTime(I) = -1
+            For I = 0 To UBound(Simulation_Results.TrayEntryTimes)
+                Simulation_Results.TrayStayTime(I) = Simulation_Results.TrayExitTimes(I) - Simulation_Results.TrayEntryTimes(I)
+                If Simulation_Results.TrayStayTime(I) <= 0 Then
+                    Simulation_Results.TrayStayTime(I) = -1
                 End If
             Next
 
             'Resizes the tray data array back (yes, it's painful as coded...)
-            ReDim Preserve .SimData.TrayEntryTimes(currentTrayIndex - 1)
-            ReDim Preserve .SimData.TrayEntryLevels(currentTrayIndex - 1)
-            ReDim Preserve .SimData.VRTMTimePositions(currentSimulationTimeStep - 1)
+            ReDim Preserve Simulation_Results.TrayEntryTimes(currentTrayIndex - 1)
+            ReDim Preserve Simulation_Results.TrayEntryLevels(currentTrayIndex - 1)
+            ReDim Preserve Simulation_Results.VRTMTimePositions(currentSimulationTimeStep - 1)
 
             Dim TempArray(,,) As TrayData
             ReDim TempArray(currentSimulationTimeStep - 1, .nTrays - 1, .nLevels - 1)
@@ -165,16 +165,16 @@
             For I As Long = 0 To currentSimulationTimeStep - 1 'All of this is because Redim Preserve doesn't work in the first dimension
                 For J As Long = 0 To .nTrays - 1
                     For K As Long = 0 To .nLevels - 1
-                        TempArray(I, J, K) = .SimData.VRTMTrayData(I, J, K)
+                        TempArray(I, J, K) = Simulation_Results.VRTMTrayData(I, J, K)
                     Next
                 Next
             Next
-            Erase .SimData.VRTMTrayData
-            .SimData.VRTMTrayData = TempArray
+            Erase Simulation_Results.VRTMTrayData
+            Simulation_Results.VRTMTrayData = TempArray
             Erase TempArray
 
 
-            .SimData.SimulationComplete = True
+            Simulation_Results.SimulationComplete = True
         End With
     End Sub
 
@@ -289,8 +289,8 @@
             Dim stayTime, exitEntryTime As Double
 
             For I As Long = 0 To .nLevels - 1
-                exitEntryTime = .SimData.TrayEntryTimes(.SimData.VRTMTrayData(t - 1, .nTrays - 1, I).TrayIndex)
-                stayTime = .SimData.TrayEntryTimes(t) - exitEntryTime
+                exitEntryTime = Simulation_Results.TrayEntryTimes(Simulation_Results.VRTMTrayData(t - 1, .nTrays - 1, I).TrayIndex)
+                stayTime = Simulation_Results.TrayEntryTimes(t) - exitEntryTime
                 If (stayTime > (.ProductMix(prodIndex).MinimumStayTime * 3600)) Or
                     (exitEntryTime = 0) Then
                     availableLevels.Add(I)

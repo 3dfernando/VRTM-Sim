@@ -56,5 +56,11 @@
     <Setting Name="Main_PlaybackSpeed" Type="System.Int64" Scope="User">
       <Value Profile="(Default)">8</Value>
     </Setting>
+    <Setting Name="Display_FrozenColor" Type="System.Drawing.Color" Scope="User">
+      <Value Profile="(Default)">Blue</Value>
+    </Setting>
+    <Setting Name="Display_UnfrozenColor" Type="System.Drawing.Color" Scope="User">
+      <Value Profile="(Default)">Red</Value>
+    </Setting>
   </Settings>
 </SettingsFile>
