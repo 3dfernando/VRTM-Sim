@@ -7,6 +7,8 @@
 
         '################Preruns the box times########################
         With VRTM_SimVariables
+            Simulation_Results = New SimulationData
+
             'Seeds the multiple products according to their statistical distributions
             Dim T As Double
             Dim tCurrent As Double = 0
@@ -16,14 +18,16 @@
             For idx = 0 To .ProductMix.Count - 1
                 T = 0
                 Do While T < .TotalSimTime
+                    If .ProductMix(idx).BoxRateStatisticalDistr.ToLower = "exponential" Then
+                        tCurrent = GetExponentialT(3600 / .ProductMix(idx).AvgFlowRate)
+                    ElseIf .ProductMix(idx).BoxRateStatisticalDistr.ToLower = "gaussian" Then
+                        tCurrent = GetGaussianT(.ProductMix(idx).AvgFlowRate / 3600, .ProductMix(idx).BoxRateStdDev / 3600)
+                    End If
+
+                    T = T + tCurrent
+
                     If IsProductionTime(T) Then
                         'It's producing, so creates another box
-                        If .ProductMix(idx).BoxRateStatisticalDistr.ToLower = "exponential" Then
-                            tCurrent = GetExponentialT(3600 / .ProductMix(idx).AvgFlowRate)
-                        ElseIf .ProductMix(idx).BoxRateStatisticalDistr.ToLower = "gaussian" Then
-                            tCurrent = GetGaussianT(.ProductMix(idx).AvgFlowRate / 3600, .ProductMix(idx).BoxRateStdDev / 3600)
-                        End If
-                        T = T + tCurrent
                         ArrivalTimes.Add(T, idx) 'Adds the current box in the list (this dictionary automatically sorts them)
                     Else
                         'It's stopped production, so fast-forwards to next turn begin
@@ -35,7 +39,7 @@
             'Determines how many conveyors are there
             Dim CList As New List(Of Long)
             For I As Long = 0 To .ProductMix.Count - 1
-                CList.add(.ProductMix(I).ConveyorNumber)
+                CList.Add(.ProductMix(I).ConveyorNumber)
             Next
 
             Dim UniqueList As List(Of Long)
@@ -58,11 +62,11 @@
             Dim currentSimulationTimeStep As Long = 1
 
             'Oversizes the tray data array
-            ReDim Simulation_Results.TrayEntryTimes(Int(ArrivalTimes.Count / BoxLimit))
-            ReDim Simulation_Results.TrayEntryLevels(Int(ArrivalTimes.Count / BoxLimit))
-            ReDim Simulation_Results.TrayExitTimes(Int(ArrivalTimes.Count / BoxLimit))
-            ReDim Simulation_Results.TrayStayTime(Int(ArrivalTimes.Count / BoxLimit))
-            ReDim Simulation_Results.TrayEntryPositions(Int(ArrivalTimes.Count / BoxLimit))
+            ReDim Simulation_Results.TrayEntryTimes(2 * Int(ArrivalTimes.Count / BoxLimit))
+            ReDim Simulation_Results.TrayEntryLevels(2 * Int(ArrivalTimes.Count / BoxLimit))
+            ReDim Simulation_Results.TrayExitTimes(2 * Int(ArrivalTimes.Count / BoxLimit))
+            ReDim Simulation_Results.TrayStayTime(2 * Int(ArrivalTimes.Count / BoxLimit))
+            ReDim Simulation_Results.TrayEntryPositions(2 * Int(ArrivalTimes.Count / BoxLimit))
 
             ReDim Simulation_Results.VRTMTrayData(Int(VRTM_SimVariables.TotalSimTime / VRTM_SimVariables.MinimumSimDt), .nTrays - 1, .nLevels - 1)
             ReDim Simulation_Results.VRTMTimePositions(Int(VRTM_SimVariables.TotalSimTime / VRTM_SimVariables.MinimumSimDt))
@@ -84,11 +88,13 @@
             Next
 
 
-            '#######Gets the seeded products and forms trays as the box quantity needed to fill up a tray is achieved#######
+            '####### As more boxes are created, passes the day and defines the loading/organizing actions#######
+            Dim prevBoxTime As Long = 0
+
             For Each k In ArrivalTimes
                 'Adds the next box to the conveyor
                 'k.Value is the index of the product
-                If Conveyors(ConveyorPosition_To_Index(VRTM_SimVariables.ProductMix(k.Value).ConveyorNumber)).BoxesInConveyor.Containskey(k.Value) Then
+                If Conveyors(ConveyorPosition_To_Index(VRTM_SimVariables.ProductMix(k.Value).ConveyorNumber)).BoxesInConveyor.ContainsKey(k.Value) Then
                     Conveyors(ConveyorPosition_To_Index(VRTM_SimVariables.ProductMix(k.Value).ConveyorNumber)).BoxesInConveyor(k.Value) += 1
                 Else
                     Conveyors(ConveyorPosition_To_Index(VRTM_SimVariables.ProductMix(k.Value).ConveyorNumber)).BoxesInConveyor.Add(k.Value, 1)
@@ -99,52 +105,47 @@
                     boxCountInConveyor += boxCount.Value
                 Next
 
-                If boxCountInConveyor >= BoxLimit Then
-                    'Selects the level according to logic
-                    Simulation_Results.TrayEntryTimes(currentTrayIndex) = k.Key
-                    currentLevel = SelectLevel(currentTrayIndex, k.Value)
-
-                    If currentLevel = -1 Then
-                        MsgBox("The given VRTM size is not enough to accomodate all the products" &
-                               vbCrLf & "and still meet the minimum retention time requirement." &
-                               vbCrLf & "Please consider increasing the VRTM size.", vbOKOnly + vbCritical, "Simulation error")
+                If boxCountInConveyor >= BoxLimit Then 'Gets the seeded products and forms trays as the box quantity needed to fill up a tray is achieved
+                    If Not LoadNewTray(k, currentTrayIndex, currentLevel, currentSimulationTimeStep, Conveyors) Then
+                        MsgBox("This VRTM Size doesn't seem to be enough to fit the selected criteria")
                         Exit Sub
                     End If
 
-                    'Unload the conveyor and create a tray
-                    If currentSimulationTimeStep <> 0 Then
-                        For I As Long = 0 To .nTrays - 1
-                            For J As Long = 0 To .nLevels - 1
-                                'Copies the last timestep onto the current timestep
-                                Simulation_Results.VRTMTrayData(currentSimulationTimeStep, I, J) = Simulation_Results.VRTMTrayData(currentSimulationTimeStep - 1, I, J).Clone
-                            Next
-                        Next
-                    End If
-
-                    'Advances all the other trays in this level
-                    For I As Long = .nTrays - 1 To 1 Step -1
-                        Simulation_Results.VRTMTrayData(currentSimulationTimeStep, I, currentLevel) = Simulation_Results.VRTMTrayData(currentSimulationTimeStep, I - 1, currentLevel).Clone
-                    Next
-
-                    'Puts the current tray here
-                    Simulation_Results.VRTMTrayData(currentSimulationTimeStep, 0, currentLevel).TrayIndex = currentTrayIndex
-                    Simulation_Results.VRTMTrayData(currentSimulationTimeStep, 0, currentLevel).ConveyorIndex = VRTM_SimVariables.ProductMix(k.Value).ConveyorNumber
-                    Simulation_Results.VRTMTrayData(currentSimulationTimeStep, 0, currentLevel).ProductIndices = Conveyors(ConveyorPosition_To_Index(VRTM_SimVariables.ProductMix(k.Value).ConveyorNumber)).BoxesInConveyor
-                    Simulation_Results.TrayEntryPositions(currentTrayIndex) = currentSimulationTimeStep
-                    Simulation_Results.VRTMTimePositions(currentSimulationTimeStep) = k.Key
-
-                    'Clears the conveyor
-                    Conveyors(ConveyorPosition_To_Index(VRTM_SimVariables.ProductMix(k.Value).ConveyorNumber)).BoxesInConveyor.Clear()
-
-                    'Updates the level and exit times
-                    Simulation_Results.TrayEntryLevels(currentTrayIndex) = currentLevel
-                    Dim ExitingTrayIndex As Long
-                    ExitingTrayIndex = Simulation_Results.VRTMTrayData(currentSimulationTimeStep - 1, .nTrays - 1, currentLevel).TrayIndex
-                    If Not ExitingTrayIndex <= 0 Then Simulation_Results.TrayExitTimes(ExitingTrayIndex) = k.Key
-
                     currentTrayIndex += 1
                     currentSimulationTimeStep += 1
+
+                ElseIf ((k.Key - prevBoxTime) > (3 * 3600)) AndAlso (prevBoxTime > 0) Then
+                    '### This will happen when the day turns over. Remaining boxes in all conveyors must be emptied 
+                    'for the night, so creates more loading steps for each box ###
+
+                    'Goes through all conveyors and the ones that are not empty will generate a loading 
+                    Dim boxCount As Long = 0
+                    Dim TimeDelay As Double = 0
+                    For Each C As Conveyor In Conveyors
+                        boxCount = 0
+                        For Each boxType In C.BoxesInConveyor
+                            boxCount += boxType.Value
+                        Next
+
+                        If boxCount > 0 Then 'There's at least one box in the conveyor
+                            Dim fakeKey As New KeyValuePair(Of Double, Long)(prevBoxTime + TimeDelay, C.BoxesInConveyor.Keys(0)) 'This generates a time delay between this and the next key
+
+                            If Not LoadNewTray(fakeKey, currentTrayIndex, currentLevel, currentSimulationTimeStep, Conveyors) Then
+                                MsgBox("This VRTM Size doesn't seem to be large enough to fit the selected loading criteria")
+                                Exit Sub
+                            End If
+
+                            'Updates the loop variables
+                            TimeDelay += 300
+                            currentTrayIndex += 1
+                            currentSimulationTimeStep += 1
+                        End If
+                    Next
+
                 End If
+
+                'Updates the previous box time
+                prevBoxTime = k.Key
             Next
 
             For I = 0 To UBound(Simulation_Results.TrayEntryTimes)
@@ -177,6 +178,57 @@
             Simulation_Results.SimulationComplete = True
         End With
     End Sub
+
+    Public Function LoadNewTray(ByVal k As KeyValuePair(Of Double, Long), ByVal currentTrayIndex As Long, ByVal currentLevel As Long,
+                         ByVal currentSimulationTimeStep As Long, ByRef Conveyors() As Conveyor) As Boolean
+        'Selects the level according to logic
+        Simulation_Results.TrayEntryTimes(currentTrayIndex) = k.Key
+        currentLevel = SelectLevel(currentTrayIndex, k.Value)
+
+        If currentLevel = -1 Then
+            MsgBox("The given VRTM size is not enough to accomodate all the products" &
+                   vbCrLf & "and still meet the minimum retention time requirement." &
+                   vbCrLf & "Please consider increasing the VRTM size.", vbOKOnly + vbCritical, "Simulation error")
+            Return True
+        End If
+
+        'Unload the conveyor and create a tray
+        If currentSimulationTimeStep <> 0 Then
+            For I As Long = 0 To VRTM_SimVariables.nTrays - 1
+                For J As Long = 0 To VRTM_SimVariables.nLevels - 1
+                    'Copies the last timestep onto the current timestep
+                    Simulation_Results.VRTMTrayData(currentSimulationTimeStep, I, J) = Simulation_Results.VRTMTrayData(currentSimulationTimeStep - 1, I, J).Clone
+                Next
+            Next
+        End If
+
+        'Advances all the other trays in this level
+        For I As Long = VRTM_SimVariables.nTrays - 1 To 1 Step -1
+            Simulation_Results.VRTMTrayData(currentSimulationTimeStep, I, currentLevel) = Simulation_Results.VRTMTrayData(currentSimulationTimeStep, I - 1, currentLevel).Clone
+        Next
+
+        'Puts the current tray here
+        Simulation_Results.VRTMTrayData(currentSimulationTimeStep, 0, currentLevel).TrayIndex = currentTrayIndex
+        Simulation_Results.VRTMTrayData(currentSimulationTimeStep, 0, currentLevel).ConveyorIndex = VRTM_SimVariables.ProductMix(k.Value).ConveyorNumber
+        Simulation_Results.VRTMTrayData(currentSimulationTimeStep, 0, currentLevel).ProductIndices = Conveyors(ConveyorPosition_To_Index(VRTM_SimVariables.ProductMix(k.Value).ConveyorNumber)).BoxesInConveyor
+        Simulation_Results.TrayEntryPositions(currentTrayIndex) = currentSimulationTimeStep
+        Simulation_Results.VRTMTimePositions(currentSimulationTimeStep) = k.Key
+
+        'Clears the conveyor
+        Conveyors(ConveyorPosition_To_Index(VRTM_SimVariables.ProductMix(k.Value).ConveyorNumber)).BoxesInConveyor.Clear()
+
+        'Updates the level and exit times
+        Simulation_Results.TrayEntryLevels(currentTrayIndex) = currentLevel
+        Dim ExitingTrayIndex As Long
+        ExitingTrayIndex = Simulation_Results.VRTMTrayData(currentSimulationTimeStep - 1, VRTM_SimVariables.nTrays - 1, currentLevel).TrayIndex
+        If Not ExitingTrayIndex <= 0 Then Simulation_Results.TrayExitTimes(ExitingTrayIndex) = k.Key
+
+
+        Return True
+    End Function
+
+
+
 
     Public Class Conveyor
         'Models the array of products inside a conveyor belt (will store only the indices)
