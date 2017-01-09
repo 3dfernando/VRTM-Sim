@@ -3,67 +3,40 @@
     Private Sub frmDisplaySettings_Shown(sender As Object, e As EventArgs) Handles Me.Shown
         'Initializes
         txtDisplayParam.SelectedIndex = My.Settings.DisplayParameter
+        txtTextColor.SelectedIndex = My.Settings.DisplayParameterForeColor
+        txtBGColor.SelectedIndex = My.Settings.DisplayParameterBackColor
+
         chkHighlight.Checked = My.Settings.Display_boolHighlight
-        chkConditionalForm.Checked = My.Settings.Display_boolConditionalFormatting
-        chkFrozenProduct.Checked = Not My.Settings.Display_boolConditionalFormatting
 
         pcbHighlight.BackColor = My.Settings.Display_HighlightColor
 
-        pcbMinTray.BackColor = My.Settings.Display_MinColor_Tray
-        pcbMaxTray.BackColor = My.Settings.Display_MaxColor_Tray
+        pcbMinText.BackColor = My.Settings.Display_MinColor_ForeColor
+        pcbMaxText.BackColor = My.Settings.Display_MaxColor_ForeColor
 
-        pcbMinConv.BackColor = My.Settings.Display_MinColor_Conveyor
-        pcbMaxConv.BackColor = My.Settings.Display_MaxColor_Conveyor
-
-        pcbMinRet.BackColor = My.Settings.Display_MinColor_Ret
-        pcbMaxRet.BackColor = My.Settings.Display_MaxColor_Ret
-
-        pcbMinCenter.BackColor = My.Settings.Display_MinColor_Center
-        pcbMaxCenter.BackColor = My.Settings.Display_MaxColor_Center
-
-        pcbMinSurf.BackColor = My.Settings.Display_MinColor_Surf
-        pcbMaxSurf.BackColor = My.Settings.Display_MaxColor_Surf
-
-        pcbMinPow.BackColor = My.Settings.Display_MinColor_Pow
-        pcbMaxPow.BackColor = My.Settings.Display_MaxColor_Pow
-
-        pcbFrozen.BackColor = My.Settings.Display_FrozenColor
-        pcbUnfrozen.BackColor = My.Settings.Display_UnfrozenColor
-
+        pcbMinBG.BackColor = My.Settings.Display_MinColor_BackColor
+        pcbMaxBG.BackColor = My.Settings.Display_MaxColor_BackColor
     End Sub
 
     Private Sub frmDisplaySettings_Closed(sender As Object, e As EventArgs) Handles Me.Closed
         'Closes
         My.Settings.DisplayParameter = txtDisplayParam.SelectedIndex
+        My.Settings.DisplayParameterForeColor = txtTextColor.SelectedIndex
+        My.Settings.DisplayParameterBackColor = txtBGColor.SelectedIndex
+
         My.Settings.Display_boolHighlight = chkHighlight.Checked
-        My.Settings.Display_boolConditionalFormatting = chkConditionalForm.Checked
 
         My.Settings.Display_HighlightColor = pcbHighlight.BackColor
 
-        My.Settings.Display_MinColor_Tray = pcbMinTray.BackColor
-        My.Settings.Display_MaxColor_Tray = pcbMaxTray.BackColor
+        My.Settings.Display_MinColor_ForeColor = pcbMinText.BackColor
+        My.Settings.Display_MaxColor_ForeColor = pcbMaxText.BackColor
 
-        My.Settings.Display_MinColor_Conveyor = pcbMinConv.BackColor
-        My.Settings.Display_MaxColor_Conveyor = pcbMaxConv.BackColor
-
-        My.Settings.Display_MinColor_Ret = pcbMinRet.BackColor
-        My.Settings.Display_MaxColor_Ret = pcbMaxRet.BackColor
-
-        My.Settings.Display_MinColor_Center = pcbMinCenter.BackColor
-        My.Settings.Display_MaxColor_Center = pcbMaxCenter.BackColor
-        My.Settings.Display_MinColor_Surf = pcbMinSurf.BackColor
-        My.Settings.Display_MaxColor_Surf = pcbMaxSurf.BackColor
-
-        My.Settings.Display_MinColor_Pow = pcbMinPow.BackColor
-        My.Settings.Display_MaxColor_Pow = pcbMaxPow.BackColor
-
-        My.Settings.Display_FrozenColor = pcbFrozen.BackColor
-        My.Settings.Display_UnfrozenColor = pcbUnfrozen.BackColor
+        My.Settings.Display_MinColor_BackColor = pcbMinBG.BackColor
+        My.Settings.Display_MaxColor_BackColor = pcbMaxBG.BackColor
 
         My.Settings.Save()
     End Sub
 
-    Private Sub ColorChange(sender As Object, e As EventArgs) Handles pcbHighlight.Click, pcbMinTray.Click, pcbMaxTray.Click, pcbMaxCenter.Click, pcbMinCenter.Click, pcbMaxRet.Click, pcbMinRet.Click, pcbMaxConv.Click, pcbMaxPow.Click, pcbMinPow.Click, pcbMaxSurf.Click, pcbMinSurf.Click, pcbMinConv.Click, pcbFrozen.Click, pcbUnfrozen.Click
+    Private Sub ColorChange(sender As Object, e As EventArgs) Handles pcbHighlight.Click, pcbMinText.Click, pcbMaxText.Click, pcbMaxBG.Click, pcbMinBG.Click
         If Not ColorDialog1.ShowDialog() = DialogResult.Cancel Then
             sender.BackColor = ColorDialog1.Color
             UpdateGradients()
@@ -71,26 +44,8 @@
     End Sub
 
     Public Sub UpdateGradients()
-        UpdateGradient(pcbMinTray.BackColor, pcbMaxTray.BackColor, pcbGradTray)
-        UpdateGradient(pcbMinConv.BackColor, pcbMaxConv.BackColor, pcbGradConv)
-        UpdateGradient(pcbMinRet.BackColor, pcbMaxRet.BackColor, pcbGradRet)
-        UpdateGradient(pcbMinCenter.BackColor, pcbMaxCenter.BackColor, pcbGradCenter)
-        UpdateGradient(pcbMinSurf.BackColor, pcbMaxSurf.BackColor, pcbGradSurf)
-        UpdateGradient(pcbMinPow.BackColor, pcbMaxPow.BackColor, pcbGradPow)
-
-        lblFrozen.BackColor = pcbFrozen.BackColor
-        If pcbFrozen.BackColor.GetBrightness <= 0.5 Then
-            lblFrozen.ForeColor = Color.White
-        Else
-            lblFrozen.ForeColor = Color.Black
-        End If
-
-        lblUnfrozen.BackColor = pcbUnfrozen.BackColor
-        If pcbUnfrozen.BackColor.GetBrightness <= 0.5 Then
-            lblUnfrozen.ForeColor = Color.White
-        Else
-            lblUnfrozen.ForeColor = Color.Black
-        End If
+        UpdateGradient(pcbMinText.BackColor, pcbMaxText.BackColor, pcbGradText)
+        UpdateGradient(pcbMinBG.BackColor, pcbMaxBG.BackColor, pcbGradBG)
     End Sub
 
     Public Sub UpdateGradient(MinColor As Color, MaxColor As Color, recipient As PictureBox)
@@ -114,14 +69,6 @@
         'This is a workaround as the routine UpdateGradient doesn't work in the Form_Shown event
         UpdateGradients()
         Timer.Enabled = False
-    End Sub
-
-    Private Sub lblFrozen_Click(sender As Object, e As EventArgs) Handles lblFrozen.Click
-        ColorChange(pcbFrozen, Nothing)
-    End Sub
-
-    Private Sub lblUnfrozen_Click(sender As Object, e As EventArgs) Handles lblUnfrozen.Click
-        ColorChange(pcbUnfrozen, Nothing)
     End Sub
 
 End Class

@@ -42,10 +42,25 @@
         Public ProductionDays() As Boolean 'Days that the VRTM will be producing
 
         '----Variables under Demand Tab----
+        Public LevelChoosing As Integer '0=Production, 1=Demand, 2=Random
+        Public DelayDemand As Boolean
+        Public DelayDemandTime As Integer
 
         '----Variables under Simulation Params Tab----
         Public TotalSimTime As Double 'Total simulation time in [s]
         Public MinimumSimDt As Double 'Minimum simulation delta-t in [s]
+
+        Public ElevSpeed As Double 'Elevator speed [m/s]
+        Public ElevAccel As Double 'Elevator working acceleration [m/s²]
+        Public LevelCenterDist As Double 'Center distance between levels [mm]
+        Public LoadLevel As Integer
+        Public UnloadLevel As Integer
+        Public ReturnLevel As Integer
+        Public TrayTransferTime As Double '[s]
+        Public BoxLoadingTime As Double '[s]
+        Public BoxUnloadingTime As Double '[s]
+        Public UnloaderRetractionTime As Double '[s]
+
         Public AssumedDTForPreviews As Double 'This is the assumed Tevap-Tair for the preview window on the food selector
 
         '===========================================
@@ -95,11 +110,24 @@
             Me.SecondTurnEnd = 0
             Me.ProductionDays = {True, True, True, True, True, False, False}
 
+            Me.LevelChoosing = 2
+
             Me.TotalSimTime = 3600 * 24 * 7
             Me.MinimumSimDt = 100
+
+            Me.ElevSpeed = 18.3 'Elevator speed [m/s]
+            Me.ElevAccel = 0.61 'Elevator working acceleration [m/s²]
+            Me.LevelCenterDist = 315
+            Me.LoadLevel = 6
+            Me.UnloadLevel = 3
+            Me.ReturnLevel = 2
+            Me.TrayTransferTime = 3.2
+            Me.BoxLoadingTime = 3.4
+            Me.BoxUnloadingTime = 3.4
+            Me.UnloaderRetractionTime = 1.7
+
             Me.AssumedDTForPreviews = 7
 
-            'Me.SimData = New SimulationData
 
 
             'Initializes one product in the mix
@@ -345,6 +373,8 @@ TryAgain:
         Public TrayStayTime() As Double 'Array of stay times for each tray
         Public TrayAirTemperatures() As Double 'Air temperatures on the trays
         Public TrayEntryLevels() As Double 'Array of levels where each tray was entering onto for the tray index mentioned in TRVMTrayIndices
+        Public Elevator As TrayData 'Representation of the tray in the elevator
+        Public EmptyElevator As Boolean 'Number of the elevator that is empty (FALSE = left, TRUE = right)
 
         Public SimulationComplete As Boolean = False
     End Class
@@ -361,6 +391,7 @@ TryAgain:
         Public Function Clone() As TrayData
             Return DirectCast(Me.MemberwiseClone(), TrayData)
         End Function
+
     End Class
 
     <Serializable> Public Class InletConveyor

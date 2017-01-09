@@ -38,6 +38,8 @@ Partial Class MainWindow
         Me.FileToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.OpenSimulationToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.SaveSimulationToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.OpenSimulationVariablesToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.SaveSimulationResultsToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.SimulationToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.RunProcessSimulationToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.RunThermalSimulationToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
@@ -161,6 +163,34 @@ Partial Class MainWindow
         Me.Label21 = New System.Windows.Forms.Label()
         Me.ProdStats = New System.Windows.Forms.TabPage()
         Me.SimParams = New System.Windows.Forms.TabPage()
+        Me.GroupBox10 = New System.Windows.Forms.GroupBox()
+        Me.Label68 = New System.Windows.Forms.Label()
+        Me.txtLevelCenterDist = New System.Windows.Forms.TextBox()
+        Me.Label69 = New System.Windows.Forms.Label()
+        Me.Label66 = New System.Windows.Forms.Label()
+        Me.txtUnloaderRetractionTime = New System.Windows.Forms.TextBox()
+        Me.Label67 = New System.Windows.Forms.Label()
+        Me.Label64 = New System.Windows.Forms.Label()
+        Me.txtBoxUnloadingTime = New System.Windows.Forms.TextBox()
+        Me.Label65 = New System.Windows.Forms.Label()
+        Me.Label58 = New System.Windows.Forms.Label()
+        Me.txtBoxLoadingTime = New System.Windows.Forms.TextBox()
+        Me.Label60 = New System.Windows.Forms.Label()
+        Me.Label62 = New System.Windows.Forms.Label()
+        Me.txtReturnLevel = New System.Windows.Forms.TextBox()
+        Me.Label54 = New System.Windows.Forms.Label()
+        Me.txtTrayTransferTime = New System.Windows.Forms.TextBox()
+        Me.Label63 = New System.Windows.Forms.Label()
+        Me.txtUnloadLevel = New System.Windows.Forms.TextBox()
+        Me.Label61 = New System.Windows.Forms.Label()
+        Me.txtLoadLevel = New System.Windows.Forms.TextBox()
+        Me.Label59 = New System.Windows.Forms.Label()
+        Me.Label53 = New System.Windows.Forms.Label()
+        Me.txtElevatorSpeed = New System.Windows.Forms.TextBox()
+        Me.Label55 = New System.Windows.Forms.Label()
+        Me.Label56 = New System.Windows.Forms.Label()
+        Me.txtElevatorAccel = New System.Windows.Forms.TextBox()
+        Me.Label57 = New System.Windows.Forms.Label()
         Me.GroupBox4 = New System.Windows.Forms.GroupBox()
         Me.txtAcceptedDt = New System.Windows.Forms.TextBox()
         Me.Label48 = New System.Windows.Forms.Label()
@@ -183,9 +213,28 @@ Partial Class MainWindow
         Me.ErrorProvider2 = New System.Windows.Forms.ErrorProvider(Me.components)
         Me.tmrPlayback = New System.Windows.Forms.Timer(Me.components)
         Me.SaveFileDialog1 = New System.Windows.Forms.SaveFileDialog()
-        Me.OpenSimulationVariablesToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
-        Me.SaveSimulationResultsToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.OpenFileDialog1 = New System.Windows.Forms.OpenFileDialog()
+        Me.BindingSource1 = New System.Windows.Forms.BindingSource(Me.components)
+        Me.GroupBox11 = New System.Windows.Forms.GroupBox()
+        Me.Label76 = New System.Windows.Forms.Label()
+        Me.txtDelayDemandTime = New System.Windows.Forms.TextBox()
+        Me.Label79 = New System.Windows.Forms.Label()
+        Me.Label81 = New System.Windows.Forms.Label()
+        Me.txtLevelChoosing = New System.Windows.Forms.ComboBox()
+        Me.chkDelayDemand = New System.Windows.Forms.CheckBox()
+        Me.grpDemandProf = New System.Windows.Forms.GroupBox()
+        Me.ComboBox2 = New System.Windows.Forms.ComboBox()
+        Me.Label82 = New System.Windows.Forms.Label()
+        Me.TextBox7 = New System.Windows.Forms.TextBox()
+        Me.Label84 = New System.Windows.Forms.Label()
+        Me.grpTunnelOrg = New System.Windows.Forms.GroupBox()
+        Me.CheckBox3 = New System.Windows.Forms.CheckBox()
+        Me.Label86 = New System.Windows.Forms.Label()
+        Me.TextBox8 = New System.Windows.Forms.TextBox()
+        Me.Label87 = New System.Windows.Forms.Label()
+        Me.CheckBox4 = New System.Windows.Forms.CheckBox()
+        Me.CheckBox2 = New System.Windows.Forms.CheckBox()
+        Me.ToolTip1 = New System.Windows.Forms.ToolTip(Me.components)
         CType(Me.Divisor1, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.Divisor1.Panel1.SuspendLayout()
         Me.Divisor1.Panel2.SuspendLayout()
@@ -207,7 +256,9 @@ Partial Class MainWindow
         Me.Production.SuspendLayout()
         Me.GroupBox8.SuspendLayout()
         Me.GroupBox5.SuspendLayout()
+        Me.ProdStats.SuspendLayout()
         Me.SimParams.SuspendLayout()
+        Me.GroupBox10.SuspendLayout()
         Me.GroupBox4.SuspendLayout()
         Me.GroupBox9.SuspendLayout()
         CType(Me.Divisor2, System.ComponentModel.ISupportInitialize).BeginInit()
@@ -221,6 +272,10 @@ Partial Class MainWindow
         CType(Me.VRTMTable, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.ErrorProvider1, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.ErrorProvider2, System.ComponentModel.ISupportInitialize).BeginInit()
+        CType(Me.BindingSource1, System.ComponentModel.ISupportInitialize).BeginInit()
+        Me.GroupBox11.SuspendLayout()
+        Me.grpDemandProf.SuspendLayout()
+        Me.grpTunnelOrg.SuspendLayout()
         Me.SuspendLayout()
         '
         'Divisor1
@@ -345,15 +400,27 @@ Partial Class MainWindow
         '
         Me.OpenSimulationToolStripMenuItem.Image = Global.VRTM_Simulator.My.Resources.Resources.document_open_5
         Me.OpenSimulationToolStripMenuItem.Name = "OpenSimulationToolStripMenuItem"
-        Me.OpenSimulationToolStripMenuItem.Size = New System.Drawing.Size(207, 26)
+        Me.OpenSimulationToolStripMenuItem.Size = New System.Drawing.Size(203, 22)
         Me.OpenSimulationToolStripMenuItem.Text = "&Open Simulation Setup"
         '
         'SaveSimulationToolStripMenuItem
         '
         Me.SaveSimulationToolStripMenuItem.Image = Global.VRTM_Simulator.My.Resources.Resources.document_save_5
         Me.SaveSimulationToolStripMenuItem.Name = "SaveSimulationToolStripMenuItem"
-        Me.SaveSimulationToolStripMenuItem.Size = New System.Drawing.Size(207, 26)
+        Me.SaveSimulationToolStripMenuItem.Size = New System.Drawing.Size(203, 22)
         Me.SaveSimulationToolStripMenuItem.Text = "&Save Simulation Setup"
+        '
+        'OpenSimulationVariablesToolStripMenuItem
+        '
+        Me.OpenSimulationVariablesToolStripMenuItem.Name = "OpenSimulationVariablesToolStripMenuItem"
+        Me.OpenSimulationVariablesToolStripMenuItem.Size = New System.Drawing.Size(203, 22)
+        Me.OpenSimulationVariablesToolStripMenuItem.Text = "Open Simulation &Results"
+        '
+        'SaveSimulationResultsToolStripMenuItem
+        '
+        Me.SaveSimulationResultsToolStripMenuItem.Name = "SaveSimulationResultsToolStripMenuItem"
+        Me.SaveSimulationResultsToolStripMenuItem.Size = New System.Drawing.Size(203, 22)
+        Me.SaveSimulationResultsToolStripMenuItem.Text = "Save Simulation R&esults"
         '
         'SimulationToolStripMenuItem
         '
@@ -1551,6 +1618,9 @@ Partial Class MainWindow
         '
         'ProdStats
         '
+        Me.ProdStats.Controls.Add(Me.grpTunnelOrg)
+        Me.ProdStats.Controls.Add(Me.grpDemandProf)
+        Me.ProdStats.Controls.Add(Me.GroupBox11)
         Me.ProdStats.Location = New System.Drawing.Point(4, 40)
         Me.ProdStats.Name = "ProdStats"
         Me.ProdStats.Size = New System.Drawing.Size(316, 692)
@@ -1560,6 +1630,7 @@ Partial Class MainWindow
         '
         'SimParams
         '
+        Me.SimParams.Controls.Add(Me.GroupBox10)
         Me.SimParams.Controls.Add(Me.GroupBox4)
         Me.SimParams.Controls.Add(Me.GroupBox9)
         Me.SimParams.Location = New System.Drawing.Point(4, 40)
@@ -1569,12 +1640,281 @@ Partial Class MainWindow
         Me.SimParams.Text = "Simulation Params"
         Me.SimParams.UseVisualStyleBackColor = True
         '
+        'GroupBox10
+        '
+        Me.GroupBox10.Controls.Add(Me.Label68)
+        Me.GroupBox10.Controls.Add(Me.txtLevelCenterDist)
+        Me.GroupBox10.Controls.Add(Me.Label69)
+        Me.GroupBox10.Controls.Add(Me.Label66)
+        Me.GroupBox10.Controls.Add(Me.txtUnloaderRetractionTime)
+        Me.GroupBox10.Controls.Add(Me.Label67)
+        Me.GroupBox10.Controls.Add(Me.Label64)
+        Me.GroupBox10.Controls.Add(Me.txtBoxUnloadingTime)
+        Me.GroupBox10.Controls.Add(Me.Label65)
+        Me.GroupBox10.Controls.Add(Me.Label58)
+        Me.GroupBox10.Controls.Add(Me.txtBoxLoadingTime)
+        Me.GroupBox10.Controls.Add(Me.Label60)
+        Me.GroupBox10.Controls.Add(Me.Label62)
+        Me.GroupBox10.Controls.Add(Me.txtReturnLevel)
+        Me.GroupBox10.Controls.Add(Me.Label54)
+        Me.GroupBox10.Controls.Add(Me.txtTrayTransferTime)
+        Me.GroupBox10.Controls.Add(Me.Label63)
+        Me.GroupBox10.Controls.Add(Me.txtUnloadLevel)
+        Me.GroupBox10.Controls.Add(Me.Label61)
+        Me.GroupBox10.Controls.Add(Me.txtLoadLevel)
+        Me.GroupBox10.Controls.Add(Me.Label59)
+        Me.GroupBox10.Controls.Add(Me.Label53)
+        Me.GroupBox10.Controls.Add(Me.txtElevatorSpeed)
+        Me.GroupBox10.Controls.Add(Me.Label55)
+        Me.GroupBox10.Controls.Add(Me.Label56)
+        Me.GroupBox10.Controls.Add(Me.txtElevatorAccel)
+        Me.GroupBox10.Controls.Add(Me.Label57)
+        Me.GroupBox10.Location = New System.Drawing.Point(16, 90)
+        Me.GroupBox10.Name = "GroupBox10"
+        Me.GroupBox10.Size = New System.Drawing.Size(211, 282)
+        Me.GroupBox10.TabIndex = 64
+        Me.GroupBox10.TabStop = False
+        Me.GroupBox10.Text = "Elevator Configuration"
+        '
+        'Label68
+        '
+        Me.Label68.AutoSize = True
+        Me.Label68.Location = New System.Drawing.Point(173, 70)
+        Me.Label68.Name = "Label68"
+        Me.Label68.Size = New System.Drawing.Size(23, 13)
+        Me.Label68.TabIndex = 82
+        Me.Label68.Text = "mm"
+        '
+        'txtLevelCenterDist
+        '
+        Me.txtLevelCenterDist.Location = New System.Drawing.Point(124, 67)
+        Me.txtLevelCenterDist.Name = "txtLevelCenterDist"
+        Me.txtLevelCenterDist.Size = New System.Drawing.Size(43, 20)
+        Me.txtLevelCenterDist.TabIndex = 81
+        Me.txtLevelCenterDist.TextAlign = System.Windows.Forms.HorizontalAlignment.Right
+        '
+        'Label69
+        '
+        Me.Label69.AutoSize = True
+        Me.Label69.Location = New System.Drawing.Point(7, 70)
+        Me.Label69.Name = "Label69"
+        Me.Label69.Size = New System.Drawing.Size(115, 13)
+        Me.Label69.TabIndex = 80
+        Me.Label69.Text = "Level Center Distance:"
+        '
+        'Label66
+        '
+        Me.Label66.AutoSize = True
+        Me.Label66.Location = New System.Drawing.Point(191, 253)
+        Me.Label66.Name = "Label66"
+        Me.Label66.Size = New System.Drawing.Size(12, 13)
+        Me.Label66.TabIndex = 79
+        Me.Label66.Text = "s"
+        '
+        'txtUnloaderRetractionTime
+        '
+        Me.txtUnloaderRetractionTime.Location = New System.Drawing.Point(142, 250)
+        Me.txtUnloaderRetractionTime.Name = "txtUnloaderRetractionTime"
+        Me.txtUnloaderRetractionTime.Size = New System.Drawing.Size(43, 20)
+        Me.txtUnloaderRetractionTime.TabIndex = 78
+        Me.txtUnloaderRetractionTime.TextAlign = System.Windows.Forms.HorizontalAlignment.Right
+        '
+        'Label67
+        '
+        Me.Label67.AutoSize = True
+        Me.Label67.Location = New System.Drawing.Point(7, 253)
+        Me.Label67.Name = "Label67"
+        Me.Label67.Size = New System.Drawing.Size(131, 13)
+        Me.Label67.TabIndex = 77
+        Me.Label67.Text = "Unloader Retraction Time:"
+        '
+        'Label64
+        '
+        Me.Label64.AutoSize = True
+        Me.Label64.Location = New System.Drawing.Point(173, 229)
+        Me.Label64.Name = "Label64"
+        Me.Label64.Size = New System.Drawing.Size(12, 13)
+        Me.Label64.TabIndex = 76
+        Me.Label64.Text = "s"
+        '
+        'txtBoxUnloadingTime
+        '
+        Me.txtBoxUnloadingTime.Location = New System.Drawing.Point(124, 226)
+        Me.txtBoxUnloadingTime.Name = "txtBoxUnloadingTime"
+        Me.txtBoxUnloadingTime.Size = New System.Drawing.Size(43, 20)
+        Me.txtBoxUnloadingTime.TabIndex = 75
+        Me.txtBoxUnloadingTime.TextAlign = System.Windows.Forms.HorizontalAlignment.Right
+        '
+        'Label65
+        '
+        Me.Label65.AutoSize = True
+        Me.Label65.Location = New System.Drawing.Point(7, 229)
+        Me.Label65.Name = "Label65"
+        Me.Label65.Size = New System.Drawing.Size(105, 13)
+        Me.Label65.TabIndex = 74
+        Me.Label65.Text = "Box Unloading Time:"
+        '
+        'Label58
+        '
+        Me.Label58.AutoSize = True
+        Me.Label58.Location = New System.Drawing.Point(173, 205)
+        Me.Label58.Name = "Label58"
+        Me.Label58.Size = New System.Drawing.Size(12, 13)
+        Me.Label58.TabIndex = 73
+        Me.Label58.Text = "s"
+        '
+        'txtBoxLoadingTime
+        '
+        Me.txtBoxLoadingTime.Location = New System.Drawing.Point(124, 202)
+        Me.txtBoxLoadingTime.Name = "txtBoxLoadingTime"
+        Me.txtBoxLoadingTime.Size = New System.Drawing.Size(43, 20)
+        Me.txtBoxLoadingTime.TabIndex = 72
+        Me.txtBoxLoadingTime.TextAlign = System.Windows.Forms.HorizontalAlignment.Right
+        '
+        'Label60
+        '
+        Me.Label60.AutoSize = True
+        Me.Label60.Location = New System.Drawing.Point(7, 205)
+        Me.Label60.Name = "Label60"
+        Me.Label60.Size = New System.Drawing.Size(95, 13)
+        Me.Label60.TabIndex = 71
+        Me.Label60.Text = "Box Loading Time:"
+        '
+        'Label62
+        '
+        Me.Label62.AutoSize = True
+        Me.Label62.Location = New System.Drawing.Point(173, 181)
+        Me.Label62.Name = "Label62"
+        Me.Label62.Size = New System.Drawing.Size(12, 13)
+        Me.Label62.TabIndex = 70
+        Me.Label62.Text = "s"
+        '
+        'txtReturnLevel
+        '
+        Me.txtReturnLevel.Location = New System.Drawing.Point(124, 146)
+        Me.txtReturnLevel.Name = "txtReturnLevel"
+        Me.txtReturnLevel.Size = New System.Drawing.Size(43, 20)
+        Me.txtReturnLevel.TabIndex = 63
+        Me.txtReturnLevel.TextAlign = System.Windows.Forms.HorizontalAlignment.Right
+        '
+        'Label54
+        '
+        Me.Label54.AutoSize = True
+        Me.Label54.Location = New System.Drawing.Point(7, 148)
+        Me.Label54.Name = "Label54"
+        Me.Label54.Size = New System.Drawing.Size(71, 13)
+        Me.Label54.TabIndex = 62
+        Me.Label54.Text = "Return Level:"
+        '
+        'txtTrayTransferTime
+        '
+        Me.txtTrayTransferTime.Location = New System.Drawing.Point(124, 178)
+        Me.txtTrayTransferTime.Name = "txtTrayTransferTime"
+        Me.txtTrayTransferTime.Size = New System.Drawing.Size(43, 20)
+        Me.txtTrayTransferTime.TabIndex = 69
+        Me.txtTrayTransferTime.TextAlign = System.Windows.Forms.HorizontalAlignment.Right
+        '
+        'Label63
+        '
+        Me.Label63.AutoSize = True
+        Me.Label63.Location = New System.Drawing.Point(7, 181)
+        Me.Label63.Name = "Label63"
+        Me.Label63.Size = New System.Drawing.Size(99, 13)
+        Me.Label63.TabIndex = 68
+        Me.Label63.Text = "Tray Transfer Time:"
+        '
+        'txtUnloadLevel
+        '
+        Me.txtUnloadLevel.Location = New System.Drawing.Point(124, 122)
+        Me.txtUnloadLevel.Name = "txtUnloadLevel"
+        Me.txtUnloadLevel.Size = New System.Drawing.Size(43, 20)
+        Me.txtUnloadLevel.TabIndex = 66
+        Me.txtUnloadLevel.TextAlign = System.Windows.Forms.HorizontalAlignment.Right
+        '
+        'Label61
+        '
+        Me.Label61.AutoSize = True
+        Me.Label61.Location = New System.Drawing.Point(7, 125)
+        Me.Label61.Name = "Label61"
+        Me.Label61.Size = New System.Drawing.Size(73, 13)
+        Me.Label61.TabIndex = 65
+        Me.Label61.Text = "Unload Level:"
+        '
+        'txtLoadLevel
+        '
+        Me.txtLoadLevel.Location = New System.Drawing.Point(124, 98)
+        Me.txtLoadLevel.Name = "txtLoadLevel"
+        Me.txtLoadLevel.Size = New System.Drawing.Size(43, 20)
+        Me.txtLoadLevel.TabIndex = 63
+        Me.txtLoadLevel.TextAlign = System.Windows.Forms.HorizontalAlignment.Right
+        '
+        'Label59
+        '
+        Me.Label59.AutoSize = True
+        Me.Label59.Location = New System.Drawing.Point(7, 101)
+        Me.Label59.Name = "Label59"
+        Me.Label59.Size = New System.Drawing.Size(63, 13)
+        Me.Label59.TabIndex = 62
+        Me.Label59.Text = "Load Level:"
+        '
+        'Label53
+        '
+        Me.Label53.AutoSize = True
+        Me.Label53.Location = New System.Drawing.Point(173, 46)
+        Me.Label53.Name = "Label53"
+        Me.Label53.Size = New System.Drawing.Size(28, 13)
+        Me.Label53.TabIndex = 61
+        Me.Label53.Text = "m/s²"
+        '
+        'txtElevatorSpeed
+        '
+        Me.txtElevatorSpeed.Location = New System.Drawing.Point(124, 20)
+        Me.txtElevatorSpeed.Name = "txtElevatorSpeed"
+        Me.txtElevatorSpeed.Size = New System.Drawing.Size(43, 20)
+        Me.txtElevatorSpeed.TabIndex = 58
+        Me.txtElevatorSpeed.TextAlign = System.Windows.Forms.HorizontalAlignment.Right
+        '
+        'Label55
+        '
+        Me.Label55.AutoSize = True
+        Me.Label55.Location = New System.Drawing.Point(173, 23)
+        Me.Label55.Name = "Label55"
+        Me.Label55.Size = New System.Drawing.Size(25, 13)
+        Me.Label55.TabIndex = 2
+        Me.Label55.Text = "m/s"
+        '
+        'Label56
+        '
+        Me.Label56.AutoSize = True
+        Me.Label56.Location = New System.Drawing.Point(7, 23)
+        Me.Label56.Name = "Label56"
+        Me.Label56.Size = New System.Drawing.Size(83, 13)
+        Me.Label56.TabIndex = 2
+        Me.Label56.Text = "Elevator Speed:"
+        '
+        'txtElevatorAccel
+        '
+        Me.txtElevatorAccel.Location = New System.Drawing.Point(124, 43)
+        Me.txtElevatorAccel.Name = "txtElevatorAccel"
+        Me.txtElevatorAccel.Size = New System.Drawing.Size(43, 20)
+        Me.txtElevatorAccel.TabIndex = 60
+        Me.txtElevatorAccel.TextAlign = System.Windows.Forms.HorizontalAlignment.Right
+        '
+        'Label57
+        '
+        Me.Label57.AutoSize = True
+        Me.Label57.Location = New System.Drawing.Point(7, 46)
+        Me.Label57.Name = "Label57"
+        Me.Label57.Size = New System.Drawing.Size(111, 13)
+        Me.Label57.TabIndex = 0
+        Me.Label57.Text = "Elevator Acceleration:"
+        '
         'GroupBox4
         '
         Me.GroupBox4.Controls.Add(Me.txtAcceptedDt)
         Me.GroupBox4.Controls.Add(Me.Label48)
         Me.GroupBox4.Controls.Add(Me.Label49)
-        Me.GroupBox4.Location = New System.Drawing.Point(16, 106)
+        Me.GroupBox4.Location = New System.Drawing.Point(16, 378)
         Me.GroupBox4.Name = "GroupBox4"
         Me.GroupBox4.Size = New System.Drawing.Size(211, 60)
         Me.GroupBox4.TabIndex = 62
@@ -1617,10 +1957,10 @@ Partial Class MainWindow
         Me.GroupBox9.Controls.Add(Me.Label34)
         Me.GroupBox9.Location = New System.Drawing.Point(16, 9)
         Me.GroupBox9.Name = "GroupBox9"
-        Me.GroupBox9.Size = New System.Drawing.Size(211, 82)
+        Me.GroupBox9.Size = New System.Drawing.Size(211, 75)
         Me.GroupBox9.TabIndex = 4
         Me.GroupBox9.TabStop = False
-        Me.GroupBox9.Text = "Main Simulator"
+        Me.GroupBox9.Text = "Main Simulator General Configs"
         '
         'Label46
         '
@@ -1779,21 +2119,202 @@ Partial Class MainWindow
         '
         Me.tmrPlayback.Interval = 500
         '
-        'OpenSimulationVariablesToolStripMenuItem
-        '
-        Me.OpenSimulationVariablesToolStripMenuItem.Name = "OpenSimulationVariablesToolStripMenuItem"
-        Me.OpenSimulationVariablesToolStripMenuItem.Size = New System.Drawing.Size(207, 26)
-        Me.OpenSimulationVariablesToolStripMenuItem.Text = "Open Simulation &Results"
-        '
-        'SaveSimulationResultsToolStripMenuItem
-        '
-        Me.SaveSimulationResultsToolStripMenuItem.Name = "SaveSimulationResultsToolStripMenuItem"
-        Me.SaveSimulationResultsToolStripMenuItem.Size = New System.Drawing.Size(207, 26)
-        Me.SaveSimulationResultsToolStripMenuItem.Text = "Save Simulation R&esults"
-        '
         'OpenFileDialog1
         '
         Me.OpenFileDialog1.FileName = "OpenFileDialog1"
+        '
+        'GroupBox11
+        '
+        Me.GroupBox11.Controls.Add(Me.chkDelayDemand)
+        Me.GroupBox11.Controls.Add(Me.txtLevelChoosing)
+        Me.GroupBox11.Controls.Add(Me.Label81)
+        Me.GroupBox11.Controls.Add(Me.Label76)
+        Me.GroupBox11.Controls.Add(Me.txtDelayDemandTime)
+        Me.GroupBox11.Controls.Add(Me.Label79)
+        Me.GroupBox11.Location = New System.Drawing.Point(16, 6)
+        Me.GroupBox11.Name = "GroupBox11"
+        Me.GroupBox11.Size = New System.Drawing.Size(211, 116)
+        Me.GroupBox11.TabIndex = 4
+        Me.GroupBox11.TabStop = False
+        Me.GroupBox11.Text = "Shelving Strategy"
+        '
+        'Label76
+        '
+        Me.Label76.AutoSize = True
+        Me.Label76.Location = New System.Drawing.Point(177, 80)
+        Me.Label76.Name = "Label76"
+        Me.Label76.Size = New System.Drawing.Size(29, 13)
+        Me.Label76.TabIndex = 45
+        Me.Label76.Text = "days"
+        '
+        'txtDelayDemandTime
+        '
+        Me.txtDelayDemandTime.Enabled = False
+        Me.txtDelayDemandTime.Location = New System.Drawing.Point(106, 77)
+        Me.txtDelayDemandTime.Name = "txtDelayDemandTime"
+        Me.txtDelayDemandTime.Size = New System.Drawing.Size(65, 20)
+        Me.txtDelayDemandTime.TabIndex = 41
+        Me.txtDelayDemandTime.TextAlign = System.Windows.Forms.HorizontalAlignment.Right
+        '
+        'Label79
+        '
+        Me.Label79.AutoSize = True
+        Me.Label79.Location = New System.Drawing.Point(7, 80)
+        Me.Label79.Name = "Label79"
+        Me.Label79.Size = New System.Drawing.Size(63, 13)
+        Me.Label79.TabIndex = 2
+        Me.Label79.Text = "Delay Time:"
+        '
+        'Label81
+        '
+        Me.Label81.AutoSize = True
+        Me.Label81.Location = New System.Drawing.Point(7, 28)
+        Me.Label81.Name = "Label81"
+        Me.Label81.Size = New System.Drawing.Size(83, 13)
+        Me.Label81.TabIndex = 54
+        Me.Label81.Text = "Level Choosing:"
+        '
+        'txtLevelChoosing
+        '
+        Me.txtLevelChoosing.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
+        Me.txtLevelChoosing.FormattingEnabled = True
+        Me.txtLevelChoosing.Items.AddRange(New Object() {"Production", "Demand", "Random"})
+        Me.txtLevelChoosing.Location = New System.Drawing.Point(106, 25)
+        Me.txtLevelChoosing.Name = "txtLevelChoosing"
+        Me.txtLevelChoosing.Size = New System.Drawing.Size(95, 21)
+        Me.txtLevelChoosing.TabIndex = 55
+        '
+        'chkDelayDemand
+        '
+        Me.chkDelayDemand.AutoSize = True
+        Me.chkDelayDemand.Location = New System.Drawing.Point(10, 55)
+        Me.chkDelayDemand.Name = "chkDelayDemand"
+        Me.chkDelayDemand.Size = New System.Drawing.Size(167, 17)
+        Me.chkDelayDemand.TabIndex = 56
+        Me.chkDelayDemand.Text = "Delay Demand During Startup"
+        Me.chkDelayDemand.UseVisualStyleBackColor = True
+        '
+        'grpDemandProf
+        '
+        Me.grpDemandProf.Controls.Add(Me.CheckBox2)
+        Me.grpDemandProf.Controls.Add(Me.ComboBox2)
+        Me.grpDemandProf.Controls.Add(Me.Label82)
+        Me.grpDemandProf.Controls.Add(Me.TextBox7)
+        Me.grpDemandProf.Controls.Add(Me.Label84)
+        Me.grpDemandProf.Location = New System.Drawing.Point(16, 259)
+        Me.grpDemandProf.Name = "grpDemandProf"
+        Me.grpDemandProf.Size = New System.Drawing.Size(211, 119)
+        Me.grpDemandProf.TabIndex = 54
+        Me.grpDemandProf.TabStop = False
+        Me.grpDemandProf.Text = "Demand Profile"
+        '
+        'ComboBox2
+        '
+        Me.ComboBox2.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
+        Me.ComboBox2.FormattingEnabled = True
+        Me.ComboBox2.Items.AddRange(New Object() {"From File...", "Random"})
+        Me.ComboBox2.Location = New System.Drawing.Point(106, 25)
+        Me.ComboBox2.Name = "ComboBox2"
+        Me.ComboBox2.Size = New System.Drawing.Size(95, 21)
+        Me.ComboBox2.TabIndex = 55
+        '
+        'Label82
+        '
+        Me.Label82.AutoSize = True
+        Me.Label82.Location = New System.Drawing.Point(7, 28)
+        Me.Label82.Name = "Label82"
+        Me.Label82.Size = New System.Drawing.Size(79, 13)
+        Me.Label82.TabIndex = 54
+        Me.Label82.Text = "Picking Orders:"
+        '
+        'TextBox7
+        '
+        Me.TextBox7.Enabled = False
+        Me.TextBox7.Location = New System.Drawing.Point(106, 81)
+        Me.TextBox7.Name = "TextBox7"
+        Me.TextBox7.Size = New System.Drawing.Size(95, 20)
+        Me.TextBox7.TabIndex = 41
+        Me.TextBox7.TextAlign = System.Windows.Forms.HorizontalAlignment.Right
+        '
+        'Label84
+        '
+        Me.Label84.AutoSize = True
+        Me.Label84.Location = New System.Drawing.Point(7, 84)
+        Me.Label84.Name = "Label84"
+        Me.Label84.Size = New System.Drawing.Size(67, 13)
+        Me.Label84.TabIndex = 2
+        Me.Label84.Text = "External File:"
+        '
+        'grpTunnelOrg
+        '
+        Me.grpTunnelOrg.Controls.Add(Me.CheckBox4)
+        Me.grpTunnelOrg.Controls.Add(Me.CheckBox3)
+        Me.grpTunnelOrg.Controls.Add(Me.Label86)
+        Me.grpTunnelOrg.Controls.Add(Me.TextBox8)
+        Me.grpTunnelOrg.Controls.Add(Me.Label87)
+        Me.grpTunnelOrg.Location = New System.Drawing.Point(16, 128)
+        Me.grpTunnelOrg.Name = "grpTunnelOrg"
+        Me.grpTunnelOrg.Size = New System.Drawing.Size(211, 125)
+        Me.grpTunnelOrg.TabIndex = 55
+        Me.grpTunnelOrg.TabStop = False
+        Me.grpTunnelOrg.Text = "Tunnel Organization"
+        '
+        'CheckBox3
+        '
+        Me.CheckBox3.AutoSize = True
+        Me.CheckBox3.Location = New System.Drawing.Point(10, 24)
+        Me.CheckBox3.Name = "CheckBox3"
+        Me.CheckBox3.Size = New System.Drawing.Size(166, 17)
+        Me.CheckBox3.TabIndex = 56
+        Me.CheckBox3.Text = "Enable Idle-Hours Reshelving"
+        Me.CheckBox3.UseVisualStyleBackColor = True
+        '
+        'Label86
+        '
+        Me.Label86.AutoSize = True
+        Me.Label86.Location = New System.Drawing.Point(177, 53)
+        Me.Label86.Name = "Label86"
+        Me.Label86.Size = New System.Drawing.Size(13, 13)
+        Me.Label86.TabIndex = 45
+        Me.Label86.Text = "h"
+        '
+        'TextBox8
+        '
+        Me.TextBox8.Enabled = False
+        Me.TextBox8.Location = New System.Drawing.Point(106, 50)
+        Me.TextBox8.Name = "TextBox8"
+        Me.TextBox8.Size = New System.Drawing.Size(65, 20)
+        Me.TextBox8.TabIndex = 41
+        Me.TextBox8.TextAlign = System.Windows.Forms.HorizontalAlignment.Right
+        '
+        'Label87
+        '
+        Me.Label87.AutoSize = True
+        Me.Label87.Location = New System.Drawing.Point(7, 53)
+        Me.Label87.Name = "Label87"
+        Me.Label87.Size = New System.Drawing.Size(93, 13)
+        Me.Label87.TabIndex = 2
+        Me.Label87.Text = "Minimum Window:"
+        '
+        'CheckBox4
+        '
+        Me.CheckBox4.AutoSize = True
+        Me.CheckBox4.Location = New System.Drawing.Point(10, 88)
+        Me.CheckBox4.Name = "CheckBox4"
+        Me.CheckBox4.Size = New System.Drawing.Size(198, 17)
+        Me.CheckBox4.TabIndex = 57
+        Me.CheckBox4.Text = "Enable Improved Weekend Strategy"
+        Me.CheckBox4.UseVisualStyleBackColor = True
+        '
+        'CheckBox2
+        '
+        Me.CheckBox2.AutoSize = True
+        Me.CheckBox2.Location = New System.Drawing.Point(6, 55)
+        Me.CheckBox2.Name = "CheckBox2"
+        Me.CheckBox2.Size = New System.Drawing.Size(185, 17)
+        Me.CheckBox2.TabIndex = 57
+        Me.CheckBox2.Text = "Randomly Bias Towards Products"
+        Me.CheckBox2.UseVisualStyleBackColor = True
         '
         'MainWindow
         '
@@ -1836,7 +2357,10 @@ Partial Class MainWindow
         Me.GroupBox8.PerformLayout()
         Me.GroupBox5.ResumeLayout(False)
         Me.GroupBox5.PerformLayout()
+        Me.ProdStats.ResumeLayout(False)
         Me.SimParams.ResumeLayout(False)
+        Me.GroupBox10.ResumeLayout(False)
+        Me.GroupBox10.PerformLayout()
         Me.GroupBox4.ResumeLayout(False)
         Me.GroupBox4.PerformLayout()
         Me.GroupBox9.ResumeLayout(False)
@@ -1853,6 +2377,13 @@ Partial Class MainWindow
         CType(Me.VRTMTable, System.ComponentModel.ISupportInitialize).EndInit()
         CType(Me.ErrorProvider1, System.ComponentModel.ISupportInitialize).EndInit()
         CType(Me.ErrorProvider2, System.ComponentModel.ISupportInitialize).EndInit()
+        CType(Me.BindingSource1, System.ComponentModel.ISupportInitialize).EndInit()
+        Me.GroupBox11.ResumeLayout(False)
+        Me.GroupBox11.PerformLayout()
+        Me.grpDemandProf.ResumeLayout(False)
+        Me.grpDemandProf.PerformLayout()
+        Me.grpTunnelOrg.ResumeLayout(False)
+        Me.grpTunnelOrg.PerformLayout()
         Me.ResumeLayout(False)
 
     End Sub
@@ -2018,4 +2549,53 @@ Partial Class MainWindow
     Friend WithEvents OpenSimulationVariablesToolStripMenuItem As ToolStripMenuItem
     Friend WithEvents SaveSimulationResultsToolStripMenuItem As ToolStripMenuItem
     Friend WithEvents OpenFileDialog1 As OpenFileDialog
+    Friend WithEvents BindingSource1 As BindingSource
+    Friend WithEvents txtReturnLevel As TextBox
+    Friend WithEvents Label54 As Label
+    Friend WithEvents GroupBox10 As GroupBox
+    Friend WithEvents Label53 As Label
+    Friend WithEvents txtElevatorSpeed As TextBox
+    Friend WithEvents Label55 As Label
+    Friend WithEvents Label56 As Label
+    Friend WithEvents txtElevatorAccel As TextBox
+    Friend WithEvents Label57 As Label
+    Friend WithEvents Label62 As Label
+    Friend WithEvents txtTrayTransferTime As TextBox
+    Friend WithEvents Label63 As Label
+    Friend WithEvents txtUnloadLevel As TextBox
+    Friend WithEvents Label61 As Label
+    Friend WithEvents txtLoadLevel As TextBox
+    Friend WithEvents Label59 As Label
+    Friend WithEvents Label66 As Label
+    Friend WithEvents txtUnloaderRetractionTime As TextBox
+    Friend WithEvents Label67 As Label
+    Friend WithEvents Label64 As Label
+    Friend WithEvents txtBoxUnloadingTime As TextBox
+    Friend WithEvents Label65 As Label
+    Friend WithEvents Label58 As Label
+    Friend WithEvents txtBoxLoadingTime As TextBox
+    Friend WithEvents Label60 As Label
+    Friend WithEvents Label68 As Label
+    Friend WithEvents txtLevelCenterDist As TextBox
+    Friend WithEvents Label69 As Label
+    Friend WithEvents GroupBox11 As GroupBox
+    Friend WithEvents txtLevelChoosing As ComboBox
+    Friend WithEvents Label81 As Label
+    Friend WithEvents Label76 As Label
+    Friend WithEvents txtDelayDemandTime As TextBox
+    Friend WithEvents Label79 As Label
+    Friend WithEvents chkDelayDemand As CheckBox
+    Friend WithEvents grpDemandProf As GroupBox
+    Friend WithEvents ComboBox2 As ComboBox
+    Friend WithEvents Label82 As Label
+    Friend WithEvents TextBox7 As TextBox
+    Friend WithEvents Label84 As Label
+    Friend WithEvents grpTunnelOrg As GroupBox
+    Friend WithEvents CheckBox3 As CheckBox
+    Friend WithEvents Label86 As Label
+    Friend WithEvents TextBox8 As TextBox
+    Friend WithEvents Label87 As Label
+    Friend WithEvents CheckBox4 As CheckBox
+    Friend WithEvents CheckBox2 As CheckBox
+    Friend WithEvents ToolTip1 As ToolTip
 End Class

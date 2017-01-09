@@ -17,50 +17,26 @@
     <Setting Name="Display_HighlightColor" Type="System.Drawing.Color" Scope="User">
       <Value Profile="(Default)">OliveDrab</Value>
     </Setting>
-    <Setting Name="Display_MinColor_Tray" Type="System.Drawing.Color" Scope="User">
+    <Setting Name="Display_MinColor_ForeColor" Type="System.Drawing.Color" Scope="User">
       <Value Profile="(Default)">Yellow</Value>
     </Setting>
-    <Setting Name="Display_MaxColor_Tray" Type="System.Drawing.Color" Scope="User">
+    <Setting Name="Display_MaxColor_ForeColor" Type="System.Drawing.Color" Scope="User">
       <Value Profile="(Default)">White</Value>
     </Setting>
-    <Setting Name="Display_MinColor_Conveyor" Type="System.Drawing.Color" Scope="User">
+    <Setting Name="Display_MinColor_BackColor" Type="System.Drawing.Color" Scope="User">
       <Value Profile="(Default)">Yellow</Value>
     </Setting>
-    <Setting Name="Display_MaxColor_Conveyor" Type="System.Drawing.Color" Scope="User">
+    <Setting Name="Display_MaxColor_BackColor" Type="System.Drawing.Color" Scope="User">
       <Value Profile="(Default)">White</Value>
-    </Setting>
-    <Setting Name="Display_MinColor_Ret" Type="System.Drawing.Color" Scope="User">
-      <Value Profile="(Default)">Red</Value>
-    </Setting>
-    <Setting Name="Display_MaxColor_Ret" Type="System.Drawing.Color" Scope="User">
-      <Value Profile="(Default)">192, 255, 255</Value>
-    </Setting>
-    <Setting Name="Display_MinColor_Center" Type="System.Drawing.Color" Scope="User">
-      <Value Profile="(Default)">192, 255, 255</Value>
-    </Setting>
-    <Setting Name="Display_MaxColor_Center" Type="System.Drawing.Color" Scope="User">
-      <Value Profile="(Default)">Red</Value>
-    </Setting>
-    <Setting Name="Display_MinColor_Surf" Type="System.Drawing.Color" Scope="User">
-      <Value Profile="(Default)">192, 255, 255</Value>
-    </Setting>
-    <Setting Name="Display_MaxColor_Surf" Type="System.Drawing.Color" Scope="User">
-      <Value Profile="(Default)">Red</Value>
-    </Setting>
-    <Setting Name="Display_MinColor_Pow" Type="System.Drawing.Color" Scope="User">
-      <Value Profile="(Default)">192, 255, 255</Value>
-    </Setting>
-    <Setting Name="Display_MaxColor_Pow" Type="System.Drawing.Color" Scope="User">
-      <Value Profile="(Default)">Red</Value>
     </Setting>
     <Setting Name="Main_PlaybackSpeed" Type="System.Int64" Scope="User">
       <Value Profile="(Default)">8</Value>
     </Setting>
-    <Setting Name="Display_FrozenColor" Type="System.Drawing.Color" Scope="User">
-      <Value Profile="(Default)">Blue</Value>
+    <Setting Name="DisplayParameterForeColor" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">0</Value>
     </Setting>
-    <Setting Name="Display_UnfrozenColor" Type="System.Drawing.Color" Scope="User">
-      <Value Profile="(Default)">Red</Value>
+    <Setting Name="DisplayParameterBackColor" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">0</Value>
     </Setting>
   </Settings>
 </SettingsFile>

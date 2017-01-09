@@ -66,8 +66,20 @@ Public Class MainWindow
         chkSaturdayProd.Checked = VRTM_SimVariables.ProductionDays(5)
         chkSundayProd.Checked = VRTM_SimVariables.ProductionDays(6)
 
+        txtLevelChoosing.SelectedIndex = VRTM_SimVariables.LevelChoosing
+
         txtTotalSimTime.Text = Trim(Str(VRTM_SimVariables.TotalSimTime / (3600 * 24)))
         txtMinimumSimDT.Text = Trim(Str(VRTM_SimVariables.MinimumSimDt))
+        txtElevatorSpeed.Text = Trim(Str(VRTM_SimVariables.ElevSpeed))
+        txtElevatorAccel.Text = Trim(Str(VRTM_SimVariables.ElevAccel))
+        txtLevelCenterDist.Text = Trim(Str(VRTM_SimVariables.LevelCenterDist))
+        txtLoadLevel.Text = Trim(Str(VRTM_SimVariables.LoadLevel))
+        txtUnloadLevel.Text = Trim(Str(VRTM_SimVariables.UnloadLevel))
+        txtReturnLevel.Text = Trim(Str(VRTM_SimVariables.ReturnLevel))
+        txtTrayTransferTime.Text = Trim(Str(VRTM_SimVariables.TrayTransferTime))
+        txtBoxLoadingTime.Text = Trim(Str(VRTM_SimVariables.BoxLoadingTime))
+        txtBoxUnloadingTime.Text = Trim(Str(VRTM_SimVariables.BoxUnloadingTime))
+        txtUnloaderRetractionTime.Text = Trim(Str(VRTM_SimVariables.UnloaderRetractionTime))
         txtAcceptedDt.Text = Trim(Str(VRTM_SimVariables.AssumedDTForPreviews))
 
         'Puts in public memory the food properties model table (many products available from settings)
@@ -455,30 +467,61 @@ Public Class MainWindow
 #End Region
 
 #Region "Validations ====Tab Demand===="
-
+    Private Sub txtLevelChoosing_SelectedIndexChanged(sender As Object, e As EventArgs) Handles txtLevelChoosing.SelectedIndexChanged
+        VRTM_SimVariables.LevelChoosing = txtLevelChoosing.SelectedIndex
+        Select Case txtLevelChoosing.SelectedIndex
+            Case 0 'Production
+                grpDemandProf.Enabled = False
+                grpTunnelOrg.Enabled = True
+            Case 1 'Demand
+                grpDemandProf.Enabled = True
+                grpTunnelOrg.Enabled = True
+            Case 2 'Rnd
+                grpDemandProf.Enabled = False
+                grpTunnelOrg.Enabled = True
+        End Select
+    End Sub
 #End Region
 
 #Region "Validations ====Tab Simulation Parameters===="
     Private Sub Validate_SimulationTab(ByVal sender As Object, ByVal e As System.ComponentModel.CancelEventArgs) Handles _
-        txtTotalSimTime.Validating, txtMinimumSimDT.Validating
-        'Validates the safety factor between 1.0 and 5.0
-        If Not (IsNumeric(sender.Text) And Val(sender.text) > 0) Then
+        txtTotalSimTime.Validating, txtMinimumSimDT.Validating, txtReturnLevel.Validating, txtLoadLevel.Validating, txtUnloadLevel.Validating,
+        txtElevatorAccel.Validating, txtElevatorSpeed.Validating, txtTrayTransferTime.Validating, txtBoxUnloadingTime.Validating, txtBoxLoadingTime.Validating,
+        txtUnloaderRetractionTime.Validating
+        If (Not (IsNumeric(sender.Text) And Val(sender.text) > 0)) Or
+            ((sender.Name = txtReturnLevel.Name Or sender.Name = txtLoadLevel.Name Or sender.Name = txtUnloadLevel.Name) AndAlso (Int(Val(sender.text)) > VRTM_SimVariables.nLevels Or Int(Val(sender.text)) < 0)) Then
             ' Cancel the event and select the text to be corrected by the user.
             e.Cancel = True
             sender.Select(0, sender.Text.Length)
 
             ' Set the ErrorProvider error with the text to display. 
-            ErrorProvider1.SetError(sender, "The simulation times must be larger than 0")
+            If (sender.Name = txtReturnLevel.Name Or sender.Name = txtLoadLevel.Name Or sender.Name = txtUnloadLevel.Name) Then
+                ErrorProvider1.SetError(sender, "The load/unload/return level must be between 1 and the last level number")
+            Else
+                ErrorProvider1.SetError(sender, "The simulation times must be larger than 0")
+            End If
         End If
     End Sub
 
     Private Sub Validated_SimulationTab(ByVal sender As Object, ByVal e As System.EventArgs) Handles _
-        txtTotalSimTime.Validated, txtMinimumSimDT.Validated
+        txtTotalSimTime.Validated, txtMinimumSimDT.Validated, txtReturnLevel.Validated, txtLoadLevel.Validated, txtUnloadLevel.Validated,
+        txtElevatorAccel.Validated, txtElevatorSpeed.Validated, txtTrayTransferTime.Validated, txtBoxUnloadingTime.Validated, txtBoxLoadingTime.Validated,
+        txtUnloaderRetractionTime.Validated
         ' If all conditions have been met, clear the error provider of errors.
         ErrorProvider1.SetError(sender, "")
 
         VRTM_SimVariables.TotalSimTime = Val(txtTotalSimTime.Text) * 24 * 3600
         VRTM_SimVariables.MinimumSimDt = Val(txtMinimumSimDT.Text)
+        VRTM_SimVariables.ElevSpeed = Val(txtElevatorSpeed.Text)
+        VRTM_SimVariables.ElevAccel = Val(txtElevatorAccel.Text)
+        VRTM_SimVariables.LevelCenterDist = Val(txtLevelCenterDist.Text)
+        VRTM_SimVariables.LoadLevel = Int(Val(txtLoadLevel.Text))
+        VRTM_SimVariables.UnloadLevel = Int(Val(txtUnloadLevel.Text))
+        VRTM_SimVariables.ReturnLevel = Int(Val(txtReturnLevel.Text))
+        VRTM_SimVariables.TrayTransferTime = Val(txtTrayTransferTime.Text)
+        VRTM_SimVariables.BoxLoadingTime = Val(txtBoxLoadingTime.Text)
+        VRTM_SimVariables.BoxUnloadingTime = Val(txtBoxUnloadingTime.Text)
+        VRTM_SimVariables.UnloaderRetractionTime = Val(txtUnloaderRetractionTime.Text)
 
         VRTM_SimVariables.AssumedDTForPreviews = Val(txtAcceptedDt.Text)
     End Sub
@@ -636,176 +679,119 @@ Public Class MainWindow
                 VRTMTable.Rows(Simulation_Results.TrayEntryLevels(Simulation_Results.TrayEntryPositions(thisT_index))).HeaderCell.Style.BackColor = My.Settings.Display_HighlightColor
             End If
 
-            'Highlights 
-            Select Case My.Settings.DisplayParameter
-                Case 0 'Tray Index
-                    lblDisplayVariable.Text = "Displaying Tray Index"
-
-                    Dim min As Long = Long.MaxValue
-                    Dim max As Long = Long.MinValue
-                    If My.Settings.Display_boolConditionalFormatting Then
-                        'Gets the minimum and maximum to make colors
-                        Dim idx As Long
-                        For I As Integer = 0 To VRTM_SimVariables.nTrays - 1
-                            For J As Integer = 0 To VRTM_SimVariables.nLevels - 1
-                                idx = Simulation_Results.VRTMTrayData(thisT_index, I, J).TrayIndex
-                                If min > idx Then min = idx
-                                If max < idx Then max = idx
-                            Next
-                        Next
-                    End If
-
-                    Dim ColorPos As Double
-                    For I As Integer = 0 To VRTM_SimVariables.nTrays - 1
-                        For J As Integer = 0 To VRTM_SimVariables.nLevels - 1
-                            If Simulation_Results.VRTMTrayData(thisT_index, I, J).TrayIndex = 0 Then
-                                VRTMTable.Item(I, J).Value = ""
-                                VRTMTable.Item(I, J).Style.BackColor = Color.FromArgb(255, 255, 204)
-                            Else
-                                VRTMTable.Item(I, J).Value = Simulation_Results.VRTMTrayData(thisT_index, I, J).TrayIndex
-                                If My.Settings.Display_boolConditionalFormatting Then
-                                    'Colors the trays according to index
-                                    ColorPos = (Simulation_Results.VRTMTrayData(thisT_index, I, J).TrayIndex - min) / (max - min)
-                                    VRTMTable.Item(I, J).Style.BackColor = Interpolate_Color(ColorPos, My.Settings.Display_MinColor_Tray, My.Settings.Display_MaxColor_Tray)
-                                Else
-                                    'Colors the trays according to whether it's frozen
-                                    If hsSimPosition.Value - Simulation_Results.TrayEntryTimes(Simulation_Results.VRTMTrayData(thisT_index, I, J).TrayIndex) >=
-                                        VRTM_SimVariables.InletConveyors(Simulation_Results.VRTMTrayData(thisT_index, I, J).ConveyorIndex).MinRetTime * 3600 Then
-                                        'It's frozen
-                                        VRTMTable.Item(I, J).Style.BackColor = My.Settings.Display_FrozenColor
-                                    Else
-                                        'It's not frozen yet
-                                        VRTMTable.Item(I, J).Style.BackColor = My.Settings.Display_UnfrozenColor
-                                    End If
-                                End If
-                            End If
-                            If VRTMTable.Item(I, J).Style.BackColor.GetBrightness <= 0.5 Then
-                                'Changes the text color according to brightness to ensure visibility
-                                VRTMTable.Item(I, J).Style.ForeColor = Color.White
-                            Else
-                                VRTMTable.Item(I, J).Style.ForeColor = Color.Black
-                            End If
-                        Next
-                    Next
-                Case 1 'Conveyor Index
-                    lblDisplayVariable.Text = "Displaying Conveyor Index"
-
-                    Dim min As Long = Long.MaxValue
-                    Dim max As Long = Long.MinValue
-                    If My.Settings.Display_boolConditionalFormatting Then
-                        'Gets the minimum and maximum to make colors
-                        Dim idx As Long
-                        For I As Integer = 0 To VRTM_SimVariables.nTrays - 1
-                            For J As Integer = 0 To VRTM_SimVariables.nLevels - 1
-                                idx = Simulation_Results.VRTMTrayData(thisT_index, I, J).ConveyorIndex
-                                If idx <> 0 Then
-                                    If min > idx Then min = idx
-                                    If max < idx Then max = idx
-                                End If
-                            Next
-                        Next
-                    End If
-
-                    Dim ColorPos As Double
-                    For I As Integer = 0 To VRTM_SimVariables.nTrays - 1
-                        For J As Integer = 0 To VRTM_SimVariables.nLevels - 1
-                            If Simulation_Results.VRTMTrayData(thisT_index, I, J).ConveyorIndex = -1 Then
-                                VRTMTable.Item(I, J).Value = ""
-                                VRTMTable.Item(I, J).Style.BackColor = Color.FromArgb(255, 255, 204)
-                            Else
-                                VRTMTable.Item(I, J).Value = Simulation_Results.VRTMTrayData(thisT_index, I, J).ConveyorIndex
-                                If My.Settings.Display_boolConditionalFormatting Then
-                                    'Colors the trays according to index
-                                    ColorPos = (Simulation_Results.VRTMTrayData(thisT_index, I, J).ConveyorIndex - min) / (max - min)
-                                    VRTMTable.Item(I, J).Style.BackColor = Interpolate_Color(ColorPos, My.Settings.Display_MinColor_Conveyor, My.Settings.Display_MaxColor_Conveyor)
-                                Else
-                                    'Colors the trays according to whether it's frozen
-                                    If hsSimPosition.Value - Simulation_Results.TrayEntryTimes(Simulation_Results.VRTMTrayData(thisT_index, I, J).TrayIndex) >=
-                                        VRTM_SimVariables.InletConveyors(Simulation_Results.VRTMTrayData(thisT_index, I, J).ConveyorIndex).MinRetTime * 3600 Then
-                                        'It's frozen
-                                        VRTMTable.Item(I, J).Style.BackColor = My.Settings.Display_FrozenColor
-                                    Else
-                                        'It's not frozen yet
-                                        VRTMTable.Item(I, J).Style.BackColor = My.Settings.Display_UnfrozenColor
-                                    End If
-                                End If
-                            End If
-                            If VRTMTable.Item(I, J).Style.BackColor.GetBrightness <= 0.5 Then
-                                'Changes the text color according to brightness to ensure visibility
-                                VRTMTable.Item(I, J).Style.ForeColor = Color.White
-                            Else
-                                VRTMTable.Item(I, J).Style.ForeColor = Color.Black
-                            End If
-                        Next
-                    Next
-                Case 2 'Retention Time
-                    lblDisplayVariable.Text = "Displaying Retention Time [h]"
-
-                    Dim min As Long = Long.MaxValue
-                    Dim max As Long = Long.MinValue
-                    Dim idx As Long
-                    Dim t As Double
-
-                    If My.Settings.Display_boolConditionalFormatting Then
-                        'Gets the minimum and maximum to make colors
-                        For I As Integer = 0 To VRTM_SimVariables.nTrays - 1
-                            For J As Integer = 0 To VRTM_SimVariables.nLevels - 1
-                                idx = Simulation_Results.VRTMTrayData(thisT_index, I, J).TrayIndex
-                                t = hsSimPosition.Value - Simulation_Results.TrayEntryTimes(idx)
-                                If t > 0 And idx <> 0 Then
-                                    If min > t Then min = t
-                                    If max < t Then max = t
-                                End If
-                            Next
-                        Next
-                    End If
-
-                    Dim ColorPos As Double
-                    For I As Integer = 0 To VRTM_SimVariables.nTrays - 1
-                        For J As Integer = 0 To VRTM_SimVariables.nLevels - 1
-                            idx = Simulation_Results.VRTMTrayData(thisT_index, I, J).TrayIndex
-                            t = hsSimPosition.Value - Simulation_Results.TrayEntryTimes(idx)
-                            If idx = 0 Or t <= 0 Then
-                                VRTMTable.Item(I, J).Value = ""
-                                VRTMTable.Item(I, J).Style.BackColor = Color.FromArgb(255, 255, 204)
-                            Else
-                                VRTMTable.Item(I, J).Value = Round(t / 3600, 1)
-                                If My.Settings.Display_boolConditionalFormatting Then
-                                    'Colors the trays according to index
-                                    ColorPos = (t - min) / (max - min)
-                                    VRTMTable.Item(I, J).Style.BackColor = Interpolate_Color(ColorPos, My.Settings.Display_MinColor_Ret, My.Settings.Display_MaxColor_Ret)
-                                Else
-                                    'Colors the trays according to whether it's frozen
-                                    If hsSimPosition.Value - Simulation_Results.TrayEntryTimes(Simulation_Results.VRTMTrayData(thisT_index, I, J).TrayIndex) >=
-                                        VRTM_SimVariables.InletConveyors(Simulation_Results.VRTMTrayData(thisT_index, I, J).ConveyorIndex).MinRetTime * 3600 Then
-                                        'It's frozen
-                                        VRTMTable.Item(I, J).Style.BackColor = My.Settings.Display_FrozenColor
-                                    Else
-                                        'It's not frozen yet
-                                        VRTMTable.Item(I, J).Style.BackColor = My.Settings.Display_UnfrozenColor
-                                    End If
-                                End If
-                                If VRTMTable.Item(I, J).Style.BackColor.GetBrightness <= 0.5 Then
-                                    'Changes the text color according to brightness to ensure visibility
-                                    VRTMTable.Item(I, J).Style.ForeColor = Color.White
-                                Else
-                                    VRTMTable.Item(I, J).Style.ForeColor = Color.Black
-                                End If
-                            End If
-                        Next
-                    Next
-                Case 3 'Center Temperature
-                    lblDisplayVariable.Text = "Displaying Center Temperature [ºC]"
-
-                Case 4 'Surface Temperature
-                    lblDisplayVariable.Text = "Displaying Surface Temperature [ºC]"
-
-                Case 5 'Power Released
-                    lblDisplayVariable.Text = "Displaying Power Released [W]"
-
-            End Select
-
+            'Highlights all the other cells according to the rules
+            For I As Integer = 0 To VRTM_SimVariables.nTrays - 1
+                For J As Integer = 0 To VRTM_SimVariables.nLevels - 1
+                    UpdateDGVCell(thisT_index, I, J)
+                Next
+            Next
         End If
+
+    End Sub
+
+    Private Sub UpdateDGVCell(T As Long, Tray As Integer, Level As Integer)
+        'This routine updates a given cell in the table and all its properties
+
+        With VRTMTable.Item(Tray, Level)
+
+            'Computes the values of the variables for this cell
+            Dim TrayIndex As Long
+            Dim Conveyor As Long
+            TrayIndex = Simulation_Results.VRTMTrayData(T, Tray, Level).TrayIndex
+            Conveyor = Simulation_Results.VRTMTrayData(T, Tray, Level).ConveyorIndex
+
+            If TrayIndex = 0 Or T <= 0 Or Conveyor = -1 Then
+                'Doesn't apply colors if there is an empty tray here
+                .Value = ""
+                .Style.BackColor = Color.FromArgb(255, 255, 204)
+                .ToolTipText = ""
+            Else
+                'There is indeed a tray here, computes the colors
+                Dim RetTime As Double
+                Dim CenterTemp As Double
+                Dim SurfTemp As Double
+                Dim Power As Double
+                Dim Frozen As Boolean
+                RetTime = (hsSimPosition.Value - Simulation_Results.TrayEntryTimes(TrayIndex)) / 3600
+                Frozen = RetTime >= VRTM_SimVariables.InletConveyors(Conveyor).MinRetTime
+
+                Select Case My.Settings.DisplayParameter
+                    Case 0 'Tray Index
+                        .Value = TrayIndex
+                    Case 1 'Conveyor Index
+                        .Value = Conveyor
+                    Case 2 'Retention Time
+                        .Value = Int(RetTime * 10) / 10
+                    Case 3 'Center T
+                    Case 4 'Surf T
+                    Case 5 'Power
+                End Select
+
+                Dim ColorPos As Double
+                Select Case My.Settings.DisplayParameterForeColor
+                    Case 0 'Tray Index
+                        ColorPos = TrayIndex / UBound(Simulation_Results.TrayEntryTimes)
+                        .Style.ForeColor = Interpolate_Color(ColorPos, My.Settings.Display_MinColor_ForeColor, My.Settings.Display_MaxColor_ForeColor)
+                    Case 1 'Conveyor Index
+                        ColorPos = Conveyor / UBound(VRTM_SimVariables.InletConveyors)
+                        .Style.ForeColor = Interpolate_Color(ColorPos, My.Settings.Display_MinColor_ForeColor, My.Settings.Display_MaxColor_ForeColor)
+                    Case 2 'Retention Time
+                        ColorPos = RetTime / VRTM_SimVariables.InletConveyors(Conveyor).MinRetTime
+                        .Style.ForeColor = Interpolate_Color(ColorPos, My.Settings.Display_MinColor_ForeColor, My.Settings.Display_MaxColor_ForeColor)
+                    Case 3 'Center T
+                    Case 4 'Surf T
+                    Case 5 'Power
+                    Case 6 'Bool Frozen
+                        If Frozen Then
+                            .Style.ForeColor = My.Settings.Display_MinColor_ForeColor
+                        Else
+                            .Style.ForeColor = My.Settings.Display_MaxColor_ForeColor
+                        End If
+                    Case 7 'Always use minimum
+                        .Style.ForeColor = My.Settings.Display_MinColor_ForeColor
+                End Select
+
+                Select Case My.Settings.DisplayParameterBackColor
+                    Case 0 'Tray Index
+                        ColorPos = TrayIndex / UBound(Simulation_Results.TrayEntryTimes)
+                        .Style.BackColor = Interpolate_Color(ColorPos, My.Settings.Display_MinColor_BackColor, My.Settings.Display_MaxColor_BackColor)
+                    Case 1 'Conveyor Index
+                        ColorPos = Conveyor / UBound(VRTM_SimVariables.InletConveyors)
+                        .Style.BackColor = Interpolate_Color(ColorPos, My.Settings.Display_MinColor_BackColor, My.Settings.Display_MaxColor_BackColor)
+                    Case 2 'Retention Time
+                        ColorPos = RetTime / VRTM_SimVariables.InletConveyors(Conveyor).MinRetTime
+                        .Style.BackColor = Interpolate_Color(ColorPos, My.Settings.Display_MinColor_BackColor, My.Settings.Display_MaxColor_BackColor)
+                    Case 3 'Center T
+                    Case 4 'Surf T
+                    Case 5 'Power
+                    Case 6 'Bool Frozen
+                        If Frozen Then
+                            .Style.BackColor = My.Settings.Display_MinColor_BackColor
+                        Else
+                            .Style.BackColor = My.Settings.Display_MaxColor_BackColor
+                        End If
+                    Case 7 'Always use minimum
+                        .Style.BackColor = My.Settings.Display_MinColor_BackColor
+                End Select
+
+                'Sets a tooltip
+                .ToolTipText = "Tray Index: " & Trim(Str(TrayIndex)) & vbCrLf &
+                    "Conveyor: " & VRTM_SimVariables.InletConveyors(Conveyor).ConveyorTag & "(Idx " & Trim(Str(Conveyor)) & ")" & vbCrLf &
+                    "Current Ret. Time: " & Trim(Str(Int(RetTime * 10) / 10)) & " h/" & Trim(Str(VRTM_SimVariables.InletConveyors(Conveyor).MinRetTime)) & " h" & vbCrLf &
+                    "Center Temperature: " & Trim(Str(0)) & " ºC" & vbCrLf &
+                    "Surface Temperature: " & Trim(Str(0)) & " ºC" & vbCrLf &
+                    "Instantaneous Power Exchanged: " & Trim(Str(0)) & " W" & vbCrLf & vbCrLf & "Boxes in This Tray:"
+
+                'Adds the box/product list [index of product, quantity]
+                For Each i As KeyValuePair(Of Long, Long) In Simulation_Results.VRTMTrayData(T, Tray, Level).ProductIndices
+                    .ToolTipText = .ToolTipText & vbCrLf & Trim(Str(i.Value)) & "x " & VRTM_SimVariables.ProductMix(i.Key).ProdName
+                Next
+
+
+            End If
+
+
+        End With
 
     End Sub
 
@@ -846,8 +832,6 @@ Public Class MainWindow
             End If
         End If
     End Sub
-
-
 
 #End Region
 
@@ -893,6 +877,7 @@ Public Class MainWindow
 
 
     End Sub
+
 #End Region
 
 
