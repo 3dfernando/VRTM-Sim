@@ -43,8 +43,15 @@
 
         '----Variables under Demand Tab----
         Public LevelChoosing As Integer '0=Production, 1=Demand, 2=Random
-        Public DelayDemand As Boolean
-        Public DelayDemandTime As Integer
+        Public DelayDemand As Boolean 'Whether it delays the demand algorithm so the TRVM can have enough product
+        Public DelayDemandTime As Integer 'Delay time (in days) if DelayDemand is true
+        Public EnableIdleReshelving As Boolean 'Enables the reshelving algorithm to kick in
+        Public MinimumReshelvingWindow As Double 'Minimum window [h] that is needed for the reshelving algorithm to kick in
+        Public EnableImprovedWeekendStrat As Boolean 'Enables a longer strategy that will ensure more product is available
+        Public PickingOrders As Integer 'List of indices for the picking orders 0=Random Picking, 1=From File
+        Public RandomBias As Boolean 'In random picking orders, enables the random bias towards a given product during a random time
+        Public ExternalDemandProfilePath As String 'In "From File" picking orders, stores the file path of the product picking order
+
 
         '----Variables under Simulation Params Tab----
         Public TotalSimTime As Double 'Total simulation time in [s]
@@ -111,6 +118,14 @@
             Me.ProductionDays = {True, True, True, True, True, False, False}
 
             Me.LevelChoosing = 2
+            Me.DelayDemand = True
+            Me.DelayDemandTime = 2
+            Me.EnableIdleReshelving = True
+            Me.MinimumReshelvingWindow = 4
+            Me.EnableImprovedWeekendStrat = True
+            Me.PickingOrders = 0
+            Me.RandomBias = True
+            Me.ExternalDemandProfilePath = ""
 
             Me.TotalSimTime = 3600 * 24 * 7
             Me.MinimumSimDt = 100
@@ -373,8 +388,8 @@ TryAgain:
         Public TrayStayTime() As Double 'Array of stay times for each tray
         Public TrayAirTemperatures() As Double 'Air temperatures on the trays
         Public TrayEntryLevels() As Double 'Array of levels where each tray was entering onto for the tray index mentioned in TRVMTrayIndices
-        Public Elevator As TrayData 'Representation of the tray in the elevator
-        Public EmptyElevator As Boolean 'Number of the elevator that is empty (FALSE = left, TRUE = right)
+        Public Elevator() As TrayData 'Representation of the tray in the elevator
+        Public EmptyElevator As Boolean 'Number of the elevator that is empty (FALSE = left [A], TRUE = right [B])
 
         Public SimulationComplete As Boolean = False
     End Class

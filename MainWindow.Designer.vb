@@ -162,6 +162,25 @@ Partial Class MainWindow
         Me.txtAvgBoxflowIn = New System.Windows.Forms.TextBox()
         Me.Label21 = New System.Windows.Forms.Label()
         Me.ProdStats = New System.Windows.Forms.TabPage()
+        Me.grpTunnelOrg = New System.Windows.Forms.GroupBox()
+        Me.chkImprovedWeekendStrat = New System.Windows.Forms.CheckBox()
+        Me.chkIdleHoursReshelving = New System.Windows.Forms.CheckBox()
+        Me.Label86 = New System.Windows.Forms.Label()
+        Me.txtMinimumReshelvingWindow = New System.Windows.Forms.TextBox()
+        Me.Label87 = New System.Windows.Forms.Label()
+        Me.grpDemandProf = New System.Windows.Forms.GroupBox()
+        Me.chkRandomPickingBias = New System.Windows.Forms.CheckBox()
+        Me.txtPickingOrderProfile = New System.Windows.Forms.ComboBox()
+        Me.Label82 = New System.Windows.Forms.Label()
+        Me.txtExternalDemandProfileFile = New System.Windows.Forms.TextBox()
+        Me.Label84 = New System.Windows.Forms.Label()
+        Me.GroupBox11 = New System.Windows.Forms.GroupBox()
+        Me.chkDelayDemand = New System.Windows.Forms.CheckBox()
+        Me.txtLevelChoosing = New System.Windows.Forms.ComboBox()
+        Me.Label81 = New System.Windows.Forms.Label()
+        Me.Label76 = New System.Windows.Forms.Label()
+        Me.txtDelayDemandTime = New System.Windows.Forms.TextBox()
+        Me.Label79 = New System.Windows.Forms.Label()
         Me.SimParams = New System.Windows.Forms.TabPage()
         Me.GroupBox10 = New System.Windows.Forms.GroupBox()
         Me.Label68 = New System.Windows.Forms.Label()
@@ -208,32 +227,12 @@ Partial Class MainWindow
         Me.lblCurrentPos = New System.Windows.Forms.Label()
         Me.hsSimPosition = New System.Windows.Forms.HScrollBar()
         Me.VRTMTable = New System.Windows.Forms.DataGridView()
-        Me.Button1 = New System.Windows.Forms.Button()
         Me.ErrorProvider1 = New System.Windows.Forms.ErrorProvider(Me.components)
         Me.ErrorProvider2 = New System.Windows.Forms.ErrorProvider(Me.components)
         Me.tmrPlayback = New System.Windows.Forms.Timer(Me.components)
         Me.SaveFileDialog1 = New System.Windows.Forms.SaveFileDialog()
         Me.OpenFileDialog1 = New System.Windows.Forms.OpenFileDialog()
         Me.BindingSource1 = New System.Windows.Forms.BindingSource(Me.components)
-        Me.GroupBox11 = New System.Windows.Forms.GroupBox()
-        Me.Label76 = New System.Windows.Forms.Label()
-        Me.txtDelayDemandTime = New System.Windows.Forms.TextBox()
-        Me.Label79 = New System.Windows.Forms.Label()
-        Me.Label81 = New System.Windows.Forms.Label()
-        Me.txtLevelChoosing = New System.Windows.Forms.ComboBox()
-        Me.chkDelayDemand = New System.Windows.Forms.CheckBox()
-        Me.grpDemandProf = New System.Windows.Forms.GroupBox()
-        Me.ComboBox2 = New System.Windows.Forms.ComboBox()
-        Me.Label82 = New System.Windows.Forms.Label()
-        Me.TextBox7 = New System.Windows.Forms.TextBox()
-        Me.Label84 = New System.Windows.Forms.Label()
-        Me.grpTunnelOrg = New System.Windows.Forms.GroupBox()
-        Me.CheckBox3 = New System.Windows.Forms.CheckBox()
-        Me.Label86 = New System.Windows.Forms.Label()
-        Me.TextBox8 = New System.Windows.Forms.TextBox()
-        Me.Label87 = New System.Windows.Forms.Label()
-        Me.CheckBox4 = New System.Windows.Forms.CheckBox()
-        Me.CheckBox2 = New System.Windows.Forms.CheckBox()
         Me.ToolTip1 = New System.Windows.Forms.ToolTip(Me.components)
         CType(Me.Divisor1, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.Divisor1.Panel1.SuspendLayout()
@@ -257,13 +256,15 @@ Partial Class MainWindow
         Me.GroupBox8.SuspendLayout()
         Me.GroupBox5.SuspendLayout()
         Me.ProdStats.SuspendLayout()
+        Me.grpTunnelOrg.SuspendLayout()
+        Me.grpDemandProf.SuspendLayout()
+        Me.GroupBox11.SuspendLayout()
         Me.SimParams.SuspendLayout()
         Me.GroupBox10.SuspendLayout()
         Me.GroupBox4.SuspendLayout()
         Me.GroupBox9.SuspendLayout()
         CType(Me.Divisor2, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.Divisor2.Panel1.SuspendLayout()
-        Me.Divisor2.Panel2.SuspendLayout()
         Me.Divisor2.SuspendLayout()
         CType(Me.MidPanel, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.MidPanel.Panel1.SuspendLayout()
@@ -273,9 +274,6 @@ Partial Class MainWindow
         CType(Me.ErrorProvider1, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.ErrorProvider2, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.BindingSource1, System.ComponentModel.ISupportInitialize).BeginInit()
-        Me.GroupBox11.SuspendLayout()
-        Me.grpDemandProf.SuspendLayout()
-        Me.grpTunnelOrg.SuspendLayout()
         Me.SuspendLayout()
         '
         'Divisor1
@@ -1628,6 +1626,200 @@ Partial Class MainWindow
         Me.ProdStats.Text = "Demand"
         Me.ProdStats.UseVisualStyleBackColor = True
         '
+        'grpTunnelOrg
+        '
+        Me.grpTunnelOrg.Controls.Add(Me.chkImprovedWeekendStrat)
+        Me.grpTunnelOrg.Controls.Add(Me.chkIdleHoursReshelving)
+        Me.grpTunnelOrg.Controls.Add(Me.Label86)
+        Me.grpTunnelOrg.Controls.Add(Me.txtMinimumReshelvingWindow)
+        Me.grpTunnelOrg.Controls.Add(Me.Label87)
+        Me.grpTunnelOrg.Location = New System.Drawing.Point(16, 128)
+        Me.grpTunnelOrg.Name = "grpTunnelOrg"
+        Me.grpTunnelOrg.Size = New System.Drawing.Size(211, 125)
+        Me.grpTunnelOrg.TabIndex = 55
+        Me.grpTunnelOrg.TabStop = False
+        Me.grpTunnelOrg.Text = "Tunnel Organization"
+        '
+        'chkImprovedWeekendStrat
+        '
+        Me.chkImprovedWeekendStrat.AutoSize = True
+        Me.chkImprovedWeekendStrat.Location = New System.Drawing.Point(10, 88)
+        Me.chkImprovedWeekendStrat.Name = "chkImprovedWeekendStrat"
+        Me.chkImprovedWeekendStrat.Size = New System.Drawing.Size(198, 17)
+        Me.chkImprovedWeekendStrat.TabIndex = 57
+        Me.chkImprovedWeekendStrat.Text = "Enable Improved Weekend Strategy"
+        Me.chkImprovedWeekendStrat.UseVisualStyleBackColor = True
+        '
+        'chkIdleHoursReshelving
+        '
+        Me.chkIdleHoursReshelving.AutoSize = True
+        Me.chkIdleHoursReshelving.Location = New System.Drawing.Point(10, 24)
+        Me.chkIdleHoursReshelving.Name = "chkIdleHoursReshelving"
+        Me.chkIdleHoursReshelving.Size = New System.Drawing.Size(166, 17)
+        Me.chkIdleHoursReshelving.TabIndex = 56
+        Me.chkIdleHoursReshelving.Text = "Enable Idle-Hours Reshelving"
+        Me.chkIdleHoursReshelving.UseVisualStyleBackColor = True
+        '
+        'Label86
+        '
+        Me.Label86.AutoSize = True
+        Me.Label86.Location = New System.Drawing.Point(177, 53)
+        Me.Label86.Name = "Label86"
+        Me.Label86.Size = New System.Drawing.Size(13, 13)
+        Me.Label86.TabIndex = 45
+        Me.Label86.Text = "h"
+        '
+        'txtMinimumReshelvingWindow
+        '
+        Me.txtMinimumReshelvingWindow.Enabled = False
+        Me.txtMinimumReshelvingWindow.Location = New System.Drawing.Point(106, 50)
+        Me.txtMinimumReshelvingWindow.Name = "txtMinimumReshelvingWindow"
+        Me.txtMinimumReshelvingWindow.Size = New System.Drawing.Size(65, 20)
+        Me.txtMinimumReshelvingWindow.TabIndex = 41
+        Me.txtMinimumReshelvingWindow.TextAlign = System.Windows.Forms.HorizontalAlignment.Right
+        '
+        'Label87
+        '
+        Me.Label87.AutoSize = True
+        Me.Label87.Location = New System.Drawing.Point(7, 53)
+        Me.Label87.Name = "Label87"
+        Me.Label87.Size = New System.Drawing.Size(93, 13)
+        Me.Label87.TabIndex = 2
+        Me.Label87.Text = "Minimum Window:"
+        '
+        'grpDemandProf
+        '
+        Me.grpDemandProf.Controls.Add(Me.chkRandomPickingBias)
+        Me.grpDemandProf.Controls.Add(Me.txtPickingOrderProfile)
+        Me.grpDemandProf.Controls.Add(Me.Label82)
+        Me.grpDemandProf.Controls.Add(Me.txtExternalDemandProfileFile)
+        Me.grpDemandProf.Controls.Add(Me.Label84)
+        Me.grpDemandProf.Location = New System.Drawing.Point(16, 259)
+        Me.grpDemandProf.Name = "grpDemandProf"
+        Me.grpDemandProf.Size = New System.Drawing.Size(211, 119)
+        Me.grpDemandProf.TabIndex = 54
+        Me.grpDemandProf.TabStop = False
+        Me.grpDemandProf.Text = "Demand Profile"
+        '
+        'chkRandomPickingBias
+        '
+        Me.chkRandomPickingBias.AutoSize = True
+        Me.chkRandomPickingBias.Location = New System.Drawing.Point(6, 55)
+        Me.chkRandomPickingBias.Name = "chkRandomPickingBias"
+        Me.chkRandomPickingBias.Size = New System.Drawing.Size(185, 17)
+        Me.chkRandomPickingBias.TabIndex = 57
+        Me.chkRandomPickingBias.Text = "Randomly Bias Towards Products"
+        Me.chkRandomPickingBias.UseVisualStyleBackColor = True
+        '
+        'txtPickingOrderProfile
+        '
+        Me.txtPickingOrderProfile.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
+        Me.txtPickingOrderProfile.FormattingEnabled = True
+        Me.txtPickingOrderProfile.Items.AddRange(New Object() {"Random", "From File..."})
+        Me.txtPickingOrderProfile.Location = New System.Drawing.Point(106, 25)
+        Me.txtPickingOrderProfile.Name = "txtPickingOrderProfile"
+        Me.txtPickingOrderProfile.Size = New System.Drawing.Size(95, 21)
+        Me.txtPickingOrderProfile.TabIndex = 55
+        '
+        'Label82
+        '
+        Me.Label82.AutoSize = True
+        Me.Label82.Location = New System.Drawing.Point(7, 28)
+        Me.Label82.Name = "Label82"
+        Me.Label82.Size = New System.Drawing.Size(79, 13)
+        Me.Label82.TabIndex = 54
+        Me.Label82.Text = "Picking Orders:"
+        '
+        'txtExternalDemandProfileFile
+        '
+        Me.txtExternalDemandProfileFile.Enabled = False
+        Me.txtExternalDemandProfileFile.Location = New System.Drawing.Point(106, 81)
+        Me.txtExternalDemandProfileFile.Name = "txtExternalDemandProfileFile"
+        Me.txtExternalDemandProfileFile.ReadOnly = True
+        Me.txtExternalDemandProfileFile.Size = New System.Drawing.Size(95, 20)
+        Me.txtExternalDemandProfileFile.TabIndex = 41
+        Me.txtExternalDemandProfileFile.TextAlign = System.Windows.Forms.HorizontalAlignment.Right
+        '
+        'Label84
+        '
+        Me.Label84.AutoSize = True
+        Me.Label84.Location = New System.Drawing.Point(7, 84)
+        Me.Label84.Name = "Label84"
+        Me.Label84.Size = New System.Drawing.Size(67, 13)
+        Me.Label84.TabIndex = 2
+        Me.Label84.Text = "External File:"
+        '
+        'GroupBox11
+        '
+        Me.GroupBox11.Controls.Add(Me.chkDelayDemand)
+        Me.GroupBox11.Controls.Add(Me.txtLevelChoosing)
+        Me.GroupBox11.Controls.Add(Me.Label81)
+        Me.GroupBox11.Controls.Add(Me.Label76)
+        Me.GroupBox11.Controls.Add(Me.txtDelayDemandTime)
+        Me.GroupBox11.Controls.Add(Me.Label79)
+        Me.GroupBox11.Location = New System.Drawing.Point(16, 6)
+        Me.GroupBox11.Name = "GroupBox11"
+        Me.GroupBox11.Size = New System.Drawing.Size(211, 116)
+        Me.GroupBox11.TabIndex = 4
+        Me.GroupBox11.TabStop = False
+        Me.GroupBox11.Text = "Shelving Strategy"
+        '
+        'chkDelayDemand
+        '
+        Me.chkDelayDemand.AutoSize = True
+        Me.chkDelayDemand.Location = New System.Drawing.Point(10, 55)
+        Me.chkDelayDemand.Name = "chkDelayDemand"
+        Me.chkDelayDemand.Size = New System.Drawing.Size(167, 17)
+        Me.chkDelayDemand.TabIndex = 56
+        Me.chkDelayDemand.Text = "Delay Demand During Startup"
+        Me.chkDelayDemand.UseVisualStyleBackColor = True
+        '
+        'txtLevelChoosing
+        '
+        Me.txtLevelChoosing.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
+        Me.txtLevelChoosing.FormattingEnabled = True
+        Me.txtLevelChoosing.Items.AddRange(New Object() {"Production", "Demand", "Random"})
+        Me.txtLevelChoosing.Location = New System.Drawing.Point(106, 25)
+        Me.txtLevelChoosing.Name = "txtLevelChoosing"
+        Me.txtLevelChoosing.Size = New System.Drawing.Size(95, 21)
+        Me.txtLevelChoosing.TabIndex = 55
+        '
+        'Label81
+        '
+        Me.Label81.AutoSize = True
+        Me.Label81.Location = New System.Drawing.Point(7, 28)
+        Me.Label81.Name = "Label81"
+        Me.Label81.Size = New System.Drawing.Size(83, 13)
+        Me.Label81.TabIndex = 54
+        Me.Label81.Text = "Level Choosing:"
+        '
+        'Label76
+        '
+        Me.Label76.AutoSize = True
+        Me.Label76.Location = New System.Drawing.Point(177, 80)
+        Me.Label76.Name = "Label76"
+        Me.Label76.Size = New System.Drawing.Size(29, 13)
+        Me.Label76.TabIndex = 45
+        Me.Label76.Text = "days"
+        '
+        'txtDelayDemandTime
+        '
+        Me.txtDelayDemandTime.Enabled = False
+        Me.txtDelayDemandTime.Location = New System.Drawing.Point(106, 77)
+        Me.txtDelayDemandTime.Name = "txtDelayDemandTime"
+        Me.txtDelayDemandTime.Size = New System.Drawing.Size(65, 20)
+        Me.txtDelayDemandTime.TabIndex = 41
+        Me.txtDelayDemandTime.TextAlign = System.Windows.Forms.HorizontalAlignment.Right
+        '
+        'Label79
+        '
+        Me.Label79.AutoSize = True
+        Me.Label79.Location = New System.Drawing.Point(7, 80)
+        Me.Label79.Name = "Label79"
+        Me.Label79.Size = New System.Drawing.Size(63, 13)
+        Me.Label79.TabIndex = 2
+        Me.Label79.Text = "Delay Time:"
+        '
         'SimParams
         '
         Me.SimParams.Controls.Add(Me.GroupBox10)
@@ -2024,10 +2216,6 @@ Partial Class MainWindow
         'Divisor2.Panel1
         '
         Me.Divisor2.Panel1.Controls.Add(Me.MidPanel)
-        '
-        'Divisor2.Panel2
-        '
-        Me.Divisor2.Panel2.Controls.Add(Me.Button1)
         Me.Divisor2.Size = New System.Drawing.Size(836, 792)
         Me.Divisor2.SplitterDistance = 433
         Me.Divisor2.TabIndex = 0
@@ -2098,15 +2286,6 @@ Partial Class MainWindow
         Me.VRTMTable.Size = New System.Drawing.Size(433, 734)
         Me.VRTMTable.TabIndex = 0
         '
-        'Button1
-        '
-        Me.Button1.Location = New System.Drawing.Point(59, 217)
-        Me.Button1.Name = "Button1"
-        Me.Button1.Size = New System.Drawing.Size(83, 64)
-        Me.Button1.TabIndex = 0
-        Me.Button1.Text = "Button1"
-        Me.Button1.UseVisualStyleBackColor = True
-        '
         'ErrorProvider1
         '
         Me.ErrorProvider1.ContainerControl = Me
@@ -2122,199 +2301,6 @@ Partial Class MainWindow
         'OpenFileDialog1
         '
         Me.OpenFileDialog1.FileName = "OpenFileDialog1"
-        '
-        'GroupBox11
-        '
-        Me.GroupBox11.Controls.Add(Me.chkDelayDemand)
-        Me.GroupBox11.Controls.Add(Me.txtLevelChoosing)
-        Me.GroupBox11.Controls.Add(Me.Label81)
-        Me.GroupBox11.Controls.Add(Me.Label76)
-        Me.GroupBox11.Controls.Add(Me.txtDelayDemandTime)
-        Me.GroupBox11.Controls.Add(Me.Label79)
-        Me.GroupBox11.Location = New System.Drawing.Point(16, 6)
-        Me.GroupBox11.Name = "GroupBox11"
-        Me.GroupBox11.Size = New System.Drawing.Size(211, 116)
-        Me.GroupBox11.TabIndex = 4
-        Me.GroupBox11.TabStop = False
-        Me.GroupBox11.Text = "Shelving Strategy"
-        '
-        'Label76
-        '
-        Me.Label76.AutoSize = True
-        Me.Label76.Location = New System.Drawing.Point(177, 80)
-        Me.Label76.Name = "Label76"
-        Me.Label76.Size = New System.Drawing.Size(29, 13)
-        Me.Label76.TabIndex = 45
-        Me.Label76.Text = "days"
-        '
-        'txtDelayDemandTime
-        '
-        Me.txtDelayDemandTime.Enabled = False
-        Me.txtDelayDemandTime.Location = New System.Drawing.Point(106, 77)
-        Me.txtDelayDemandTime.Name = "txtDelayDemandTime"
-        Me.txtDelayDemandTime.Size = New System.Drawing.Size(65, 20)
-        Me.txtDelayDemandTime.TabIndex = 41
-        Me.txtDelayDemandTime.TextAlign = System.Windows.Forms.HorizontalAlignment.Right
-        '
-        'Label79
-        '
-        Me.Label79.AutoSize = True
-        Me.Label79.Location = New System.Drawing.Point(7, 80)
-        Me.Label79.Name = "Label79"
-        Me.Label79.Size = New System.Drawing.Size(63, 13)
-        Me.Label79.TabIndex = 2
-        Me.Label79.Text = "Delay Time:"
-        '
-        'Label81
-        '
-        Me.Label81.AutoSize = True
-        Me.Label81.Location = New System.Drawing.Point(7, 28)
-        Me.Label81.Name = "Label81"
-        Me.Label81.Size = New System.Drawing.Size(83, 13)
-        Me.Label81.TabIndex = 54
-        Me.Label81.Text = "Level Choosing:"
-        '
-        'txtLevelChoosing
-        '
-        Me.txtLevelChoosing.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
-        Me.txtLevelChoosing.FormattingEnabled = True
-        Me.txtLevelChoosing.Items.AddRange(New Object() {"Production", "Demand", "Random"})
-        Me.txtLevelChoosing.Location = New System.Drawing.Point(106, 25)
-        Me.txtLevelChoosing.Name = "txtLevelChoosing"
-        Me.txtLevelChoosing.Size = New System.Drawing.Size(95, 21)
-        Me.txtLevelChoosing.TabIndex = 55
-        '
-        'chkDelayDemand
-        '
-        Me.chkDelayDemand.AutoSize = True
-        Me.chkDelayDemand.Location = New System.Drawing.Point(10, 55)
-        Me.chkDelayDemand.Name = "chkDelayDemand"
-        Me.chkDelayDemand.Size = New System.Drawing.Size(167, 17)
-        Me.chkDelayDemand.TabIndex = 56
-        Me.chkDelayDemand.Text = "Delay Demand During Startup"
-        Me.chkDelayDemand.UseVisualStyleBackColor = True
-        '
-        'grpDemandProf
-        '
-        Me.grpDemandProf.Controls.Add(Me.CheckBox2)
-        Me.grpDemandProf.Controls.Add(Me.ComboBox2)
-        Me.grpDemandProf.Controls.Add(Me.Label82)
-        Me.grpDemandProf.Controls.Add(Me.TextBox7)
-        Me.grpDemandProf.Controls.Add(Me.Label84)
-        Me.grpDemandProf.Location = New System.Drawing.Point(16, 259)
-        Me.grpDemandProf.Name = "grpDemandProf"
-        Me.grpDemandProf.Size = New System.Drawing.Size(211, 119)
-        Me.grpDemandProf.TabIndex = 54
-        Me.grpDemandProf.TabStop = False
-        Me.grpDemandProf.Text = "Demand Profile"
-        '
-        'ComboBox2
-        '
-        Me.ComboBox2.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
-        Me.ComboBox2.FormattingEnabled = True
-        Me.ComboBox2.Items.AddRange(New Object() {"From File...", "Random"})
-        Me.ComboBox2.Location = New System.Drawing.Point(106, 25)
-        Me.ComboBox2.Name = "ComboBox2"
-        Me.ComboBox2.Size = New System.Drawing.Size(95, 21)
-        Me.ComboBox2.TabIndex = 55
-        '
-        'Label82
-        '
-        Me.Label82.AutoSize = True
-        Me.Label82.Location = New System.Drawing.Point(7, 28)
-        Me.Label82.Name = "Label82"
-        Me.Label82.Size = New System.Drawing.Size(79, 13)
-        Me.Label82.TabIndex = 54
-        Me.Label82.Text = "Picking Orders:"
-        '
-        'TextBox7
-        '
-        Me.TextBox7.Enabled = False
-        Me.TextBox7.Location = New System.Drawing.Point(106, 81)
-        Me.TextBox7.Name = "TextBox7"
-        Me.TextBox7.Size = New System.Drawing.Size(95, 20)
-        Me.TextBox7.TabIndex = 41
-        Me.TextBox7.TextAlign = System.Windows.Forms.HorizontalAlignment.Right
-        '
-        'Label84
-        '
-        Me.Label84.AutoSize = True
-        Me.Label84.Location = New System.Drawing.Point(7, 84)
-        Me.Label84.Name = "Label84"
-        Me.Label84.Size = New System.Drawing.Size(67, 13)
-        Me.Label84.TabIndex = 2
-        Me.Label84.Text = "External File:"
-        '
-        'grpTunnelOrg
-        '
-        Me.grpTunnelOrg.Controls.Add(Me.CheckBox4)
-        Me.grpTunnelOrg.Controls.Add(Me.CheckBox3)
-        Me.grpTunnelOrg.Controls.Add(Me.Label86)
-        Me.grpTunnelOrg.Controls.Add(Me.TextBox8)
-        Me.grpTunnelOrg.Controls.Add(Me.Label87)
-        Me.grpTunnelOrg.Location = New System.Drawing.Point(16, 128)
-        Me.grpTunnelOrg.Name = "grpTunnelOrg"
-        Me.grpTunnelOrg.Size = New System.Drawing.Size(211, 125)
-        Me.grpTunnelOrg.TabIndex = 55
-        Me.grpTunnelOrg.TabStop = False
-        Me.grpTunnelOrg.Text = "Tunnel Organization"
-        '
-        'CheckBox3
-        '
-        Me.CheckBox3.AutoSize = True
-        Me.CheckBox3.Location = New System.Drawing.Point(10, 24)
-        Me.CheckBox3.Name = "CheckBox3"
-        Me.CheckBox3.Size = New System.Drawing.Size(166, 17)
-        Me.CheckBox3.TabIndex = 56
-        Me.CheckBox3.Text = "Enable Idle-Hours Reshelving"
-        Me.CheckBox3.UseVisualStyleBackColor = True
-        '
-        'Label86
-        '
-        Me.Label86.AutoSize = True
-        Me.Label86.Location = New System.Drawing.Point(177, 53)
-        Me.Label86.Name = "Label86"
-        Me.Label86.Size = New System.Drawing.Size(13, 13)
-        Me.Label86.TabIndex = 45
-        Me.Label86.Text = "h"
-        '
-        'TextBox8
-        '
-        Me.TextBox8.Enabled = False
-        Me.TextBox8.Location = New System.Drawing.Point(106, 50)
-        Me.TextBox8.Name = "TextBox8"
-        Me.TextBox8.Size = New System.Drawing.Size(65, 20)
-        Me.TextBox8.TabIndex = 41
-        Me.TextBox8.TextAlign = System.Windows.Forms.HorizontalAlignment.Right
-        '
-        'Label87
-        '
-        Me.Label87.AutoSize = True
-        Me.Label87.Location = New System.Drawing.Point(7, 53)
-        Me.Label87.Name = "Label87"
-        Me.Label87.Size = New System.Drawing.Size(93, 13)
-        Me.Label87.TabIndex = 2
-        Me.Label87.Text = "Minimum Window:"
-        '
-        'CheckBox4
-        '
-        Me.CheckBox4.AutoSize = True
-        Me.CheckBox4.Location = New System.Drawing.Point(10, 88)
-        Me.CheckBox4.Name = "CheckBox4"
-        Me.CheckBox4.Size = New System.Drawing.Size(198, 17)
-        Me.CheckBox4.TabIndex = 57
-        Me.CheckBox4.Text = "Enable Improved Weekend Strategy"
-        Me.CheckBox4.UseVisualStyleBackColor = True
-        '
-        'CheckBox2
-        '
-        Me.CheckBox2.AutoSize = True
-        Me.CheckBox2.Location = New System.Drawing.Point(6, 55)
-        Me.CheckBox2.Name = "CheckBox2"
-        Me.CheckBox2.Size = New System.Drawing.Size(185, 17)
-        Me.CheckBox2.TabIndex = 57
-        Me.CheckBox2.Text = "Randomly Bias Towards Products"
-        Me.CheckBox2.UseVisualStyleBackColor = True
         '
         'MainWindow
         '
@@ -2358,6 +2344,12 @@ Partial Class MainWindow
         Me.GroupBox5.ResumeLayout(False)
         Me.GroupBox5.PerformLayout()
         Me.ProdStats.ResumeLayout(False)
+        Me.grpTunnelOrg.ResumeLayout(False)
+        Me.grpTunnelOrg.PerformLayout()
+        Me.grpDemandProf.ResumeLayout(False)
+        Me.grpDemandProf.PerformLayout()
+        Me.GroupBox11.ResumeLayout(False)
+        Me.GroupBox11.PerformLayout()
         Me.SimParams.ResumeLayout(False)
         Me.GroupBox10.ResumeLayout(False)
         Me.GroupBox10.PerformLayout()
@@ -2366,7 +2358,6 @@ Partial Class MainWindow
         Me.GroupBox9.ResumeLayout(False)
         Me.GroupBox9.PerformLayout()
         Me.Divisor2.Panel1.ResumeLayout(False)
-        Me.Divisor2.Panel2.ResumeLayout(False)
         CType(Me.Divisor2, System.ComponentModel.ISupportInitialize).EndInit()
         Me.Divisor2.ResumeLayout(False)
         Me.MidPanel.Panel1.ResumeLayout(False)
@@ -2378,12 +2369,6 @@ Partial Class MainWindow
         CType(Me.ErrorProvider1, System.ComponentModel.ISupportInitialize).EndInit()
         CType(Me.ErrorProvider2, System.ComponentModel.ISupportInitialize).EndInit()
         CType(Me.BindingSource1, System.ComponentModel.ISupportInitialize).EndInit()
-        Me.GroupBox11.ResumeLayout(False)
-        Me.GroupBox11.PerformLayout()
-        Me.grpDemandProf.ResumeLayout(False)
-        Me.grpDemandProf.PerformLayout()
-        Me.grpTunnelOrg.ResumeLayout(False)
-        Me.grpTunnelOrg.PerformLayout()
         Me.ResumeLayout(False)
 
     End Sub
@@ -2544,7 +2529,6 @@ Partial Class MainWindow
     Friend WithEvents DisplayParametersToolStripMenuItem As ToolStripMenuItem
     Friend WithEvents ErrorProvider2 As ErrorProvider
     Friend WithEvents tmrPlayback As Timer
-    Friend WithEvents Button1 As Button
     Friend WithEvents SaveFileDialog1 As SaveFileDialog
     Friend WithEvents OpenSimulationVariablesToolStripMenuItem As ToolStripMenuItem
     Friend WithEvents SaveSimulationResultsToolStripMenuItem As ToolStripMenuItem
@@ -2586,16 +2570,16 @@ Partial Class MainWindow
     Friend WithEvents Label79 As Label
     Friend WithEvents chkDelayDemand As CheckBox
     Friend WithEvents grpDemandProf As GroupBox
-    Friend WithEvents ComboBox2 As ComboBox
+    Friend WithEvents txtPickingOrderProfile As ComboBox
     Friend WithEvents Label82 As Label
-    Friend WithEvents TextBox7 As TextBox
+    Friend WithEvents txtExternalDemandProfileFile As TextBox
     Friend WithEvents Label84 As Label
     Friend WithEvents grpTunnelOrg As GroupBox
-    Friend WithEvents CheckBox3 As CheckBox
+    Friend WithEvents chkIdleHoursReshelving As CheckBox
     Friend WithEvents Label86 As Label
-    Friend WithEvents TextBox8 As TextBox
+    Friend WithEvents txtMinimumReshelvingWindow As TextBox
     Friend WithEvents Label87 As Label
-    Friend WithEvents CheckBox4 As CheckBox
-    Friend WithEvents CheckBox2 As CheckBox
+    Friend WithEvents chkImprovedWeekendStrat As CheckBox
+    Friend WithEvents chkRandomPickingBias As CheckBox
     Friend WithEvents ToolTip1 As ToolTip
 End Class

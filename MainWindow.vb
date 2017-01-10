@@ -67,6 +67,14 @@ Public Class MainWindow
         chkSundayProd.Checked = VRTM_SimVariables.ProductionDays(6)
 
         txtLevelChoosing.SelectedIndex = VRTM_SimVariables.LevelChoosing
+        chkDelayDemand.Checked = VRTM_SimVariables.DelayDemand
+        txtDelayDemandTime.Text = Trim(Str(VRTM_SimVariables.DelayDemandTime))
+        chkIdleHoursReshelving.Checked = VRTM_SimVariables.EnableIdleReshelving
+        txtMinimumReshelvingWindow.Text = Trim(Str(VRTM_SimVariables.MinimumReshelvingWindow))
+        chkImprovedWeekendStrat.Checked = VRTM_SimVariables.EnableImprovedWeekendStrat
+        txtPickingOrderProfile.SelectedIndex = VRTM_SimVariables.PickingOrders
+        chkRandomPickingBias.Checked = VRTM_SimVariables.RandomBias
+        txtExternalDemandProfileFile.Text = VRTM_SimVariables.ExternalDemandProfilePath
 
         txtTotalSimTime.Text = Trim(Str(VRTM_SimVariables.TotalSimTime / (3600 * 24)))
         txtMinimumSimDT.Text = Trim(Str(VRTM_SimVariables.MinimumSimDt))
@@ -143,7 +151,7 @@ Public Class MainWindow
             VRTMTable.Rows.Clear()
             VRTMTable.Columns.Clear()
 
-            For i = 1 To ColNumber
+            For i = 1 To ColNumber + 2 'Adds two more columns for the elevator wells
                 VRTMTable.Columns.Add(Str(i), Str(i))
             Next
             Redim_Width_DGV()
@@ -224,6 +232,8 @@ Public Class MainWindow
         hsSimPosition.Maximum = VRTM_SimVariables.TotalSimTime
         hsSimPosition.SmallChange = VRTM_SimVariables.MinimumSimDt
         hsSimPosition.LargeChange = VRTM_SimVariables.MinimumSimDt * 10
+        hsSimPosition.Value = 0
+
         lblDisplayVariable.Text = "Simulation Completed"
     End Sub
 
@@ -473,14 +483,109 @@ Public Class MainWindow
             Case 0 'Production
                 grpDemandProf.Enabled = False
                 grpTunnelOrg.Enabled = True
+                chkDelayDemand.Enabled = False
+                txtDelayDemandTime.Enabled = False
             Case 1 'Demand
                 grpDemandProf.Enabled = True
                 grpTunnelOrg.Enabled = True
+                chkDelayDemand.Enabled = True
+                txtDelayDemandTime.Enabled = chkDelayDemand.Checked
             Case 2 'Rnd
                 grpDemandProf.Enabled = False
                 grpTunnelOrg.Enabled = True
+                chkDelayDemand.Enabled = False
+                txtDelayDemandTime.Enabled = False
+        End Select
+
+    End Sub
+
+    Private Sub txtPickingOrderProfile_SelectedIndexChanged(sender As Object, e As EventArgs) Handles txtPickingOrderProfile.SelectedIndexChanged
+        VRTM_SimVariables.PickingOrders = txtPickingOrderProfile.SelectedIndex
+        Select Case txtPickingOrderProfile.SelectedIndex
+            Case 0 'Random bias
+                chkRandomPickingBias.Enabled = True
+                txtExternalDemandProfileFile.Enabled = False
+            Case 1 'External File
+                chkRandomPickingBias.Enabled = False
+                txtExternalDemandProfileFile.Enabled = True
+
+                Dim F As String
+                OpenFileDialog1.Filter = "CSV Files (*.CSV)|*.csv"
+                OpenFileDialog1.Title = "Select an external picking demand profile"
+                OpenFileDialog1.FileName = ""
+                OpenFileDialog1.CheckFileExists = True
+
+                Try
+                    OpenFileDialog1.ShowDialog()
+
+                    F = OpenFileDialog1.FileName
+
+                    If System.IO.File.Exists(F) Then
+                        txtExternalDemandProfileFile.Text = F
+                    End If
+                Catch ex As Exception
+                End Try
+
         End Select
     End Sub
+
+    Private Sub txtExternalDemandProfileFile_MouseClick(sender As Object, e As MouseEventArgs) Handles txtExternalDemandProfileFile.MouseClick
+        'Tries to open a new file
+        Dim F As String
+        OpenFileDialog1.Filter = "CSV Files (*.CSV)|*.csv"
+        OpenFileDialog1.Title = "Select an external picking demand profile"
+        OpenFileDialog1.FileName = ""
+        OpenFileDialog1.CheckFileExists = True
+
+        Try
+            OpenFileDialog1.ShowDialog()
+
+            F = OpenFileDialog1.FileName
+
+            If System.IO.File.Exists(F) Then
+                txtExternalDemandProfileFile.Text = F
+            End If
+        Catch ex As Exception
+        End Try
+    End Sub
+
+    Private Sub chkDelayDemand_CheckedChanged(sender As Object, e As EventArgs) Handles chkDelayDemand.CheckedChanged
+        VRTM_SimVariables.DelayDemand = chkDelayDemand.Checked
+        txtDelayDemandTime.Enabled = chkDelayDemand.Checked
+    End Sub
+
+    Private Sub chkIdleHoursReshelving_CheckedChanged(sender As Object, e As EventArgs) Handles chkIdleHoursReshelving.CheckedChanged
+        VRTM_SimVariables.EnableIdleReshelving = chkIdleHoursReshelving.Checked
+        txtMinimumReshelvingWindow.Enabled = chkIdleHoursReshelving.Checked
+    End Sub
+
+    Private Sub chkImprovedWeekendStrat_CheckedChanged(sender As Object, e As EventArgs) Handles chkImprovedWeekendStrat.CheckedChanged
+        VRTM_SimVariables.EnableImprovedWeekendStrat = chkImprovedWeekendStrat.Checked
+    End Sub
+
+    Private Sub chkRandomPickingBias_CheckedChanged(sender As Object, e As EventArgs) Handles chkRandomPickingBias.CheckedChanged
+        VRTM_SimVariables.RandomBias = chkRandomPickingBias.Checked
+    End Sub
+
+    Private Sub Validate_DemandTab(ByVal sender As Object, ByVal e As System.ComponentModel.CancelEventArgs) Handles _
+        txtDelayDemandTime.Validating, txtMinimumReshelvingWindow.Validating
+        If (Not (IsNumeric(sender.Text) And Val(sender.text) > 0)) Then
+            ' Cancel the event and select the text to be corrected by the user.
+            e.Cancel = True
+            sender.Select(0, sender.Text.Length)
+            ErrorProvider1.SetError(sender, "The value must be greater than zero.")
+        End If
+    End Sub
+
+    Private Sub Validated_DemandTab(ByVal sender As Object, ByVal e As System.EventArgs) Handles _
+        txtDelayDemandTime.Validated, txtMinimumReshelvingWindow.Validated
+        ' If all conditions have been met, clear the error provider of errors.
+        ErrorProvider1.SetError(sender, "")
+
+        VRTM_SimVariables.DelayDemandTime = Val(txtDelayDemandTime.Text)
+        VRTM_SimVariables.MinimumReshelvingWindow = Val(txtMinimumReshelvingWindow.Text)
+    End Sub
+
 #End Region
 
 #Region "Validations ====Tab Simulation Parameters===="
@@ -638,6 +743,66 @@ Public Class MainWindow
 
     End Sub
 
+    Private Sub UpdateDisplayVariableLabel()
+        'Updates the display variable to ensure it's showing the right info
+        Dim StringDisplayVariable As String = "Displaying Value: "
+        Select Case My.Settings.DisplayParameter
+            Case 0 'Tray Index
+                StringDisplayVariable = StringDisplayVariable & "Tray Index, "
+            Case 1 'Conveyor Index
+                StringDisplayVariable = StringDisplayVariable & "Conveyor Index, "
+            Case 2 'Retention Time
+                StringDisplayVariable = StringDisplayVariable & "Retention Time [h], "
+            Case 3 'Center T
+                StringDisplayVariable = StringDisplayVariable & "Center Temperature [ºC], "
+            Case 4 'Surf T
+                StringDisplayVariable = StringDisplayVariable & "Surface Temperature [ºC], "
+            Case 5 'Power
+                StringDisplayVariable = StringDisplayVariable & "Instantaneous Power [W], "
+        End Select
+
+        StringDisplayVariable = StringDisplayVariable & "Background Color: "
+        Select Case My.Settings.DisplayParameterForeColor
+            Case 0 'Tray Index
+                StringDisplayVariable = StringDisplayVariable & "Tray Index, "
+            Case 1 'Conveyor Index
+                StringDisplayVariable = StringDisplayVariable & "Conveyor Index, "
+            Case 2 'Retention Time
+                StringDisplayVariable = StringDisplayVariable & "Retention Time, "
+            Case 3 'Center T
+                StringDisplayVariable = StringDisplayVariable & "Center Temperature, "
+            Case 4 'Surf T
+                StringDisplayVariable = StringDisplayVariable & "Surface Temperature, "
+            Case 5 'Power
+                StringDisplayVariable = StringDisplayVariable & "Instantaneous Power, "
+            Case 6 'Bool Frozen
+                StringDisplayVariable = StringDisplayVariable & "Frozen/Not Frozen, "
+            Case 7 'Always use minimum
+                StringDisplayVariable = StringDisplayVariable & "Fixed Color, "
+        End Select
+
+        StringDisplayVariable = StringDisplayVariable & "Text Color: "
+        Select Case My.Settings.DisplayParameterBackColor
+            Case 0 'Tray Index
+                StringDisplayVariable = StringDisplayVariable & "Tray Index"
+            Case 1 'Conveyor Index
+                StringDisplayVariable = StringDisplayVariable & "Conveyor Index"
+            Case 2 'Retention Time
+                StringDisplayVariable = StringDisplayVariable & "Retention Time"
+            Case 3 'Center T
+                StringDisplayVariable = StringDisplayVariable & "Center Temperature"
+            Case 4 'Surf T
+                StringDisplayVariable = StringDisplayVariable & "Surface Temperature"
+            Case 5 'Power
+                StringDisplayVariable = StringDisplayVariable & "Instantaneous Power"
+            Case 6 'Bool Frozen
+                StringDisplayVariable = StringDisplayVariable & "Frozen/Not Frozen"
+            Case 7 'Always use minimum
+                StringDisplayVariable = StringDisplayVariable & "Fixed Color"
+        End Select
+        lblDisplayVariable.Text = StringDisplayVariable
+    End Sub
+
     Private Function Delta_Day(ByVal Day1 As Double, ByVal Day2 As Double) As Double
         'Calculates the difference in days between one time and the other (Day1 and Day2 are expected 0-1)
         If Day1 = 0 Then Day1 = 1
@@ -674,7 +839,7 @@ Public Class MainWindow
             'Highlights the row header of the current level
             If My.Settings.Display_boolHighlight Then
                 For J As Integer = 0 To VRTM_SimVariables.nLevels - 1
-                    VRTMTable.Rows(J).HeaderCell.Style.BackColor = Color.FromArgb(255, 255, 150)
+                    VRTMTable.Rows(J).HeaderCell.Style.BackColor = My.Settings.Display_TableHeaderBColor
                 Next
                 VRTMTable.Rows(Simulation_Results.TrayEntryLevels(Simulation_Results.TrayEntryPositions(thisT_index))).HeaderCell.Style.BackColor = My.Settings.Display_HighlightColor
             End If
@@ -685,14 +850,26 @@ Public Class MainWindow
                     UpdateDGVCell(thisT_index, I, J)
                 Next
             Next
+
+            'Updates the Elevator Wells.
+            For J As Integer = 0 To VRTM_SimVariables.nLevels - 1
+                'Clears the elevator well
+                VRTMTable.Item(0, J).ToolTipText = ""
+                VRTMTable.Item(0, J).Value = ""
+                VRTMTable.Item(VRTM_SimVariables.nTrays + 1, J).ToolTipText = ""
+                VRTMTable.Item(VRTM_SimVariables.nTrays + 1, J).Value = ""
+            Next
+            'Updates the cells that have content
+            UpdateElevatorWellCells(thisT_index)
         End If
 
+        UpdateDisplayVariableLabel()
     End Sub
 
     Private Sub UpdateDGVCell(T As Long, Tray As Integer, Level As Integer)
         'This routine updates a given cell in the table and all its properties
 
-        With VRTMTable.Item(Tray, Level)
+        With VRTMTable.Item(Tray + 1, Level)
 
             'Computes the values of the variables for this cell
             Dim TrayIndex As Long
@@ -703,7 +880,7 @@ Public Class MainWindow
             If TrayIndex = 0 Or T <= 0 Or Conveyor = -1 Then
                 'Doesn't apply colors if there is an empty tray here
                 .Value = ""
-                .Style.BackColor = Color.FromArgb(255, 255, 204)
+                .Style.BackColor = My.Settings.Display_TableBackColor
                 .ToolTipText = ""
             Else
                 'There is indeed a tray here, computes the colors
@@ -795,6 +972,32 @@ Public Class MainWindow
 
     End Sub
 
+    Private Sub UpdateElevatorWellCells(T As Long)
+        'Updates the elevator well cells
+
+    End Sub
+
+    Private Sub VRTMTable_CellPainting(sender As Object, e As DataGridViewCellPaintingEventArgs) Handles VRTMTable.CellPainting
+        'Handles the elevator well cell painting and border removal
+        If e.RowIndex > -1 Then
+            If e.ColumnIndex = 0 Then
+                'e.AdvancedBorderStyle.Right = DataGridViewAdvancedCellBorderStyle.None
+                e.AdvancedBorderStyle.Top = DataGridViewAdvancedCellBorderStyle.None
+                e.AdvancedBorderStyle.Bottom = DataGridViewAdvancedCellBorderStyle.None
+                e.CellStyle.BackColor = My.Settings.Display_ElevatorWellColor
+            ElseIf e.ColumnIndex = VRTM_SimVariables.nTrays + 1 Then
+                e.AdvancedBorderStyle.Left = DataGridViewAdvancedCellBorderStyle.None
+                e.AdvancedBorderStyle.Top = DataGridViewAdvancedCellBorderStyle.None
+                e.AdvancedBorderStyle.Bottom = DataGridViewAdvancedCellBorderStyle.None
+                e.CellStyle.BackColor = My.Settings.Display_ElevatorWellColor
+            End If
+            If e.RowIndex = VRTM_SimVariables.nLevels - 1 Then
+                e.AdvancedBorderStyle.Bottom = DataGridViewAdvancedCellBorderStyle.Single
+            End If
+        End If
+
+    End Sub
+
     Private Sub btnPlay_Click(sender As Object, e As EventArgs) Handles btnPlay.Click, PlayToolStripMenuItem.Click
         tmrPlayback.Enabled = True
     End Sub
@@ -877,6 +1080,8 @@ Public Class MainWindow
 
 
     End Sub
+
+
 
 #End Region
 

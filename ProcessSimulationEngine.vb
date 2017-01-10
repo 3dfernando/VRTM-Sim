@@ -100,7 +100,8 @@
 
             For Each k In ArrivalTimes
                 'Adds the next box to the conveyor
-                'k.Value is the index of the product
+                'k.Key is the time of arrival (seconds from start)
+                'k.Value is the index of the product in the ProductMix
 
                 'First counts the boxes in the conveyor to ensure it doesnt exceed the number of boxes
                 Dim boxCountInConveyor As Long = 0
@@ -156,7 +157,10 @@
 
                             'Loads the tray
                             If Not LoadNewTray(fakeKey, currentTrayIndex, currentLevel, currentSimulationTimeStep, Conveyors) Then
-                                MsgBox("This VRTM Size doesn't seem to be large enough to fit the selected loading criteria")
+                                MsgBox("This VRTM Size doesn't seem to be large enough to fit the selected loading criteria" & vbCrLf &
+                                       "Simulation stopped at " & GetCurrentTimeString(k.Key) & vbCrLf &
+                                       "Product that was being loaded had a conveyor index of " & Trim(Str(VRTM_SimVariables.ProductMix(k.Value).ConveyorNumber)) &
+                                       " and the demand was a product of conveyor index of ")
                                 GoTo PostProcessing
                             End If
                             elevatorMovementTime = Compute_Entire_Cycle_Time(prevLevel, currentLevel)
@@ -435,46 +439,50 @@ PostProcessing:
             If availableLevels.Count > 0 Then
                 'There are available levels.
                 If VRTM_SimVariables.LevelChoosing = 0 Then 'Production
-                    'Will feed to the closest to loading level and never put a product on a level where there is another product already.
-                    Dim ConvIndex As Long = .ProductMix(prodIndex).ConveyorNumber
+                    'Selects levels according to the production demand
+                    SelectLevel = SelectLevelAccordingToProduction(availableLevels, t, prodIndex)
+                ElseIf VRTM_SimVariables.LevelChoosing = 1 Then 'Demand
+                    If .DelayDemand And (Simulation_Results.TrayEntryTimes(t) < .DelayDemandTime * 3600 * 24) Then
+                        'Selects levels to keep stuff organized
+                        SelectLevel = SelectLevelAccordingToProduction(availableLevels, t, prodIndex)
+                    Else
+                        'Selects levels according to a demand profile
+                        If .PickingOrders = 0 Then
+                            'Random demands a conveyor index type and requests it
+                            Dim SelectedConveyorIndex As Long = Int(Rnd() * VRTM_SimVariables.InletConveyors.Count)
+                            Dim NarrowedAvailableLevels As New List(Of Long)
 
-                    'Selects the levels that have the current conveyor index
-                    Dim MatchedLevels As New List(Of Long)
-                    For Each l As Long In availableLevels
-                        If Simulation_Results.VRTMTrayData(t - 1, 0, l).ConveyorIndex = ConvIndex Then
-                            MatchedLevels.Add(l)
-                        End If
-                    Next
+                            For Each L As Long In availableLevels
+                                If Simulation_Results.VRTMTrayData(t - 1, .nTrays - 1, L).ConveyorIndex = SelectedConveyorIndex Then
+                                    'Whether it's frozen AND has the selected product index
+                                    NarrowedAvailableLevels.Add(L)
+                                End If
+                            Next
 
-                    If MatchedLevels.Count = 0 Then
-                        'No matches, tries to find an empty level then
-                        For Each l As Long In availableLevels
-                            If Simulation_Results.VRTMTrayData(t - 1, 0, l).ConveyorIndex = -1 Then
-                                MatchedLevels.Add(l)
+                            'The simulation failed as there is no available frozen product of the given index
+                            If NarrowedAvailableLevels.Count = 0 Then
+                                SelectLevel = -1
+                            Else
+                                'Select the maximum stay time available (as a FIFO-like system)
+                                Dim stayTimeMaxAt As Long = 0
+                                stayTime = Double.MinValue
+                                For Each N As Long In NarrowedAvailableLevels
+                                    exitEntryTime = Simulation_Results.TrayEntryTimes(Simulation_Results.VRTMTrayData(t - 1, .nTrays - 1, N).TrayIndex)
+                                    If (exitEntryTime - Simulation_Results.TrayEntryTimes(t)) > stayTime Then
+                                        stayTime = exitEntryTime - Simulation_Results.TrayEntryTimes(t)
+                                        stayTimeMaxAt = N
+                                    End If
+                                Next
+
+                                SelectLevel = stayTimeMaxAt
+
                             End If
-                        Next
 
-                        If MatchedLevels.Count = 0 Then
-                            'Now we're locked, as there is nothing to do
+                        Else
+                            'Demand is according to file
                             SelectLevel = -1
-                            Exit Function
                         End If
                     End If
-
-                    'If we didn't exit function then we can proceed to find the closest level to the loading level (minimize travel time)
-                    Dim MinDist As Long = Long.MaxValue
-                    Dim MinDistAt As Long = 0
-
-                    For Each Level As Long In MatchedLevels
-                        If Math.Abs(Level - VRTM_SimVariables.LoadLevel) < MinDist Then
-                            MinDist = Math.Abs(Level - VRTM_SimVariables.LoadLevel)
-                            MinDistAt = Level
-                        End If
-                    Next
-
-                    SelectLevel = MinDistAt
-                ElseIf VRTM_SimVariables.LevelChoosing = 1 Then 'Demand
-
                 ElseIf VRTM_SimVariables.LevelChoosing = 2 Then 'Random
                     SelectLevel = availableLevels(Int(Rnd() * (availableLevels.Count)))
                 Else
@@ -485,4 +493,48 @@ PostProcessing:
             End If
         End With
     End Function
+
+    Public Function SelectLevelAccordingToProduction(availableLevels As List(Of Long), t As Long, prodIndex As Long) As Long
+        With VRTM_SimVariables
+            'Will feed to the closest to loading level and never put a product on a level where there is another product already.
+            Dim ConvIndex As Long = .ProductMix(prodIndex).ConveyorNumber
+
+            'Selects the levels that have the current conveyor index
+            Dim MatchedLevels As New List(Of Long)
+            For Each l As Long In availableLevels
+                If Simulation_Results.VRTMTrayData(t - 1, 0, l).ConveyorIndex = ConvIndex Then
+                    MatchedLevels.Add(l)
+                End If
+            Next
+
+            If MatchedLevels.Count = 0 Then
+                'No matches, tries to find an empty level then
+                For Each l As Long In availableLevels
+                    If Simulation_Results.VRTMTrayData(t - 1, 0, l).ConveyorIndex = -1 Then
+                        MatchedLevels.Add(l)
+                    End If
+                Next
+
+                If MatchedLevels.Count = 0 Then
+                    'Now we're locked, as there is nothing to do
+                    SelectLevelAccordingToProduction = -1
+                    Exit Function
+                End If
+            End If
+
+            'If we didn't exit function then we can proceed to find the closest level to the loading level (minimize travel time)
+            Dim MinDist As Long = Long.MaxValue
+            Dim MinDistAt As Long = 0
+
+            For Each Level As Long In MatchedLevels
+                If Math.Abs(Level - VRTM_SimVariables.LoadLevel) < MinDist Then
+                    MinDist = Math.Abs(Level - VRTM_SimVariables.LoadLevel)
+                    MinDistAt = Level
+                End If
+            Next
+
+            SelectLevelAccordingToProduction = MinDistAt
+        End With
+    End Function
+
 End Module

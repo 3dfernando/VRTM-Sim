@@ -16,10 +16,10 @@
             .RowHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.TopLeft
             .RowHeadersDefaultCellStyle.Padding = pad
             .RowHeadersWidth = 60
-            .RowHeadersDefaultCellStyle.BackColor = Color.FromArgb(255, 255, 150)
+            .RowHeadersDefaultCellStyle.BackColor = My.Settings.Display_TableHeaderBColor
             .RowHeadersBorderStyle = DataGridViewHeaderBorderStyle.Single
 
-            .ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(255, 255, 150)
+            .ColumnHeadersDefaultCellStyle.BackColor = My.Settings.Display_TableHeaderBColor
             .ColumnHeadersDefaultCellStyle.Font = DefFont
             .ColumnHeadersHeight = 20
             .ColumnHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter
@@ -38,7 +38,7 @@
             With MainWindow.VRTMTable
                 For i = 0 To .Rows.Count
                     For Each c As DataGridViewCell In .Rows(i).Cells
-                        c.Style.BackColor = Color.FromArgb(255, 255, 204)
+                        c.Style.BackColor = My.Settings.Display_TableBackColor
                     Next
                 Next
                 .ClearSelection()

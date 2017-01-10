@@ -197,6 +197,42 @@ Namespace My
                 Me("DisplayParameterBackColor") = value
             End Set
         End Property
+        
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("255, 200, 200")>  _
+        Public Property Display_ElevatorWellColor() As Global.System.Drawing.Color
+            Get
+                Return CType(Me("Display_ElevatorWellColor"),Global.System.Drawing.Color)
+            End Get
+            Set
+                Me("Display_ElevatorWellColor") = value
+            End Set
+        End Property
+        
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("255, 255, 192")>  _
+        Public Property Display_TableBackColor() As Global.System.Drawing.Color
+            Get
+                Return CType(Me("Display_TableBackColor"),Global.System.Drawing.Color)
+            End Get
+            Set
+                Me("Display_TableBackColor") = value
+            End Set
+        End Property
+        
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("255, 255, 150")>  _
+        Public Property Display_TableHeaderBColor() As Global.System.Drawing.Color
+            Get
+                Return CType(Me("Display_TableHeaderBColor"),Global.System.Drawing.Color)
+            End Get
+            Set
+                Me("Display_TableHeaderBColor") = value
+            End Set
+        End Property
     End Class
 End Namespace
 
