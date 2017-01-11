@@ -151,8 +151,12 @@ Public Class MainWindow
             VRTMTable.Rows.Clear()
             VRTMTable.Columns.Clear()
 
-            For i = 1 To ColNumber + 2 'Adds two more columns for the elevator wells
-                VRTMTable.Columns.Add(Str(i), Str(i))
+            For i = 0 To ColNumber + 1 'Adds two more columns for the elevator wells
+                If i = 0 Or i = ColNumber + 1 Then
+                    VRTMTable.Columns.Add("Elev", "Elev")
+                Else
+                    VRTMTable.Columns.Add(Str(i), Str(i))
+                End If
             Next
             Redim_Width_DGV()
 
@@ -841,13 +845,13 @@ Public Class MainWindow
                 For J As Integer = 0 To VRTM_SimVariables.nLevels - 1
                     VRTMTable.Rows(J).HeaderCell.Style.BackColor = My.Settings.Display_TableHeaderBColor
                 Next
-                VRTMTable.Rows(Simulation_Results.TrayEntryLevels(Simulation_Results.TrayEntryPositions(thisT_index))).HeaderCell.Style.BackColor = My.Settings.Display_HighlightColor
+                VRTMTable.Rows(Simulation_Results.TrayEntryLevels(thisT_index)).HeaderCell.Style.BackColor = My.Settings.Display_HighlightColor
             End If
 
             'Highlights all the other cells according to the rules
             For I As Integer = 0 To VRTM_SimVariables.nTrays - 1
                 For J As Integer = 0 To VRTM_SimVariables.nLevels - 1
-                    UpdateDGVCell(thisT_index, I, J)
+                    UpdateDGVInnerCell(thisT_index, I, J)
                 Next
             Next
 
@@ -861,25 +865,62 @@ Public Class MainWindow
             Next
             'Updates the cells that have content
             UpdateElevatorWellCells(thisT_index)
+            UpdateDisplayVariableLabel()
+        Else
+            lblDisplayVariable.Text = "Simulation Not Ready"
         End If
 
-        UpdateDisplayVariableLabel()
+
     End Sub
 
-    Private Sub UpdateDGVCell(T As Long, Tray As Integer, Level As Integer)
+    Private Sub UpdateDGVInnerCell(T As Long, Tray As Integer, Level As Integer)
         'This routine updates a given cell in the table and all its properties
 
-        With VRTMTable.Item(Tray + 1, Level)
+        'Computes the values of the variables for this cell
+        Dim TrayInfo As TrayData
+        Dim Row, Column As Integer
 
-            'Computes the values of the variables for this cell
-            Dim TrayIndex As Long
-            Dim Conveyor As Long
-            TrayIndex = Simulation_Results.VRTMTrayData(T, Tray, Level).TrayIndex
-            Conveyor = Simulation_Results.VRTMTrayData(T, Tray, Level).ConveyorIndex
+        TrayInfo = Simulation_Results.VRTMTrayData(T, Tray, Level)
+        Column = Tray + 1
+        Row = Level
 
-            If TrayIndex = 0 Or T <= 0 Or Conveyor = -1 Then
+        UpdateDGVCell(T, Column, Row, TrayInfo)
+
+    End Sub
+
+    Private Sub UpdateElevatorWellCells(T As Long)
+        'Updates the elevator well cells
+        Dim Column, Row As Integer
+
+        If Simulation_Results.EmptyElevatorB(T) Then
+            'Fills up elevator A
+            Column = 0
+        Else
+            'Fills up elevator B
+            Column = VRTM_SimVariables.nTrays + 1
+        End If
+
+        Row = Simulation_Results.TrayEntryLevels(T)
+
+
+        Dim Tray As TrayData
+        Dim T_Temp As Long
+
+        T_Temp = T
+        If T = 0 Then T_Temp = 1
+
+        Tray = Simulation_Results.Elevator(T_Temp)
+
+        UpdateDGVCell(T, Column, Row, Tray)
+    End Sub
+
+    Private Sub UpdateDGVCell(T As Long, Column As Integer, Row As Integer, TrayInfo As TrayData)
+        'This routine updates a given cell in the table and all its properties
+
+        With VRTMTable.Item(Column, Row)
+            If TrayInfo.TrayIndex = 0 Or T <= 0 Or TrayInfo.ConveyorIndex = -1 Then
                 'Doesn't apply colors if there is an empty tray here
-                .Value = ""
+                .Value = " "
                 .Style.BackColor = My.Settings.Display_TableBackColor
                 .ToolTipText = ""
             Else
@@ -889,14 +930,14 @@ Public Class MainWindow
                 Dim SurfTemp As Double
                 Dim Power As Double
                 Dim Frozen As Boolean
-                RetTime = (hsSimPosition.Value - Simulation_Results.TrayEntryTimes(TrayIndex)) / 3600
-                Frozen = RetTime >= VRTM_SimVariables.InletConveyors(Conveyor).MinRetTime
+                RetTime = (hsSimPosition.Value - Simulation_Results.TrayEntryTimes(TrayInfo.TrayIndex)) / 3600
+                Frozen = RetTime >= VRTM_SimVariables.InletConveyors(TrayInfo.ConveyorIndex).MinRetTime
 
                 Select Case My.Settings.DisplayParameter
                     Case 0 'Tray Index
-                        .Value = TrayIndex
+                        .Value = TrayInfo.TrayIndex
                     Case 1 'Conveyor Index
-                        .Value = Conveyor
+                        .Value = TrayInfo.ConveyorIndex
                     Case 2 'Retention Time
                         .Value = Int(RetTime * 10) / 10
                     Case 3 'Center T
@@ -907,13 +948,13 @@ Public Class MainWindow
                 Dim ColorPos As Double
                 Select Case My.Settings.DisplayParameterForeColor
                     Case 0 'Tray Index
-                        ColorPos = TrayIndex / UBound(Simulation_Results.TrayEntryTimes)
+                        ColorPos = TrayInfo.TrayIndex / UBound(Simulation_Results.TrayEntryTimes)
                         .Style.ForeColor = Interpolate_Color(ColorPos, My.Settings.Display_MinColor_ForeColor, My.Settings.Display_MaxColor_ForeColor)
                     Case 1 'Conveyor Index
-                        ColorPos = Conveyor / UBound(VRTM_SimVariables.InletConveyors)
+                        ColorPos = TrayInfo.ConveyorIndex / UBound(VRTM_SimVariables.InletConveyors)
                         .Style.ForeColor = Interpolate_Color(ColorPos, My.Settings.Display_MinColor_ForeColor, My.Settings.Display_MaxColor_ForeColor)
                     Case 2 'Retention Time
-                        ColorPos = RetTime / VRTM_SimVariables.InletConveyors(Conveyor).MinRetTime
+                        ColorPos = RetTime / VRTM_SimVariables.InletConveyors(TrayInfo.ConveyorIndex).MinRetTime
                         .Style.ForeColor = Interpolate_Color(ColorPos, My.Settings.Display_MinColor_ForeColor, My.Settings.Display_MaxColor_ForeColor)
                     Case 3 'Center T
                     Case 4 'Surf T
@@ -930,13 +971,13 @@ Public Class MainWindow
 
                 Select Case My.Settings.DisplayParameterBackColor
                     Case 0 'Tray Index
-                        ColorPos = TrayIndex / UBound(Simulation_Results.TrayEntryTimes)
+                        ColorPos = TrayInfo.TrayIndex / UBound(Simulation_Results.TrayEntryTimes)
                         .Style.BackColor = Interpolate_Color(ColorPos, My.Settings.Display_MinColor_BackColor, My.Settings.Display_MaxColor_BackColor)
                     Case 1 'Conveyor Index
-                        ColorPos = Conveyor / UBound(VRTM_SimVariables.InletConveyors)
+                        ColorPos = TrayInfo.ConveyorIndex / UBound(VRTM_SimVariables.InletConveyors)
                         .Style.BackColor = Interpolate_Color(ColorPos, My.Settings.Display_MinColor_BackColor, My.Settings.Display_MaxColor_BackColor)
                     Case 2 'Retention Time
-                        ColorPos = RetTime / VRTM_SimVariables.InletConveyors(Conveyor).MinRetTime
+                        ColorPos = RetTime / VRTM_SimVariables.InletConveyors(TrayInfo.ConveyorIndex).MinRetTime
                         .Style.BackColor = Interpolate_Color(ColorPos, My.Settings.Display_MinColor_BackColor, My.Settings.Display_MaxColor_BackColor)
                     Case 3 'Center T
                     Case 4 'Surf T
@@ -952,19 +993,17 @@ Public Class MainWindow
                 End Select
 
                 'Sets a tooltip
-                .ToolTipText = "Tray Index: " & Trim(Str(TrayIndex)) & vbCrLf &
-                    "Conveyor: " & VRTM_SimVariables.InletConveyors(Conveyor).ConveyorTag & "(Idx " & Trim(Str(Conveyor)) & ")" & vbCrLf &
-                    "Current Ret. Time: " & Trim(Str(Int(RetTime * 10) / 10)) & " h/" & Trim(Str(VRTM_SimVariables.InletConveyors(Conveyor).MinRetTime)) & " h" & vbCrLf &
+                .ToolTipText = "Tray Index: " & Trim(Str(TrayInfo.TrayIndex)) & vbCrLf &
+                    "Conveyor: " & VRTM_SimVariables.InletConveyors(TrayInfo.ConveyorIndex).ConveyorTag & "(Idx " & Trim(Str(TrayInfo.ConveyorIndex)) & ")" & vbCrLf &
+                    "Current Ret. Time: " & Trim(Str(Int(RetTime * 10) / 10)) & " h/" & Trim(Str(VRTM_SimVariables.InletConveyors(TrayInfo.ConveyorIndex).MinRetTime)) & " h" & vbCrLf &
                     "Center Temperature: " & Trim(Str(0)) & " ºC" & vbCrLf &
                     "Surface Temperature: " & Trim(Str(0)) & " ºC" & vbCrLf &
                     "Instantaneous Power Exchanged: " & Trim(Str(0)) & " W" & vbCrLf & vbCrLf & "Boxes in This Tray:"
 
                 'Adds the box/product list [index of product, quantity]
-                For Each i As KeyValuePair(Of Long, Long) In Simulation_Results.VRTMTrayData(T, Tray, Level).ProductIndices
+                For Each i As KeyValuePair(Of Long, Long) In TrayInfo.ProductIndices
                     .ToolTipText = .ToolTipText & vbCrLf & Trim(Str(i.Value)) & "x " & VRTM_SimVariables.ProductMix(i.Key).ProdName
                 Next
-
-
             End If
 
 
@@ -972,24 +1011,30 @@ Public Class MainWindow
 
     End Sub
 
-    Private Sub UpdateElevatorWellCells(T As Long)
-        'Updates the elevator well cells
-
-    End Sub
 
     Private Sub VRTMTable_CellPainting(sender As Object, e As DataGridViewCellPaintingEventArgs) Handles VRTMTable.CellPainting
         'Handles the elevator well cell painting and border removal
         If e.RowIndex > -1 Then
             If e.ColumnIndex = 0 Then
-                'e.AdvancedBorderStyle.Right = DataGridViewAdvancedCellBorderStyle.None
-                e.AdvancedBorderStyle.Top = DataGridViewAdvancedCellBorderStyle.None
-                e.AdvancedBorderStyle.Bottom = DataGridViewAdvancedCellBorderStyle.None
-                e.CellStyle.BackColor = My.Settings.Display_ElevatorWellColor
+                If Not IsNothing(e.Value) AndAlso e.Value.ToString = "" Then
+                    e.CellStyle.BackColor = My.Settings.Display_ElevatorWellColor
+                    e.AdvancedBorderStyle.Top = DataGridViewAdvancedCellBorderStyle.None
+                    e.AdvancedBorderStyle.Bottom = DataGridViewAdvancedCellBorderStyle.None
+                Else
+                    e.AdvancedBorderStyle.Top = DataGridViewAdvancedCellBorderStyle.Single
+                    e.AdvancedBorderStyle.Bottom = DataGridViewAdvancedCellBorderStyle.Single
+                End If
             ElseIf e.ColumnIndex = VRTM_SimVariables.nTrays + 1 Then
-                e.AdvancedBorderStyle.Left = DataGridViewAdvancedCellBorderStyle.None
-                e.AdvancedBorderStyle.Top = DataGridViewAdvancedCellBorderStyle.None
-                e.AdvancedBorderStyle.Bottom = DataGridViewAdvancedCellBorderStyle.None
-                e.CellStyle.BackColor = My.Settings.Display_ElevatorWellColor
+                If Not IsNothing(e.Value) AndAlso e.Value.ToString = "" Then
+                    e.CellStyle.BackColor = My.Settings.Display_ElevatorWellColor
+                    e.AdvancedBorderStyle.Left = DataGridViewAdvancedCellBorderStyle.None
+                    e.AdvancedBorderStyle.Top = DataGridViewAdvancedCellBorderStyle.None
+                    e.AdvancedBorderStyle.Bottom = DataGridViewAdvancedCellBorderStyle.None
+                Else
+                    e.AdvancedBorderStyle.Left = DataGridViewAdvancedCellBorderStyle.None
+                    e.AdvancedBorderStyle.Top = DataGridViewAdvancedCellBorderStyle.Single
+                    e.AdvancedBorderStyle.Bottom = DataGridViewAdvancedCellBorderStyle.Single
+                End If
             End If
             If e.RowIndex = VRTM_SimVariables.nLevels - 1 Then
                 e.AdvancedBorderStyle.Bottom = DataGridViewAdvancedCellBorderStyle.Single

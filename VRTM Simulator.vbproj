@@ -83,6 +83,7 @@
     </Compile>
     <Compile Include="Crank-Nicolson.vb" />
     <Compile Include="CurveFitting.vb" />
+    <Compile Include="Debug.vb" />
     <Compile Include="DisplaySettings.Designer.vb">
       <DependentUpon>DisplaySettings.vb</DependentUpon>
     </Compile>
@@ -111,6 +112,7 @@
     </Compile>
     <Compile Include="Poly.vb" />
     <Compile Include="ProcessSimulationEngine.vb" />
+    <Compile Include="ProcessSimulationEngine_Organization.vb" />
     <Compile Include="ProductMixSetup.Designer.vb">
       <DependentUpon>ProductMixSetup.vb</DependentUpon>
     </Compile>

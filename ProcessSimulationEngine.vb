@@ -8,9 +8,6 @@
         '################Preruns the box times########################
         With VRTM_SimVariables
             Simulation_Results = New SimulationData
-            'Before putting any tray, defines the empty elevator as the second (Right-hand)
-            Simulation_Results.EmptyElevator = True 'Elev 2=true
-
 
             'Seeds the multiple products according to their statistical distributions
             Dim T As Double
@@ -66,14 +63,24 @@
 
             'Oversizes the tray data array
             ReDim Simulation_Results.TrayEntryTimes(2 * Int(ArrivalTimes.Count / BoxLimit))
-            ReDim Simulation_Results.TrayEntryLevels(2 * Int(ArrivalTimes.Count / BoxLimit))
             ReDim Simulation_Results.TrayExitTimes(2 * Int(ArrivalTimes.Count / BoxLimit))
             ReDim Simulation_Results.TrayStayTime(2 * Int(ArrivalTimes.Count / BoxLimit))
             ReDim Simulation_Results.TrayEntryPositions(2 * Int(ArrivalTimes.Count / BoxLimit))
 
             ReDim Simulation_Results.VRTMTrayData(Int(VRTM_SimVariables.TotalSimTime / VRTM_SimVariables.MinimumSimDt), .nTrays - 1, .nLevels - 1)
             ReDim Simulation_Results.VRTMTimePositions(Int(VRTM_SimVariables.TotalSimTime / VRTM_SimVariables.MinimumSimDt))
+            ReDim Simulation_Results.EmptyElevatorB(Int(VRTM_SimVariables.TotalSimTime / VRTM_SimVariables.MinimumSimDt))
+            ReDim Simulation_Results.Elevator(Int(VRTM_SimVariables.TotalSimTime / VRTM_SimVariables.MinimumSimDt))
+            ReDim Simulation_Results.TrayEntryLevels(Int(VRTM_SimVariables.TotalSimTime / VRTM_SimVariables.MinimumSimDt))
 
+
+            'Defines the empty elevator as the second (Right-hand, B)
+            Simulation_Results.EmptyElevatorB(0) = True 'true=Elev 2
+            Simulation_Results.Elevator(0) = New TrayData
+            Simulation_Results.Elevator(0).TrayIndex = 0
+            Simulation_Results.Elevator(0).ConveyorIndex = -1
+
+            'Inits the trays inside the tunnel
             For I As Long = 0 To UBound(Simulation_Results.VRTMTrayData, 1)
                 For J As Long = 0 To UBound(Simulation_Results.VRTMTrayData, 2)
                     For K As Long = 0 To UBound(Simulation_Results.VRTMTrayData, 3)
@@ -91,7 +98,7 @@
             Next
 
 
-            '####### As more boxes are created, passes the day and defines the loading/organizing actions#######
+            '####### As more boxes are created, advances into the day and defines the loading/organizing actions#######
             Dim prevBoxTime As Long = 0
             Dim elevatorMovementTime As Double
             Dim prevLevel As Long = 1
@@ -174,9 +181,32 @@
                         End If
                     Next
 
-                    'Now employs the organization strategy to reorganize the tunnel
-                    '<<<CODE HERE>>>
+                    '============RESHELVING===========
+                    If VRTM_SimVariables.EnableIdleReshelving Then
+                        'Now employs the organization strategy to reorganize the tunnel
 
+                        'Defines if the window is sufficient according to the configs
+                        If (k.Key - prevBoxTime) > VRTM_SimVariables.MinimumReshelvingWindow * 3600 Then
+                            Dim AvailableTime As Double
+                            AvailableTime = (k.Key - prevBoxTime) 'Gets how much time is available to reshelve
+
+                            Dim Recipe As List(Of Long)
+                            Recipe = DefineOrganizationMovements(currentSimulationTimeStep, AvailableTime, k.Key) 'Calls the organization routine and gets the recipe for organization
+
+                            'Actually performs the reshelving operation according to the recipe
+                            For Each currentLevel In Recipe 'These are the new current levels
+
+                                elevatorMovementTime = Compute_Entire_Cycle_Time(prevLevel, currentLevel)
+                                TimeDelay += elevatorMovementTime
+
+                                PerformReshelvingMovement(currentLevel, currentSimulationTimeStep, prevBoxTime + TimeDelay)
+
+                                'Updates the loop variables
+                                prevLevel = currentLevel
+                                currentSimulationTimeStep += 1
+                            Next
+                        End If
+                    End If
                 End If
 
                 'Updates the previous box time
@@ -193,8 +223,11 @@ PostProcessing:
 
             'Resizes the tray data array back (yes, it's painful as coded...)
             ReDim Preserve Simulation_Results.TrayEntryTimes(currentTrayIndex - 1)
-            ReDim Preserve Simulation_Results.TrayEntryLevels(currentTrayIndex - 1)
+            ReDim Preserve Simulation_Results.TrayEntryPositions(currentTrayIndex - 1)
+            ReDim Preserve Simulation_Results.TrayEntryLevels(currentSimulationTimeStep - 1)
             ReDim Preserve Simulation_Results.VRTMTimePositions(currentSimulationTimeStep - 1)
+            ReDim Preserve Simulation_Results.EmptyElevatorB(currentSimulationTimeStep - 1)
+            ReDim Preserve Simulation_Results.Elevator(currentSimulationTimeStep - 1)
 
             Dim TempArray(,,) As TrayData
             ReDim TempArray(currentSimulationTimeStep - 1, .nTrays - 1, .nLevels - 1)
@@ -221,11 +254,56 @@ PostProcessing:
         End With
     End Sub
 
+    Public Function PerformReshelvingMovement(ByRef currentLevel As Long, ByVal currentSimulationTimeStep As Long, ByVal CurrentTime As Double) As Boolean
+        'This performs one reshelving operation.
+
+        If currentLevel = -1 Then Return False
+
+        If currentSimulationTimeStep <> 0 Then
+            For I As Long = 0 To VRTM_SimVariables.nTrays - 1
+                For J As Long = 0 To VRTM_SimVariables.nLevels - 1
+                    'Copies the last timestep onto the current timestep
+                    Simulation_Results.VRTMTrayData(currentSimulationTimeStep, I, J) = Simulation_Results.VRTMTrayData(currentSimulationTimeStep - 1, I, J).Clone
+                Next
+            Next
+        End If
+
+        'Detects the elevator side
+        If Simulation_Results.EmptyElevatorB(currentSimulationTimeStep - 1) Then
+            'Performs movement A->>B
+            Simulation_Results.Elevator(currentSimulationTimeStep) = Simulation_Results.VRTMTrayData(currentSimulationTimeStep - 1, VRTM_SimVariables.nTrays - 1, currentLevel).Clone
+
+            For I = VRTM_SimVariables.nTrays - 2 To 0 Step -1
+                Simulation_Results.VRTMTrayData(currentSimulationTimeStep, I + 1, currentLevel) = Simulation_Results.VRTMTrayData(currentSimulationTimeStep - 1, I, currentLevel).Clone
+            Next
+            Simulation_Results.VRTMTrayData(currentSimulationTimeStep, 0, currentLevel) = Simulation_Results.Elevator(currentSimulationTimeStep - 1).Clone
+
+            Simulation_Results.EmptyElevatorB(currentSimulationTimeStep) = False
+        Else
+            'Performs movement B->>A
+            Simulation_Results.Elevator(currentSimulationTimeStep) = Simulation_Results.VRTMTrayData(currentSimulationTimeStep - 1, 0, currentLevel).Clone
+
+            For I = 1 To VRTM_SimVariables.nTrays - 1
+                Simulation_Results.VRTMTrayData(currentSimulationTimeStep, I - 1, currentLevel) = Simulation_Results.VRTMTrayData(currentSimulationTimeStep - 1, I, currentLevel).Clone
+            Next
+            Simulation_Results.VRTMTrayData(currentSimulationTimeStep, VRTM_SimVariables.nTrays - 1, currentLevel) = Simulation_Results.Elevator(currentSimulationTimeStep - 1).Clone
+
+            Simulation_Results.EmptyElevatorB(currentSimulationTimeStep) = True
+        End If
+
+        'Updates the VRTM Variables
+        Simulation_Results.VRTMTimePositions(currentSimulationTimeStep) = CurrentTime
+        Simulation_Results.TrayEntryLevels(currentSimulationTimeStep) = currentLevel
+
+        Return True
+
+    End Function
+
     Public Function LoadNewTray(ByVal k As KeyValuePair(Of Double, Long), ByVal currentTrayIndex As Long, ByRef currentLevel As Long,
                          ByVal currentSimulationTimeStep As Long, ByRef Conveyors() As Conveyor) As Boolean
         'Selects the level according to logic
         Simulation_Results.TrayEntryTimes(currentTrayIndex) = k.Key
-        currentLevel = SelectLevel(currentTrayIndex, k.Value)
+        currentLevel = SelectLevel(currentTrayIndex, currentSimulationTimeStep, k.Value)
 
         If currentLevel = -1 Then Return False
 
@@ -239,7 +317,33 @@ PostProcessing:
             Next
         End If
 
-        'Unload the conveyor and create a tray
+        'Stores the index of the exiting tray
+        Dim ExitingTrayIndex As Long
+        ExitingTrayIndex = Simulation_Results.VRTMTrayData(currentSimulationTimeStep, 0, VRTM_SimVariables.ReturnLevel - 1).TrayIndex
+
+        'First, advances (backwards) the trays in the return level
+        For I As Long = 0 To VRTM_SimVariables.nTrays - 2
+            Simulation_Results.VRTMTrayData(currentSimulationTimeStep, I, VRTM_SimVariables.ReturnLevel - 1) = Simulation_Results.VRTMTrayData(currentSimulationTimeStep, I + 1, VRTM_SimVariables.ReturnLevel - 1).Clone
+        Next
+
+        'Then places the contents of elevator 2 in the last tray of the return level
+        If Not IsNothing(Simulation_Results.Elevator(currentSimulationTimeStep - 1)) Then
+            If Simulation_Results.Elevator(currentSimulationTimeStep - 1).ConveyorIndex <> -1 Then
+                Dim asld As String = ""
+            End If
+            Simulation_Results.VRTMTrayData(currentSimulationTimeStep, VRTM_SimVariables.nTrays - 1, VRTM_SimVariables.ReturnLevel - 1) = Simulation_Results.Elevator(currentSimulationTimeStep - 1).Clone
+        Else
+            'There was nothing in the elevator 2 (first loop), so fills up the return level with an empty tray
+            Simulation_Results.VRTMTrayData(currentSimulationTimeStep, VRTM_SimVariables.nTrays - 1, VRTM_SimVariables.ReturnLevel - 1) = New TrayData
+            Simulation_Results.VRTMTrayData(currentSimulationTimeStep, VRTM_SimVariables.nTrays - 1, VRTM_SimVariables.ReturnLevel - 1).TrayIndex = 0
+            Simulation_Results.VRTMTrayData(currentSimulationTimeStep, VRTM_SimVariables.nTrays - 1, VRTM_SimVariables.ReturnLevel - 1).ConveyorIndex = -1
+        End If
+
+
+        'Before loading the current level fills up the elevator 2 contents (In normal loading the elevator 2 is the only shown)
+        Simulation_Results.EmptyElevatorB(currentSimulationTimeStep) = False
+        Simulation_Results.Elevator(currentSimulationTimeStep) = Simulation_Results.VRTMTrayData(currentSimulationTimeStep, VRTM_SimVariables.nTrays - 1, currentLevel).Clone
+
         'Advances all the other trays in this level
         For I As Long = VRTM_SimVariables.nTrays - 1 To 1 Step -1
             Simulation_Results.VRTMTrayData(currentSimulationTimeStep, I, currentLevel) = Simulation_Results.VRTMTrayData(currentSimulationTimeStep, I - 1, currentLevel).Clone
@@ -256,16 +360,12 @@ PostProcessing:
         Conveyors(ConveyorPosition_To_Index(VRTM_SimVariables.ProductMix(k.Value).ConveyorNumber)).BoxesInConveyor.Clear()
 
         'Updates the level and exit times
-        Simulation_Results.TrayEntryLevels(currentTrayIndex) = currentLevel
-        Dim ExitingTrayIndex As Long
-        ExitingTrayIndex = Simulation_Results.VRTMTrayData(currentSimulationTimeStep - 1, VRTM_SimVariables.nTrays - 1, currentLevel).TrayIndex
+        Simulation_Results.TrayEntryLevels(currentSimulationTimeStep) = currentLevel
         If Not ExitingTrayIndex <= 0 Then Simulation_Results.TrayExitTimes(ExitingTrayIndex) = k.Key
 
 
         Return True
     End Function
-
-
 
 
     Public Class Conveyor
@@ -281,23 +381,23 @@ PostProcessing:
             '1. Transfers the trays from elevator A to elevator B
             Compute_Entire_Cycle_Time = .TrayTransferTime
             '2. Descends to return level
-            Compute_Entire_Cycle_Time = Compute_Entire_Cycle_Time + Compute_Elevator_Time(StartLevel, .ReturnLevel)
+            Compute_Entire_Cycle_Time = Compute_Entire_Cycle_Time + Compute_Elevator_Time(StartLevel, .ReturnLevel - 1)
             '3. Transfers trays from B to A
             Compute_Entire_Cycle_Time = Compute_Entire_Cycle_Time + .TrayTransferTime
             '4. Moves elevator to unload level
-            Compute_Entire_Cycle_Time = Compute_Entire_Cycle_Time + Compute_Elevator_Time(.ReturnLevel, .UnloadLevel)
+            Compute_Entire_Cycle_Time = Compute_Entire_Cycle_Time + Compute_Elevator_Time(.ReturnLevel - 1, .UnloadLevel - 1)
             '5. Moves discharge device forwards
             Compute_Entire_Cycle_Time = Compute_Entire_Cycle_Time + .UnloaderRetractionTime
             '6. Aligns with the discharge level
-            Compute_Entire_Cycle_Time = Compute_Entire_Cycle_Time + Compute_Elevator_Time(.UnloadLevel, .UnloadLevel + 1)
+            Compute_Entire_Cycle_Time = Compute_Entire_Cycle_Time + Compute_Elevator_Time(.UnloadLevel - 1, .UnloadLevel)
             '7. Retracts discharge device
             Compute_Entire_Cycle_Time = Compute_Entire_Cycle_Time + .UnloaderRetractionTime
             '8. Moves the elevator to loading level
-            Compute_Entire_Cycle_Time = Compute_Entire_Cycle_Time + Compute_Elevator_Time(.UnloadLevel, .LoadLevel)
+            Compute_Entire_Cycle_Time = Compute_Entire_Cycle_Time + Compute_Elevator_Time(.UnloadLevel - 1, .LoadLevel - 1)
             '9. Loads boxes in tray
             Compute_Entire_Cycle_Time = Compute_Entire_Cycle_Time + .BoxLoadingTime
             '10. Moves loaded elevator to work level
-            Compute_Entire_Cycle_Time = Compute_Entire_Cycle_Time + Compute_Elevator_Time(.LoadLevel, EndLevel)
+            Compute_Entire_Cycle_Time = Compute_Entire_Cycle_Time + Compute_Elevator_Time(.LoadLevel - 1, EndLevel - 1)
 
         End With
 
@@ -419,18 +519,18 @@ PostProcessing:
 
     End Function
 
-    Public Function SelectLevel(t As Long, prodIndex As Long) As Long
+    Public Function SelectLevel(t As Long, ByVal currentSimulationTimeStep As Long, prodIndex As Long) As Long
         'This implements the logic of selecting a level in the tunnel
         With VRTM_SimVariables
             Dim availableLevels As New List(Of Long)
             Dim stayTime, exitEntryTime As Double
 
             For I As Long = 0 To .nLevels - 1
-                exitEntryTime = Simulation_Results.TrayEntryTimes(Simulation_Results.VRTMTrayData(t - 1, .nTrays - 1, I).TrayIndex)
+                exitEntryTime = Simulation_Results.TrayEntryTimes(Simulation_Results.VRTMTrayData(currentSimulationTimeStep - 1, .nTrays - 1, I).TrayIndex)
                 stayTime = Simulation_Results.TrayEntryTimes(t) - exitEntryTime
                 If (stayTime > (.ProductMix(prodIndex).MinimumStayTime * 3600)) Or
                     (exitEntryTime = 0) Then
-                    If I <> VRTM_SimVariables.ReturnLevel Then availableLevels.Add(I) 'Don't use the return level to do this
+                    If I <> VRTM_SimVariables.ReturnLevel - 1 Then availableLevels.Add(I) 'Don't use the return level to do this
                 Else
                     Dim A As Long = 0
                 End If
@@ -440,11 +540,11 @@ PostProcessing:
                 'There are available levels.
                 If VRTM_SimVariables.LevelChoosing = 0 Then 'Production
                     'Selects levels according to the production demand
-                    SelectLevel = SelectLevelAccordingToProduction(availableLevels, t, prodIndex)
+                    SelectLevel = SelectLevelAccordingToProduction(availableLevels, t, currentSimulationTimeStep, prodIndex)
                 ElseIf VRTM_SimVariables.LevelChoosing = 1 Then 'Demand
                     If .DelayDemand And (Simulation_Results.TrayEntryTimes(t) < .DelayDemandTime * 3600 * 24) Then
                         'Selects levels to keep stuff organized
-                        SelectLevel = SelectLevelAccordingToProduction(availableLevels, t, prodIndex)
+                        SelectLevel = SelectLevelAccordingToProduction(availableLevels, t, currentSimulationTimeStep, prodIndex)
                     Else
                         'Selects levels according to a demand profile
                         If .PickingOrders = 0 Then
@@ -453,7 +553,7 @@ PostProcessing:
                             Dim NarrowedAvailableLevels As New List(Of Long)
 
                             For Each L As Long In availableLevels
-                                If Simulation_Results.VRTMTrayData(t - 1, .nTrays - 1, L).ConveyorIndex = SelectedConveyorIndex Then
+                                If Simulation_Results.VRTMTrayData(currentSimulationTimeStep - 1, .nTrays - 1, L).ConveyorIndex = SelectedConveyorIndex Then
                                     'Whether it's frozen AND has the selected product index
                                     NarrowedAvailableLevels.Add(L)
                                 End If
@@ -467,7 +567,7 @@ PostProcessing:
                                 Dim stayTimeMaxAt As Long = 0
                                 stayTime = Double.MinValue
                                 For Each N As Long In NarrowedAvailableLevels
-                                    exitEntryTime = Simulation_Results.TrayEntryTimes(Simulation_Results.VRTMTrayData(t - 1, .nTrays - 1, N).TrayIndex)
+                                    exitEntryTime = Simulation_Results.TrayEntryTimes(Simulation_Results.VRTMTrayData(currentSimulationTimeStep - 1, .nTrays - 1, N).TrayIndex)
                                     If (exitEntryTime - Simulation_Results.TrayEntryTimes(t)) > stayTime Then
                                         stayTime = exitEntryTime - Simulation_Results.TrayEntryTimes(t)
                                         stayTimeMaxAt = N
@@ -494,7 +594,7 @@ PostProcessing:
         End With
     End Function
 
-    Public Function SelectLevelAccordingToProduction(availableLevels As List(Of Long), t As Long, prodIndex As Long) As Long
+    Public Function SelectLevelAccordingToProduction(availableLevels As List(Of Long), t As Long, currentSimulationTimeStep As Long, prodIndex As Long) As Long
         With VRTM_SimVariables
             'Will feed to the closest to loading level and never put a product on a level where there is another product already.
             Dim ConvIndex As Long = .ProductMix(prodIndex).ConveyorNumber
@@ -502,7 +602,7 @@ PostProcessing:
             'Selects the levels that have the current conveyor index
             Dim MatchedLevels As New List(Of Long)
             For Each l As Long In availableLevels
-                If Simulation_Results.VRTMTrayData(t - 1, 0, l).ConveyorIndex = ConvIndex Then
+                If Simulation_Results.VRTMTrayData(currentSimulationTimeStep - 1, 0, l).ConveyorIndex = ConvIndex Then
                     MatchedLevels.Add(l)
                 End If
             Next
@@ -510,7 +610,7 @@ PostProcessing:
             If MatchedLevels.Count = 0 Then
                 'No matches, tries to find an empty level then
                 For Each l As Long In availableLevels
-                    If Simulation_Results.VRTMTrayData(t - 1, 0, l).ConveyorIndex = -1 Then
+                    If Simulation_Results.VRTMTrayData(currentSimulationTimeStep - 1, 0, l).ConveyorIndex = -1 Then
                         MatchedLevels.Add(l)
                     End If
                 Next

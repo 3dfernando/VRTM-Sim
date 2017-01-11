@@ -387,9 +387,9 @@ TryAgain:
         Public TrayExitTimes() As Double 'Array of simulation exit time indices for each tray index mentioned in TRVMTrayIndices
         Public TrayStayTime() As Double 'Array of stay times for each tray
         Public TrayAirTemperatures() As Double 'Air temperatures on the trays
-        Public TrayEntryLevels() As Double 'Array of levels where each tray was entering onto for the tray index mentioned in TRVMTrayIndices
-        Public Elevator() As TrayData 'Representation of the tray in the elevator
-        Public EmptyElevator As Boolean 'Number of the elevator that is empty (FALSE = left [A], TRUE = right [B])
+        Public TrayEntryLevels() As Integer 'Array of levels where each tray was entering onto for the tray index mentioned in TRVMTrayIndices
+        Public Elevator() As TrayData 'Representation of the tray in the elevator, array in timesteps
+        Public EmptyElevatorB() As Boolean 'Number of the elevator that is empty (FALSE = left [A], TRUE = right [B])
 
         Public SimulationComplete As Boolean = False
     End Class
