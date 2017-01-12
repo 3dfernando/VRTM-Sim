@@ -212,9 +212,9 @@
                                 CurrentDay = Int(k.Key / (24 * 3600))
                                 If CurrentDay = VRTM_SimVariables.DelayDemandTime - 1 Then
                                     'Performs a preparation reorganization
-                                    Recipe = DefineOrganizationMovementsProdDemandTransition(currentSimulationTimeStep, AvailableTime, k.Key) 'Calls the organization routine and gets the recipe for organization
+                                    Recipe = DefineOrganizationMovementsProdDemandTransition(currentSimulationTimeStep, AvailableTime, k.Key) 'Calls the primer organization routine and gets the recipe for organization
                                 ElseIf CurrentDay > VRTM_SimVariables.DelayDemandTime - 1 Then
-                                    'Recipe = DefineOrganizationMovements(currentSimulationTimeStep, AvailableTime, k.Key) 'Calls the organization routine and gets the recipe for organization
+                                    Recipe = DefineOrganizationMovements(currentSimulationTimeStep, AvailableTime, k.Key) 'Calls the regular organization routine and gets the recipe for organization
                                 End If
 
                                 If CurrentDay >= VRTM_SimVariables.DelayDemandTime - 1 Then
