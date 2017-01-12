@@ -1,13 +1,19 @@
 ﻿Module ProcessSimulationEngine
     'This module will contain all subs needed to perform the process simulation.
     Private ConveyorPosition_To_Index As New Dictionary(Of Long, Long)
+    Private ConveyorIndexDemanded As Long 'This variable has been made public to facilitate debugging by the user (it's going to be shown in the message box)
+    Public TimeWhereSimulationStopped As Double 'This will store the simulation stop time so the scroll bar positions itself automatically in the case of an error.
+    Public UniformConveyorRandomNumberLimits() As Double 'Get a random number and compare to this list to find which product should be selected according to the production rates.
 
     Public Sub RunProcessSimulation()
         'This will run the process simulation.
+        'Inits variables
+        Simulation_Results = New SimulationData
+        TimeWhereSimulationStopped = 0
+        GenerateUniformDistributionWeightList()
 
         '################Preruns the box times########################
         With VRTM_SimVariables
-            Simulation_Results = New SimulationData
 
             'Seeds the multiple products according to their statistical distributions
             Dim T As Double
@@ -133,7 +139,12 @@
                     If k.Key > ElevatorWaitUntil Then 'Will only perform a loading if the elevator is ready
                         'Loads the tray
                         If Not LoadNewTray(k, currentTrayIndex, currentLevel, currentSimulationTimeStep, Conveyors) Then
-                            MsgBox("This VRTM Size doesn't seem to be enough to fit the selected criteria")
+
+                            MsgBox("This VRTM Size doesn't seem to be large enough to fit the selected loading criteria" & vbCrLf &
+                                       "Simulation stopped at " & GetCurrentTimeString(k.Key) & vbCrLf &
+                                       "Product that was being loaded had a conveyor index of " & Trim(Str(VRTM_SimVariables.ProductMix(k.Value).ConveyorNumber)) &
+                                       " and the demand was a product of conveyor index of " & Trim(Str(ConveyorIndexDemanded)))
+                            TimeWhereSimulationStopped = k.Key
                             GoTo PostProcessing
                         End If
                         elevatorMovementTime = Compute_Entire_Cycle_Time(prevLevel, currentLevel) 'computes the time for the elevator to complete a loading/unloading cycle
@@ -167,7 +178,8 @@
                                 MsgBox("This VRTM Size doesn't seem to be large enough to fit the selected loading criteria" & vbCrLf &
                                        "Simulation stopped at " & GetCurrentTimeString(k.Key) & vbCrLf &
                                        "Product that was being loaded had a conveyor index of " & Trim(Str(VRTM_SimVariables.ProductMix(k.Value).ConveyorNumber)) &
-                                       " and the demand was a product of conveyor index of ")
+                                       " and the demand was a product of conveyor index of " & Trim(Str(ConveyorIndexDemanded)))
+                                TimeWhereSimulationStopped = prevBoxTime + TimeDelay
                                 GoTo PostProcessing
                             End If
                             elevatorMovementTime = Compute_Entire_Cycle_Time(prevLevel, currentLevel)
@@ -190,21 +202,38 @@
                             Dim AvailableTime As Double
                             AvailableTime = (k.Key - prevBoxTime) 'Gets how much time is available to reshelve
 
-                            Dim Recipe As List(Of Long)
-                            Recipe = DefineOrganizationMovements(currentSimulationTimeStep, AvailableTime, k.Key) 'Calls the organization routine and gets the recipe for organization
+                            'Reshelving won't make sense unless the configuration is demand-based, so checks that.
+                            If VRTM_SimVariables.LevelChoosing = 1 Then
 
-                            'Actually performs the reshelving operation according to the recipe
-                            For Each currentLevel In Recipe 'These are the new current levels
+                                'Checks whether we reached the delay configured. If so, are we in the first reshelving operation after the production-based level choosing?
+                                Dim CurrentDay As Long
+                                Dim Recipe As New List(Of Long)
 
-                                elevatorMovementTime = Compute_Entire_Cycle_Time(prevLevel, currentLevel)
-                                TimeDelay += elevatorMovementTime
+                                CurrentDay = Int(k.Key / (24 * 3600))
+                                If CurrentDay = VRTM_SimVariables.DelayDemandTime - 1 Then
+                                    'Performs a preparation reorganization
+                                    Recipe = DefineOrganizationMovementsProdDemandTransition(currentSimulationTimeStep, AvailableTime, k.Key) 'Calls the organization routine and gets the recipe for organization
+                                ElseIf CurrentDay > VRTM_SimVariables.DelayDemandTime - 1 Then
+                                    'Recipe = DefineOrganizationMovements(currentSimulationTimeStep, AvailableTime, k.Key) 'Calls the organization routine and gets the recipe for organization
+                                End If
 
-                                PerformReshelvingMovement(currentLevel, currentSimulationTimeStep, prevBoxTime + TimeDelay)
+                                If CurrentDay >= VRTM_SimVariables.DelayDemandTime - 1 Then
+                                    'Actually performs the reshelving operation according to the recipe
+                                    For Each currentLevel In Recipe 'These are the new current levels
 
-                                'Updates the loop variables
-                                prevLevel = currentLevel
-                                currentSimulationTimeStep += 1
-                            Next
+                                        elevatorMovementTime = Compute_Reshelving_Cycle_Time(prevLevel, currentLevel)
+                                        TimeDelay += elevatorMovementTime
+
+                                        PerformReshelvingMovement(currentLevel, currentSimulationTimeStep, prevBoxTime + TimeDelay)
+
+                                        'Updates the loop variables
+                                        prevLevel = currentLevel
+                                        currentSimulationTimeStep += 1
+                                    Next
+                                End If
+
+                            End If
+
                         End If
                     End If
                 End If
@@ -374,6 +403,18 @@ PostProcessing:
         Public ConveyorIndex As Long
     End Class
 
+    Public Function Compute_Reshelving_Cycle_Time(StartLevel As Integer, EndLevel As Integer) As Double
+        'Time in seconds for elevator cycle when reshelving 
+
+        With VRTM_SimVariables
+            '1. Moves to target level
+            Compute_Reshelving_Cycle_Time = Compute_Elevator_Time(StartLevel, EndLevel)
+            '2. Transfers trays
+            Compute_Reshelving_Cycle_Time = Compute_Reshelving_Cycle_Time + .TrayTransferTime
+        End With
+
+    End Function
+
     Public Function Compute_Entire_Cycle_Time(StartLevel As Integer, EndLevel As Integer) As Double
         'Time in seconds for elevator cycle
 
@@ -542,18 +583,18 @@ PostProcessing:
                     'Selects levels according to the production demand
                     SelectLevel = SelectLevelAccordingToProduction(availableLevels, t, currentSimulationTimeStep, prodIndex)
                 ElseIf VRTM_SimVariables.LevelChoosing = 1 Then 'Demand
-                    If .DelayDemand And (Simulation_Results.TrayEntryTimes(t) < .DelayDemandTime * 3600 * 24) Then
+                    If .DelayDemand And (Simulation_Results.TrayEntryTimes(t) < (.DelayDemandTime - 1) * 3600 * 24) Then
                         'Selects levels to keep stuff organized
                         SelectLevel = SelectLevelAccordingToProduction(availableLevels, t, currentSimulationTimeStep, prodIndex)
                     Else
                         'Selects levels according to a demand profile
                         If .PickingOrders = 0 Then
                             'Random demands a conveyor index type and requests it
-                            Dim SelectedConveyorIndex As Long = Int(Rnd() * VRTM_SimVariables.InletConveyors.Count)
+                            ConveyorIndexDemanded = DemandUniformRandomProduct()
                             Dim NarrowedAvailableLevels As New List(Of Long)
 
                             For Each L As Long In availableLevels
-                                If Simulation_Results.VRTMTrayData(currentSimulationTimeStep - 1, .nTrays - 1, L).ConveyorIndex = SelectedConveyorIndex Then
+                                If Simulation_Results.VRTMTrayData(currentSimulationTimeStep - 1, .nTrays - 1, L).ConveyorIndex = ConveyorIndexDemanded Then
                                     'Whether it's frozen AND has the selected product index
                                     NarrowedAvailableLevels.Add(L)
                                 End If
@@ -636,5 +677,43 @@ PostProcessing:
             SelectLevelAccordingToProduction = MinDistAt
         End With
     End Function
+
+    Public Function DemandUniformRandomProduct() As Long
+        'This function selects a random product and outputs a conveyor index according to the inflow rate
+        Dim R As Double = Rnd()
+        For I As Long = 0 To VRTM_SimVariables.InletConveyors.Count - 1
+            If R < UniformConveyorRandomNumberLimits(I) Then
+                'Selects it
+                Return I
+            End If
+        Next
+        Return Nothing 'Just to throw an error because this shouldn't make sense (R>1?)
+    End Function
+
+    Public Sub GenerateUniformDistributionWeightList()
+        'This function helps to generate a random demand based on a weighted uniform distribution
+        'Numbers between 0-1 
+
+        'First totalizes the production rates for each conveyor
+        Dim ProductionRates() As Double
+        Dim TotalProductionRate As Double = 0
+        ReDim ProductionRates(VRTM_SimVariables.InletConveyors.Count - 1)
+        ReDim UniformConveyorRandomNumberLimits(VRTM_SimVariables.InletConveyors.Count - 1)
+
+
+        For Each P As ProductData In VRTM_SimVariables.ProductMix
+            ProductionRates(P.ConveyorNumber) += P.AvgFlowRate
+            TotalProductionRate += P.AvgFlowRate
+        Next
+
+        'Computes the partial coefficients for each random number
+        Dim AccumProductionRate As Double = 0
+        For I As Long = 0 To VRTM_SimVariables.InletConveyors.Count - 1
+            AccumProductionRate += ProductionRates(I)
+            UniformConveyorRandomNumberLimits(I) = AccumProductionRate / TotalProductionRate
+        Next
+
+    End Sub
+
 
 End Module

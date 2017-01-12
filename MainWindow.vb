@@ -103,7 +103,7 @@ Public Class MainWindow
         End Try
 
 
-        'Creates tooltips for the imaged tooltip components
+        'Creates tooltips for the image tooltip components
         Try
             Dim T As New ImageTip
             T.InitialDelay = 100
@@ -234,9 +234,10 @@ Public Class MainWindow
 
         hsSimPosition.Minimum = 0
         hsSimPosition.Maximum = VRTM_SimVariables.TotalSimTime
-        hsSimPosition.SmallChange = VRTM_SimVariables.MinimumSimDt
+        hsSimPosition.SmallChange = VRTM_SimVariables.MinimumSimDt / 3
         hsSimPosition.LargeChange = VRTM_SimVariables.MinimumSimDt * 10
-        hsSimPosition.Value = 0
+        hsSimPosition.Value = TimeWhereSimulationStopped
+        UpdateDGVPlayback(Nothing, Nothing)
 
         lblDisplayVariable.Text = "Simulation Completed"
     End Sub
