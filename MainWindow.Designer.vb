@@ -234,6 +234,15 @@ Partial Class MainWindow
         Me.OpenFileDialog1 = New System.Windows.Forms.OpenFileDialog()
         Me.BindingSource1 = New System.Windows.Forms.BindingSource(Me.components)
         Me.ToolTip1 = New System.Windows.Forms.ToolTip(Me.components)
+        Me.lstSimTotalsStats = New System.Windows.Forms.TabControl()
+        Me.TabPage3 = New System.Windows.Forms.TabPage()
+        Me.TabPage4 = New System.Windows.Forms.TabPage()
+        Me.Label70 = New System.Windows.Forms.Label()
+        Me.chkStopOnDemand = New System.Windows.Forms.CheckBox()
+        Me.ListView1 = New System.Windows.Forms.ListView()
+        Me.lstCurrentFrameStats = New System.Windows.Forms.ListView()
+        Me.Label71 = New System.Windows.Forms.Label()
+        Me.txtEmptyLevel = New System.Windows.Forms.TextBox()
         CType(Me.Divisor1, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.Divisor1.Panel1.SuspendLayout()
         Me.Divisor1.Panel2.SuspendLayout()
@@ -265,6 +274,7 @@ Partial Class MainWindow
         Me.GroupBox9.SuspendLayout()
         CType(Me.Divisor2, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.Divisor2.Panel1.SuspendLayout()
+        Me.Divisor2.Panel2.SuspendLayout()
         Me.Divisor2.SuspendLayout()
         CType(Me.MidPanel, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.MidPanel.Panel1.SuspendLayout()
@@ -274,6 +284,9 @@ Partial Class MainWindow
         CType(Me.ErrorProvider1, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.ErrorProvider2, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.BindingSource1, System.ComponentModel.ISupportInitialize).BeginInit()
+        Me.lstSimTotalsStats.SuspendLayout()
+        Me.TabPage3.SuspendLayout()
+        Me.TabPage4.SuspendLayout()
         Me.SuspendLayout()
         '
         'Divisor1
@@ -290,7 +303,7 @@ Partial Class MainWindow
         'Divisor1.Panel2
         '
         Me.Divisor1.Panel2.Controls.Add(Me.Divisor2)
-        Me.Divisor1.Size = New System.Drawing.Size(1164, 792)
+        Me.Divisor1.Size = New System.Drawing.Size(1332, 792)
         Me.Divisor1.SplitterDistance = 324
         Me.Divisor1.TabIndex = 1
         '
@@ -1633,7 +1646,7 @@ Partial Class MainWindow
         Me.grpTunnelOrg.Controls.Add(Me.Label86)
         Me.grpTunnelOrg.Controls.Add(Me.txtMinimumReshelvingWindow)
         Me.grpTunnelOrg.Controls.Add(Me.Label87)
-        Me.grpTunnelOrg.Location = New System.Drawing.Point(16, 128)
+        Me.grpTunnelOrg.Location = New System.Drawing.Point(16, 152)
         Me.grpTunnelOrg.Name = "grpTunnelOrg"
         Me.grpTunnelOrg.Size = New System.Drawing.Size(211, 125)
         Me.grpTunnelOrg.TabIndex = 55
@@ -1694,7 +1707,7 @@ Partial Class MainWindow
         Me.grpDemandProf.Controls.Add(Me.Label82)
         Me.grpDemandProf.Controls.Add(Me.txtExternalDemandProfileFile)
         Me.grpDemandProf.Controls.Add(Me.Label84)
-        Me.grpDemandProf.Location = New System.Drawing.Point(16, 259)
+        Me.grpDemandProf.Location = New System.Drawing.Point(16, 283)
         Me.grpDemandProf.Name = "grpDemandProf"
         Me.grpDemandProf.Size = New System.Drawing.Size(211, 119)
         Me.grpDemandProf.TabIndex = 54
@@ -1751,6 +1764,7 @@ Partial Class MainWindow
         '
         'GroupBox11
         '
+        Me.GroupBox11.Controls.Add(Me.chkStopOnDemand)
         Me.GroupBox11.Controls.Add(Me.chkDelayDemand)
         Me.GroupBox11.Controls.Add(Me.txtLevelChoosing)
         Me.GroupBox11.Controls.Add(Me.Label81)
@@ -1759,7 +1773,7 @@ Partial Class MainWindow
         Me.GroupBox11.Controls.Add(Me.Label79)
         Me.GroupBox11.Location = New System.Drawing.Point(16, 6)
         Me.GroupBox11.Name = "GroupBox11"
-        Me.GroupBox11.Size = New System.Drawing.Size(211, 116)
+        Me.GroupBox11.Size = New System.Drawing.Size(211, 140)
         Me.GroupBox11.TabIndex = 4
         Me.GroupBox11.TabStop = False
         Me.GroupBox11.Text = "Shelving Strategy"
@@ -1847,6 +1861,8 @@ Partial Class MainWindow
         Me.GroupBox10.Controls.Add(Me.txtBoxLoadingTime)
         Me.GroupBox10.Controls.Add(Me.Label60)
         Me.GroupBox10.Controls.Add(Me.Label62)
+        Me.GroupBox10.Controls.Add(Me.txtEmptyLevel)
+        Me.GroupBox10.Controls.Add(Me.Label71)
         Me.GroupBox10.Controls.Add(Me.txtReturnLevel)
         Me.GroupBox10.Controls.Add(Me.Label54)
         Me.GroupBox10.Controls.Add(Me.txtTrayTransferTime)
@@ -1863,7 +1879,7 @@ Partial Class MainWindow
         Me.GroupBox10.Controls.Add(Me.Label57)
         Me.GroupBox10.Location = New System.Drawing.Point(16, 90)
         Me.GroupBox10.Name = "GroupBox10"
-        Me.GroupBox10.Size = New System.Drawing.Size(211, 282)
+        Me.GroupBox10.Size = New System.Drawing.Size(211, 301)
         Me.GroupBox10.TabIndex = 64
         Me.GroupBox10.TabStop = False
         Me.GroupBox10.Text = "Elevator Configuration"
@@ -1897,7 +1913,7 @@ Partial Class MainWindow
         'Label66
         '
         Me.Label66.AutoSize = True
-        Me.Label66.Location = New System.Drawing.Point(191, 253)
+        Me.Label66.Location = New System.Drawing.Point(191, 275)
         Me.Label66.Name = "Label66"
         Me.Label66.Size = New System.Drawing.Size(12, 13)
         Me.Label66.TabIndex = 79
@@ -1905,7 +1921,7 @@ Partial Class MainWindow
         '
         'txtUnloaderRetractionTime
         '
-        Me.txtUnloaderRetractionTime.Location = New System.Drawing.Point(142, 250)
+        Me.txtUnloaderRetractionTime.Location = New System.Drawing.Point(142, 272)
         Me.txtUnloaderRetractionTime.Name = "txtUnloaderRetractionTime"
         Me.txtUnloaderRetractionTime.Size = New System.Drawing.Size(43, 20)
         Me.txtUnloaderRetractionTime.TabIndex = 78
@@ -1914,7 +1930,7 @@ Partial Class MainWindow
         'Label67
         '
         Me.Label67.AutoSize = True
-        Me.Label67.Location = New System.Drawing.Point(7, 253)
+        Me.Label67.Location = New System.Drawing.Point(7, 275)
         Me.Label67.Name = "Label67"
         Me.Label67.Size = New System.Drawing.Size(131, 13)
         Me.Label67.TabIndex = 77
@@ -1923,7 +1939,7 @@ Partial Class MainWindow
         'Label64
         '
         Me.Label64.AutoSize = True
-        Me.Label64.Location = New System.Drawing.Point(173, 229)
+        Me.Label64.Location = New System.Drawing.Point(173, 251)
         Me.Label64.Name = "Label64"
         Me.Label64.Size = New System.Drawing.Size(12, 13)
         Me.Label64.TabIndex = 76
@@ -1931,7 +1947,7 @@ Partial Class MainWindow
         '
         'txtBoxUnloadingTime
         '
-        Me.txtBoxUnloadingTime.Location = New System.Drawing.Point(124, 226)
+        Me.txtBoxUnloadingTime.Location = New System.Drawing.Point(124, 248)
         Me.txtBoxUnloadingTime.Name = "txtBoxUnloadingTime"
         Me.txtBoxUnloadingTime.Size = New System.Drawing.Size(43, 20)
         Me.txtBoxUnloadingTime.TabIndex = 75
@@ -1940,7 +1956,7 @@ Partial Class MainWindow
         'Label65
         '
         Me.Label65.AutoSize = True
-        Me.Label65.Location = New System.Drawing.Point(7, 229)
+        Me.Label65.Location = New System.Drawing.Point(7, 251)
         Me.Label65.Name = "Label65"
         Me.Label65.Size = New System.Drawing.Size(105, 13)
         Me.Label65.TabIndex = 74
@@ -1949,7 +1965,7 @@ Partial Class MainWindow
         'Label58
         '
         Me.Label58.AutoSize = True
-        Me.Label58.Location = New System.Drawing.Point(173, 205)
+        Me.Label58.Location = New System.Drawing.Point(173, 227)
         Me.Label58.Name = "Label58"
         Me.Label58.Size = New System.Drawing.Size(12, 13)
         Me.Label58.TabIndex = 73
@@ -1957,7 +1973,7 @@ Partial Class MainWindow
         '
         'txtBoxLoadingTime
         '
-        Me.txtBoxLoadingTime.Location = New System.Drawing.Point(124, 202)
+        Me.txtBoxLoadingTime.Location = New System.Drawing.Point(124, 224)
         Me.txtBoxLoadingTime.Name = "txtBoxLoadingTime"
         Me.txtBoxLoadingTime.Size = New System.Drawing.Size(43, 20)
         Me.txtBoxLoadingTime.TabIndex = 72
@@ -1966,7 +1982,7 @@ Partial Class MainWindow
         'Label60
         '
         Me.Label60.AutoSize = True
-        Me.Label60.Location = New System.Drawing.Point(7, 205)
+        Me.Label60.Location = New System.Drawing.Point(7, 227)
         Me.Label60.Name = "Label60"
         Me.Label60.Size = New System.Drawing.Size(95, 13)
         Me.Label60.TabIndex = 71
@@ -1975,7 +1991,7 @@ Partial Class MainWindow
         'Label62
         '
         Me.Label62.AutoSize = True
-        Me.Label62.Location = New System.Drawing.Point(173, 181)
+        Me.Label62.Location = New System.Drawing.Point(173, 203)
         Me.Label62.Name = "Label62"
         Me.Label62.Size = New System.Drawing.Size(12, 13)
         Me.Label62.TabIndex = 70
@@ -2000,7 +2016,7 @@ Partial Class MainWindow
         '
         'txtTrayTransferTime
         '
-        Me.txtTrayTransferTime.Location = New System.Drawing.Point(124, 178)
+        Me.txtTrayTransferTime.Location = New System.Drawing.Point(124, 200)
         Me.txtTrayTransferTime.Name = "txtTrayTransferTime"
         Me.txtTrayTransferTime.Size = New System.Drawing.Size(43, 20)
         Me.txtTrayTransferTime.TabIndex = 69
@@ -2009,7 +2025,7 @@ Partial Class MainWindow
         'Label63
         '
         Me.Label63.AutoSize = True
-        Me.Label63.Location = New System.Drawing.Point(7, 181)
+        Me.Label63.Location = New System.Drawing.Point(7, 203)
         Me.Label63.Name = "Label63"
         Me.Label63.Size = New System.Drawing.Size(99, 13)
         Me.Label63.TabIndex = 68
@@ -2071,9 +2087,9 @@ Partial Class MainWindow
         Me.Label55.AutoSize = True
         Me.Label55.Location = New System.Drawing.Point(173, 23)
         Me.Label55.Name = "Label55"
-        Me.Label55.Size = New System.Drawing.Size(25, 13)
+        Me.Label55.Size = New System.Drawing.Size(36, 13)
         Me.Label55.TabIndex = 2
-        Me.Label55.Text = "m/s"
+        Me.Label55.Text = "m/min"
         '
         'Label56
         '
@@ -2106,7 +2122,7 @@ Partial Class MainWindow
         Me.GroupBox4.Controls.Add(Me.txtAcceptedDt)
         Me.GroupBox4.Controls.Add(Me.Label48)
         Me.GroupBox4.Controls.Add(Me.Label49)
-        Me.GroupBox4.Location = New System.Drawing.Point(16, 378)
+        Me.GroupBox4.Location = New System.Drawing.Point(16, 397)
         Me.GroupBox4.Name = "GroupBox4"
         Me.GroupBox4.Size = New System.Drawing.Size(211, 60)
         Me.GroupBox4.TabIndex = 62
@@ -2149,7 +2165,7 @@ Partial Class MainWindow
         Me.GroupBox9.Controls.Add(Me.Label34)
         Me.GroupBox9.Location = New System.Drawing.Point(16, 9)
         Me.GroupBox9.Name = "GroupBox9"
-        Me.GroupBox9.Size = New System.Drawing.Size(211, 75)
+        Me.GroupBox9.Size = New System.Drawing.Size(211, 73)
         Me.GroupBox9.TabIndex = 4
         Me.GroupBox9.TabStop = False
         Me.GroupBox9.Text = "Main Simulator General Configs"
@@ -2216,8 +2232,13 @@ Partial Class MainWindow
         'Divisor2.Panel1
         '
         Me.Divisor2.Panel1.Controls.Add(Me.MidPanel)
-        Me.Divisor2.Size = New System.Drawing.Size(836, 792)
-        Me.Divisor2.SplitterDistance = 433
+        '
+        'Divisor2.Panel2
+        '
+        Me.Divisor2.Panel2.Controls.Add(Me.Label70)
+        Me.Divisor2.Panel2.Controls.Add(Me.lstSimTotalsStats)
+        Me.Divisor2.Size = New System.Drawing.Size(1004, 792)
+        Me.Divisor2.SplitterDistance = 601
         Me.Divisor2.TabIndex = 0
         '
         'MidPanel
@@ -2237,7 +2258,7 @@ Partial Class MainWindow
         'MidPanel.Panel2
         '
         Me.MidPanel.Panel2.Controls.Add(Me.VRTMTable)
-        Me.MidPanel.Size = New System.Drawing.Size(433, 792)
+        Me.MidPanel.Size = New System.Drawing.Size(601, 792)
         Me.MidPanel.SplitterDistance = 54
         Me.MidPanel.TabIndex = 2
         '
@@ -2283,7 +2304,7 @@ Partial Class MainWindow
         Me.VRTMTable.ReadOnly = True
         Me.VRTMTable.RowHeadersWidthSizeMode = System.Windows.Forms.DataGridViewRowHeadersWidthSizeMode.DisableResizing
         Me.VRTMTable.ShowEditingIcon = False
-        Me.VRTMTable.Size = New System.Drawing.Size(433, 734)
+        Me.VRTMTable.Size = New System.Drawing.Size(601, 734)
         Me.VRTMTable.TabIndex = 0
         '
         'ErrorProvider1
@@ -2302,11 +2323,96 @@ Partial Class MainWindow
         '
         Me.OpenFileDialog1.FileName = "OpenFileDialog1"
         '
+        'lstSimTotalsStats
+        '
+        Me.lstSimTotalsStats.Controls.Add(Me.TabPage3)
+        Me.lstSimTotalsStats.Controls.Add(Me.TabPage4)
+        Me.lstSimTotalsStats.Location = New System.Drawing.Point(8, 37)
+        Me.lstSimTotalsStats.Name = "lstSimTotalsStats"
+        Me.lstSimTotalsStats.SelectedIndex = 0
+        Me.lstSimTotalsStats.Size = New System.Drawing.Size(379, 261)
+        Me.lstSimTotalsStats.TabIndex = 0
+        '
+        'TabPage3
+        '
+        Me.TabPage3.Controls.Add(Me.lstCurrentFrameStats)
+        Me.TabPage3.Location = New System.Drawing.Point(4, 22)
+        Me.TabPage3.Name = "TabPage3"
+        Me.TabPage3.Padding = New System.Windows.Forms.Padding(3)
+        Me.TabPage3.Size = New System.Drawing.Size(371, 235)
+        Me.TabPage3.TabIndex = 0
+        Me.TabPage3.Text = "Current Frame"
+        Me.TabPage3.UseVisualStyleBackColor = True
+        '
+        'TabPage4
+        '
+        Me.TabPage4.Controls.Add(Me.ListView1)
+        Me.TabPage4.Location = New System.Drawing.Point(4, 22)
+        Me.TabPage4.Name = "TabPage4"
+        Me.TabPage4.Padding = New System.Windows.Forms.Padding(3)
+        Me.TabPage4.Size = New System.Drawing.Size(371, 235)
+        Me.TabPage4.TabIndex = 1
+        Me.TabPage4.Text = "Simulation Totals"
+        Me.TabPage4.UseVisualStyleBackColor = True
+        '
+        'Label70
+        '
+        Me.Label70.AutoSize = True
+        Me.Label70.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label70.Location = New System.Drawing.Point(7, 12)
+        Me.Label70.Name = "Label70"
+        Me.Label70.Size = New System.Drawing.Size(185, 13)
+        Me.Label70.TabIndex = 1
+        Me.Label70.Text = "Statistics of Current Simulation:"
+        '
+        'chkStopOnDemand
+        '
+        Me.chkStopOnDemand.AutoSize = True
+        Me.chkStopOnDemand.Location = New System.Drawing.Point(10, 108)
+        Me.chkStopOnDemand.Name = "chkStopOnDemand"
+        Me.chkStopOnDemand.Size = New System.Drawing.Size(192, 17)
+        Me.chkStopOnDemand.TabIndex = 63
+        Me.chkStopOnDemand.Text = "Stop Simulation If Demand Not Met"
+        Me.chkStopOnDemand.UseVisualStyleBackColor = True
+        '
+        'ListView1
+        '
+        Me.ListView1.Location = New System.Drawing.Point(10, 10)
+        Me.ListView1.Name = "ListView1"
+        Me.ListView1.Size = New System.Drawing.Size(350, 215)
+        Me.ListView1.TabIndex = 0
+        Me.ListView1.UseCompatibleStateImageBehavior = False
+        '
+        'lstCurrentFrameStats
+        '
+        Me.lstCurrentFrameStats.Location = New System.Drawing.Point(10, 10)
+        Me.lstCurrentFrameStats.Name = "lstCurrentFrameStats"
+        Me.lstCurrentFrameStats.Size = New System.Drawing.Size(350, 215)
+        Me.lstCurrentFrameStats.TabIndex = 1
+        Me.lstCurrentFrameStats.UseCompatibleStateImageBehavior = False
+        '
+        'Label71
+        '
+        Me.Label71.AutoSize = True
+        Me.Label71.Location = New System.Drawing.Point(7, 172)
+        Me.Label71.Name = "Label71"
+        Me.Label71.Size = New System.Drawing.Size(68, 13)
+        Me.Label71.TabIndex = 62
+        Me.Label71.Text = "Empty Level:"
+        '
+        'txtEmptyLevel
+        '
+        Me.txtEmptyLevel.Location = New System.Drawing.Point(124, 170)
+        Me.txtEmptyLevel.Name = "txtEmptyLevel"
+        Me.txtEmptyLevel.Size = New System.Drawing.Size(43, 20)
+        Me.txtEmptyLevel.TabIndex = 63
+        Me.txtEmptyLevel.TextAlign = System.Windows.Forms.HorizontalAlignment.Right
+        '
         'MainWindow
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(1164, 792)
+        Me.ClientSize = New System.Drawing.Size(1332, 792)
         Me.Controls.Add(Me.Divisor1)
         Me.Icon = CType(resources.GetObject("$this.Icon"), System.Drawing.Icon)
         Me.Name = "MainWindow"
@@ -2358,6 +2464,8 @@ Partial Class MainWindow
         Me.GroupBox9.ResumeLayout(False)
         Me.GroupBox9.PerformLayout()
         Me.Divisor2.Panel1.ResumeLayout(False)
+        Me.Divisor2.Panel2.ResumeLayout(False)
+        Me.Divisor2.Panel2.PerformLayout()
         CType(Me.Divisor2, System.ComponentModel.ISupportInitialize).EndInit()
         Me.Divisor2.ResumeLayout(False)
         Me.MidPanel.Panel1.ResumeLayout(False)
@@ -2369,6 +2477,9 @@ Partial Class MainWindow
         CType(Me.ErrorProvider1, System.ComponentModel.ISupportInitialize).EndInit()
         CType(Me.ErrorProvider2, System.ComponentModel.ISupportInitialize).EndInit()
         CType(Me.BindingSource1, System.ComponentModel.ISupportInitialize).EndInit()
+        Me.lstSimTotalsStats.ResumeLayout(False)
+        Me.TabPage3.ResumeLayout(False)
+        Me.TabPage4.ResumeLayout(False)
         Me.ResumeLayout(False)
 
     End Sub
@@ -2582,4 +2693,13 @@ Partial Class MainWindow
     Friend WithEvents chkImprovedWeekendStrat As CheckBox
     Friend WithEvents chkRandomPickingBias As CheckBox
     Friend WithEvents ToolTip1 As ToolTip
+    Friend WithEvents Label70 As Label
+    Friend WithEvents lstSimTotalsStats As TabControl
+    Friend WithEvents TabPage3 As TabPage
+    Friend WithEvents TabPage4 As TabPage
+    Friend WithEvents chkStopOnDemand As CheckBox
+    Friend WithEvents lstCurrentFrameStats As ListView
+    Friend WithEvents ListView1 As ListView
+    Friend WithEvents txtEmptyLevel As TextBox
+    Friend WithEvents Label71 As Label
 End Class

@@ -62,7 +62,8 @@
 
         StateList.Add(currentState)
 
-        Move_GroupAllFrozen(Movements, StateList, 0.2)
+        Move_GroupAllFrozen(Movements, StateList, 0.1)
+        Move_GroupAllFrozen(Movements, StateList, 0.1)
         Return Movements
 
 
@@ -82,7 +83,7 @@
 
         StateList.Add(currentState)
 
-        Move_TrimToFrontUnavailable(Movements, StateList, 0.8)
+        Move_TrimToFrontUnavailable(Movements, StateList, 0.5, 0.05)
         Return Movements
 
     End Function
@@ -91,7 +92,7 @@
 
 
 #Region "MOVES"
-    Public Sub Move_TrimToFrontUnavailable(ByRef Movements As List(Of Long), ByRef StateList As List(Of VRTMStateSimplified), AvailabilityThreshold As Double)
+    Public Sub Move_TrimToFrontUnavailable(ByRef Movements As List(Of Long), ByRef StateList As List(Of VRTMStateSimplified), AvailabilityThreshold As Double, ProductionRatioThreshold As Double)
         'This function is a MOVE and will result in a "Trimming" of all the levels that are currently unavailable. Will select only the products that are actually unavailable (i.e. don't have any
         'other level that is available. The availability will be determined if the total number of products with a given conveyor index is larger than a threshold (AvailabilityThreshold, 0 to 1, although <0.5 doesn't make sense).
         'The trimming operation, if deemed viable, will happen as follows:
@@ -194,6 +195,7 @@
 
 
         Dim Idx, Idx2 As Long
+        Dim ConveyorIndex As Long
 
 
         For Idx = 0 To UnavProductConveyorIndices.Count - 1
@@ -202,107 +204,7 @@
             For Each ProdLevelCount As KeyValuePair(Of Long, Long) In ProductLocatedAtLevels(Idx) 'Key=Level, Value=Left Streak Count
                 'Now for each level the product is not organized, determines the methodology to push it forwards.
 
-                'First tries to use a level that is already full of the same product.
-                If LevelsFullOfThisProduct(Idx).Count > 0 Then
-                    'Elevator movements planned will assume ELEVATOR B HAS AN EMPTY TRAY.
-                    'Therefore, they begin with the source level
-
-                    MinDistance = Long.MaxValue
-                    For Each L As Long In LevelsFullOfThisProduct(Idx)
-                        If (L - ProdLevelCount.Key) < MinDistance Then
-                            MinDistance = (L - ProdLevelCount.Key)
-                            MinDistanceAt = L
-                        End If
-                    Next
-
-                    For I = 1 To (VRTM_SimVariables.nTrays - ProdLevelCount.Value)
-                        Movements.Add(MinDistanceAt)
-                        Movements.Add(ProdLevelCount.Key)
-                        StateList.Add(PerformMovement(StateList.Last, MinDistanceAt))
-                        StateList.Add(PerformMovement(StateList.Last, ProdLevelCount.Key))
-                    Next
-                    Continue For
-                End If
-                'Second tries the closest level that has more product than needed to push this product forwards
-                Success = False
-                MaxDist = (VRTM_SimVariables.nLevels - ProdLevelCount.Key - 2)
-                If ProdLevelCount.Key > MaxDist Then MaxDist = ProdLevelCount.Key
-                For Dist = 1 To MaxDist
-                    'Tries the level up
-                    If ProdLevelCount.Key + Dist < VRTM_SimVariables.nLevels - 1 Then
-                        For Idx2 = 0 To UnavProductConveyorIndices.Count - 1
-                            'Prevents it from using a tray that has already a scheduled product for modification
-                            If currentState.TrayState(0, ProdLevelCount.Key + Dist).ConveyorIndex = UnavProductConveyorIndices(Idx2) Then
-                                GoTo NextTray
-                            End If
-                        Next
-
-                        LeftStreakCount = 0
-                        For I = 0 To VRTM_SimVariables.nTrays - 1
-                            If currentState.TrayState(I, ProdLevelCount.Key + Dist).ConveyorIndex = currentState.TrayState(0, ProdLevelCount.Key + Dist).ConveyorIndex Then
-                                'Matched the conveyor, proceeds counting
-                                LeftStreakCount += 1
-                            Else
-                                Exit For
-                            End If
-                        Next
-
-                        If LeftStreakCount >= (VRTM_SimVariables.nTrays - ProdLevelCount.Value) And LeftStreakCount < VRTM_SimVariables.nTrays Then
-                            If LeftStreakCount = ProdLevelCount.Value Then
-                                EmptyLevelList.Add(ProdLevelCount.Key + Dist)
-                            End If
-
-                            For I = 1 To (VRTM_SimVariables.nTrays - ProdLevelCount.Value)
-                                Movements.Add(ProdLevelCount.Key + Dist)
-                                Movements.Add(ProdLevelCount.Key)
-                                StateList.Add(PerformMovement(StateList.Last, ProdLevelCount.Key + Dist))
-                                StateList.Add(PerformMovement(StateList.Last, ProdLevelCount.Key))
-                            Next
-                            Success = True
-                            Exit For
-                        End If
-                    End If
-
-NextTray:
-                    'Tries the level down
-
-                    If ProdLevelCount.Key - Dist > 0 Then
-                        For Idx2 = 0 To UnavProductConveyorIndices.Count - 1
-                            'Prevents it from using a tray that has already a scheduled product for modification
-                            If currentState.TrayState(0, ProdLevelCount.Key - Dist).ConveyorIndex = UnavProductConveyorIndices(Idx2) Then
-                                GoTo NextTray2
-                            End If
-                        Next
-
-                        LeftStreakCount = 0
-                        For I = 0 To VRTM_SimVariables.nTrays - 1
-                            If currentState.TrayState(I, ProdLevelCount.Key - Dist).ConveyorIndex = currentState.TrayState(0, ProdLevelCount.Key - Dist).ConveyorIndex Then
-                                'Matched the conveyor, proceeds counting
-                                LeftStreakCount += 1
-                            Else
-                                Exit For
-                            End If
-                        Next
-                        If LeftStreakCount >= (VRTM_SimVariables.nTrays - ProdLevelCount.Value) And LeftStreakCount < VRTM_SimVariables.nTrays Then
-                            If LeftStreakCount = ProdLevelCount.Value Then
-                                EmptyLevelList.Add(ProdLevelCount.Key - Dist)
-                            End If
-
-                            For I = 1 To (VRTM_SimVariables.nTrays - ProdLevelCount.Value)
-                                Movements.Add(ProdLevelCount.Key - Dist)
-                                Movements.Add(ProdLevelCount.Key)
-                                StateList.Add(PerformMovement(StateList.Last, ProdLevelCount.Key - Dist))
-                                StateList.Add(PerformMovement(StateList.Last, ProdLevelCount.Key))
-                            Next
-                            Success = True
-                            Exit For
-                        End If
-                    End If
-NextTray2:
-                Next
-                If Success Then Continue For
-
-                'Thirdly, uses an empty tray if none of the other tries worked
+                'Secondly, uses an empty tray if the previous try didnt work
                 If EmptyLevelList.Count > 0 Then
                     MinDistance = Long.MaxValue
                     For Each L As Long In EmptyLevelList
@@ -320,6 +222,92 @@ NextTray2:
                     Next
                     Continue For
                 End If
+
+
+                'First tries the closest level that has more product than needed to push this product forwards
+                Success = False
+                MaxDist = (VRTM_SimVariables.nLevels - ProdLevelCount.Key - 2)
+                If ProdLevelCount.Key > MaxDist Then MaxDist = ProdLevelCount.Key
+                For Dist = 1 To MaxDist
+                    'Tries the level up
+                    If (ProdLevelCount.Key + Dist < VRTM_SimVariables.nLevels - 1) Then 'Prevents it from trying a level out of bounds 
+                        ConveyorIndex = currentState.TrayState(0, ProdLevelCount.Key + Dist).ConveyorIndex
+                        If ConveyorIndex > -1 AndAlso (ConveyorProductionRatios(ConveyorIndex) > ProductionRatioThreshold) Then 'Prevents it to move a conveyor that has an index that is not produced much
+                            For Idx2 = 0 To UnavProductConveyorIndices.Count - 1
+                                'Prevents it from using a tray that has already a scheduled product for modification
+                                If currentState.TrayState(0, ProdLevelCount.Key + Dist).ConveyorIndex = UnavProductConveyorIndices(Idx2) Then
+                                    GoTo NextTray
+                                End If
+                            Next
+
+                            LeftStreakCount = 0
+                            For I = 0 To VRTM_SimVariables.nTrays - 1
+                                If currentState.TrayState(I, ProdLevelCount.Key + Dist).ConveyorIndex = currentState.TrayState(0, ProdLevelCount.Key + Dist).ConveyorIndex Then
+                                    'Matched the conveyor, proceeds counting
+                                    LeftStreakCount += 1
+                                Else
+                                    Exit For
+                                End If
+                            Next
+
+                            If LeftStreakCount >= (VRTM_SimVariables.nTrays - ProdLevelCount.Value) And LeftStreakCount < VRTM_SimVariables.nTrays Then
+                                If LeftStreakCount = ProdLevelCount.Value Then
+                                    EmptyLevelList.Add(ProdLevelCount.Key + Dist)
+                                End If
+
+                                For I = 1 To (VRTM_SimVariables.nTrays - ProdLevelCount.Value)
+                                    Movements.Add(ProdLevelCount.Key + Dist)
+                                    Movements.Add(ProdLevelCount.Key)
+                                    StateList.Add(PerformMovement(StateList.Last, ProdLevelCount.Key + Dist))
+                                    StateList.Add(PerformMovement(StateList.Last, ProdLevelCount.Key))
+                                Next
+                                Success = True
+                                Exit For
+                            End If
+                        End If
+                    End If
+
+NextTray:
+                    'Tries the level down
+                    If ProdLevelCount.Key - Dist > 0 Then 'Prevents it from trying a level out of bounds 
+                        ConveyorIndex = currentState.TrayState(0, ProdLevelCount.Key - Dist).ConveyorIndex
+                        If ConveyorIndex > -1 AndAlso (ConveyorProductionRatios(ConveyorIndex) > ProductionRatioThreshold) Then 'Prevents it to move a conveyor that has an index that is not produced much
+
+                            For Idx2 = 0 To UnavProductConveyorIndices.Count - 1
+                                'Prevents it from using a tray that has already a scheduled product for modification
+                                If currentState.TrayState(0, ProdLevelCount.Key - Dist).ConveyorIndex = UnavProductConveyorIndices(Idx2) Then
+                                    GoTo NextTray2
+                                End If
+                            Next
+
+                            LeftStreakCount = 0
+                            For I = 0 To VRTM_SimVariables.nTrays - 1
+                                If currentState.TrayState(I, ProdLevelCount.Key - Dist).ConveyorIndex = currentState.TrayState(0, ProdLevelCount.Key - Dist).ConveyorIndex Then
+                                    'Matched the conveyor, proceeds counting
+                                    LeftStreakCount += 1
+                                Else
+                                    Exit For
+                                End If
+                            Next
+                            If LeftStreakCount >= (VRTM_SimVariables.nTrays - ProdLevelCount.Value) And LeftStreakCount < VRTM_SimVariables.nTrays Then
+                                If LeftStreakCount = ProdLevelCount.Value Then
+                                    EmptyLevelList.Add(ProdLevelCount.Key - Dist)
+                                End If
+
+                                For I = 1 To (VRTM_SimVariables.nTrays - ProdLevelCount.Value)
+                                    Movements.Add(ProdLevelCount.Key - Dist)
+                                    Movements.Add(ProdLevelCount.Key)
+                                    StateList.Add(PerformMovement(StateList.Last, ProdLevelCount.Key - Dist))
+                                    StateList.Add(PerformMovement(StateList.Last, ProdLevelCount.Key))
+                                Next
+                                Success = True
+                                Exit For
+                            End If
+                        End If
+                    End If
+NextTray2:
+                Next
+                If Success Then Continue For
 
                 'If nothing worked, then this level will be left untouched.
             Next
@@ -342,12 +330,14 @@ NextTray2:
         ReDim OpenLevelAssignments(0)
         OpenLevelCount = 0
         For I = 0 To VRTM_SimVariables.nLevels - 1
-            If Not IsLevelFullOfTheSameProduct(currentState, I) AndAlso (Not I = VRTM_SimVariables.ReturnLevel - 1) Then
-                ReDim Preserve OpenLevels(OpenLevelCount)
-                ReDim Preserve OpenLevelAssignments(OpenLevelCount)
-                OpenLevels(OpenLevelCount) = I
-                OpenLevelAssignments(OpenLevelCount) = -1 'Empty variable
-                OpenLevelCount = OpenLevelCount + 1
+            If I <> VRTM_SimVariables.EmptyLevel - 1 Then
+                If Not IsLevelFullOfTheSameProduct(currentState, I) AndAlso (Not I = VRTM_SimVariables.ReturnLevel - 1) Then
+                    ReDim Preserve OpenLevels(OpenLevelCount)
+                    ReDim Preserve OpenLevelAssignments(OpenLevelCount)
+                    OpenLevels(OpenLevelCount) = I
+                    OpenLevelAssignments(OpenLevelCount) = -2 'Empty variable
+                    OpenLevelCount = OpenLevelCount + 1
+                End If
             End If
         Next I
         OpenLevelCount -= 1 'Corrects to the right number of levels
@@ -378,19 +368,26 @@ NextTray2:
                 End If
             Next I
 
-            If LongestStreak = 1 Then
-                OrphanProdCount = OrphanProdCount + 1
+            If LongestStreak <= 1 Then
                 ReDim Preserve OrphanProducts(OrphanProdCount)
                 OrphanProducts(OrphanProdCount) = K
+                OrphanProdCount = OrphanProdCount + 1
             Else
                 OpenLevelAssignments(LongestStreakPosition) = K
             End If
         Next K
 
+        'Includes also an empty tray level assignment
+        ReDim Preserve OpenLevels(OpenLevelCount)
+        ReDim Preserve OpenLevelAssignments(OpenLevelCount)
+        OpenLevels(OpenLevelCount) = VRTM_SimVariables.EmptyLevel - 1
+        OpenLevelAssignments(OpenLevelCount) = -1 'Empty tray
+        OpenLevelCount = OpenLevelCount + 1
+
         'The orphan products (They don't appear in the last tray in the current config) need to be assigned, and that will happen in the order of remaining open levels.
         For J = 0 To OrphanProdCount - 1
             For I = 0 To OpenLevelCount - 1
-                If OpenLevelAssignments(I) = 0 Then
+                If OpenLevelAssignments(I) = -2 Then
                     OpenLevelAssignments(I) = OrphanProducts(J)
                     Exit For
                 End If
@@ -408,7 +405,7 @@ NextTray2:
         TemporaryLevelCount = -1
 
         For I = 0 To OpenLevelCount - 1 'Selects which levels will be deemed as temporary
-            If OpenLevelAssignments(I) = -1 Then
+            If OpenLevelAssignments(I) = -2 Then
                 TemporaryLevelCount = TemporaryLevelCount + 1
                 ReDim Preserve TemporaryLevels(TemporaryLevelCount)
                 ReDim Preserve TemporaryLevelCostToBenefit(TemporaryLevelCount)
@@ -458,11 +455,11 @@ NextTray2:
             Next I
         Next J
 
-        '-----------------UNTIL HERE CODE HAS BEEN DEBUGGED--------------------
         'Do the actual shelving
 
         Dim CurrentProduct As TrayDataSimplified
         Dim LevelFullOfUnfrozenProd As Boolean
+        Dim LoopCount As Long
 
         'Before anything makes sure that the elevator B is empty
         If StateList.Last.EmptyElevatorB = False Then
@@ -472,15 +469,28 @@ NextTray2:
 
         For K = 0 To TemporaryLevelCount - 1
             If OrderedCost(K) > CostToBenefitThreshold Then
+                LoopCount = 0
                 Do While 1
                     'Empties this level as much as it is possible while organizing the other levels
                     'This loop will have to stop when some of the levels fills up, then we'll have to commit the current "temporary level" with the new product.
 
                     'Select the next level
                     CurrentProduct = StateList.Last.TrayState(VRTM_SimVariables.nTrays - 1, TemporaryLevels(K))
+
+                    If CurrentProduct.ConveyorIndex = -1 Then
+                        Dim ostragildo As String = ""
+
+                    End If
                     For I = 0 To OpenLevelCount - 1
                         If Not CurrentProduct.Frozen Then
-                            If OpenLevelAssignments(I) = -1 Then
+                            If CurrentProduct.ConveyorIndex = -1 And OpenLevelAssignments(I) = -1 Then
+                                'Performs the transfer
+                                Movements.Add(TemporaryLevels(K))
+                                Movements.Add(OpenLevels(I))
+                                StateList.Add(PerformMovement(StateList.Last, TemporaryLevels(K)))
+                                StateList.Add(PerformMovement(StateList.Last, OpenLevels(I)))
+                                Exit For
+                            ElseIf OpenLevelAssignments(I) = -2 Then
                                 'Performs the transfer
                                 Movements.Add(TemporaryLevels(K))
                                 Movements.Add(OpenLevels(I))
@@ -520,13 +530,16 @@ NextTray2:
                             Exit Do
                         End If
                     End If
+
+                    If LoopCount > 100 Then
+                        Exit Do
+                    End If
+                    LoopCount += 1
                 Loop
             End If
         Next K
 
 
-
-        Dim A As Long = 0
 
     End Sub
 

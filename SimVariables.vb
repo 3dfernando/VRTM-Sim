@@ -45,6 +45,7 @@
         Public LevelChoosing As Integer '0=Production, 1=Demand, 2=Random
         Public DelayDemand As Boolean 'Whether it delays the demand algorithm so the TRVM can have enough product
         Public DelayDemandTime As Integer 'Delay time (in days) if DelayDemand is true
+        Public StopIfDemandNotMet As Boolean 'Stops the simulation if demand not met (for debug). Otherwise, proceeds simulation and counts how much demand has actually not been met.
         Public EnableIdleReshelving As Boolean 'Enables the reshelving algorithm to kick in
         Public MinimumReshelvingWindow As Double 'Minimum window [h] that is needed for the reshelving algorithm to kick in
         Public EnableImprovedWeekendStrat As Boolean 'Enables a longer strategy that will ensure more product is available
@@ -63,6 +64,7 @@
         Public LoadLevel As Integer
         Public UnloadLevel As Integer
         Public ReturnLevel As Integer
+        Public EmptyLevel As Integer
         Public TrayTransferTime As Double '[s]
         Public BoxLoadingTime As Double '[s]
         Public BoxUnloadingTime As Double '[s]
@@ -136,6 +138,7 @@
             Me.LoadLevel = 6
             Me.UnloadLevel = 3
             Me.ReturnLevel = 2
+            Me.EmptyLevel = 14
             Me.TrayTransferTime = 3.2
             Me.BoxLoadingTime = 3.4
             Me.BoxUnloadingTime = 3.4

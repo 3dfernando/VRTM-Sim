@@ -4,6 +4,9 @@
     Private ConveyorIndexDemanded As Long 'This variable has been made public to facilitate debugging by the user (it's going to be shown in the message box)
     Public TimeWhereSimulationStopped As Double 'This will store the simulation stop time so the scroll bar positions itself automatically in the case of an error.
     Public UniformConveyorRandomNumberLimits() As Double 'Get a random number and compare to this list to find which product should be selected according to the production rates.
+    Public ConveyorProductionRatios() As Double 'Stores the ratio of total production for each conveyor so decisions can be made
+    Public DemandsNotAccomplished As New Dictionary(Of Double, Long) 'Contains the demands that were not possible to accomplish due to non-available frozen product. (Key=Absolute time [s] when the demand was not accomplished, Value=Conveyor index)
+
 
     Public Sub RunProcessSimulation()
         'This will run the process simulation.
@@ -11,6 +14,7 @@
         Simulation_Results = New SimulationData
         TimeWhereSimulationStopped = 0
         GenerateUniformDistributionWeightList()
+        DemandsNotAccomplished.Clear()
 
         '################Preruns the box times########################
         With VRTM_SimVariables
@@ -73,11 +77,11 @@
             ReDim Simulation_Results.TrayStayTime(2 * Int(ArrivalTimes.Count / BoxLimit))
             ReDim Simulation_Results.TrayEntryPositions(2 * Int(ArrivalTimes.Count / BoxLimit))
 
-            ReDim Simulation_Results.VRTMTrayData(Int(VRTM_SimVariables.TotalSimTime / VRTM_SimVariables.MinimumSimDt), .nTrays - 1, .nLevels - 1)
-            ReDim Simulation_Results.VRTMTimePositions(Int(VRTM_SimVariables.TotalSimTime / VRTM_SimVariables.MinimumSimDt))
-            ReDim Simulation_Results.EmptyElevatorB(Int(VRTM_SimVariables.TotalSimTime / VRTM_SimVariables.MinimumSimDt))
-            ReDim Simulation_Results.Elevator(Int(VRTM_SimVariables.TotalSimTime / VRTM_SimVariables.MinimumSimDt))
-            ReDim Simulation_Results.TrayEntryLevels(Int(VRTM_SimVariables.TotalSimTime / VRTM_SimVariables.MinimumSimDt))
+            ReDim Simulation_Results.VRTMTrayData(2 * Int(VRTM_SimVariables.TotalSimTime / VRTM_SimVariables.MinimumSimDt), .nTrays - 1, .nLevels - 1)
+            ReDim Simulation_Results.VRTMTimePositions(2 * Int(VRTM_SimVariables.TotalSimTime / VRTM_SimVariables.MinimumSimDt))
+            ReDim Simulation_Results.EmptyElevatorB(2 * Int(VRTM_SimVariables.TotalSimTime / VRTM_SimVariables.MinimumSimDt))
+            ReDim Simulation_Results.Elevator(2 * Int(VRTM_SimVariables.TotalSimTime / VRTM_SimVariables.MinimumSimDt))
+            ReDim Simulation_Results.TrayEntryLevels(2 * Int(VRTM_SimVariables.TotalSimTime / VRTM_SimVariables.MinimumSimDt))
 
 
             'Defines the empty elevator as the second (Right-hand, B)
@@ -585,7 +589,7 @@ PostProcessing:
                 ElseIf VRTM_SimVariables.LevelChoosing = 1 Then 'Demand
                     If .DelayDemand And (Simulation_Results.TrayEntryTimes(t) < (.DelayDemandTime - 1) * 3600 * 24) Then
                         'Selects levels to keep stuff organized
-                        SelectLevel = SelectLevelAccordingToProduction(availableLevels, t, currentSimulationTimeStep, prodIndex)
+                        SelectLevel = SelectLevelToFillTunnel(availableLevels, t, currentSimulationTimeStep, prodIndex)
                     Else
                         'Selects levels according to a demand profile
                         If .PickingOrders = 0 Then
@@ -602,7 +606,14 @@ PostProcessing:
 
                             'The simulation failed as there is no available frozen product of the given index
                             If NarrowedAvailableLevels.Count = 0 Then
-                                SelectLevel = -1
+                                If VRTM_SimVariables.StopIfDemandNotMet Then
+                                    'Will cause the simulation to stop
+                                    SelectLevel = -1
+                                Else
+                                    'Chooses some of the levels that are available, randomly. Stores the product whose demand hasn't been met in memory.
+                                    DemandsNotAccomplished.Add(Simulation_Results.TrayEntryTimes(t), ConveyorIndexDemanded)
+                                    SelectLevel = availableLevels(Int(Rnd() * availableLevels.Count))
+                                End If
                             Else
                                 'Select the maximum stay time available (as a FIFO-like system)
                                 Dim stayTimeMaxAt As Long = 0
@@ -678,6 +689,68 @@ PostProcessing:
         End With
     End Function
 
+
+    Public Function SelectLevelToFillTunnel(availableLevels As List(Of Long), t As Long, currentSimulationTimeStep As Long, prodIndex As Long) As Long
+        With VRTM_SimVariables
+            'Will feed to the closest to loading level and never put a product on a level where there is another product already.
+            Dim ConvIndex As Long = .ProductMix(prodIndex).ConveyorNumber
+
+            'Selects the levels that have the current conveyor index
+            Dim MatchedLevels As New List(Of Long)
+            Dim MatchedFullLevels As New List(Of Long)
+
+            availableLevels.Remove(VRTM_SimVariables.EmptyLevel - 1) 'Removes the empty level from the list
+            For Each l As Long In availableLevels
+                If Simulation_Results.VRTMTrayData(currentSimulationTimeStep - 1, 0, l).ConveyorIndex = ConvIndex Then 'Reserved a level to recirculate empty trays
+                    If Simulation_Results.VRTMTrayData(currentSimulationTimeStep - 1, VRTM_SimVariables.nTrays - 1, l).ConveyorIndex <> -1 Then
+                        'Doesn't add if level is full
+                        MatchedFullLevels.Add(l)
+                    Else
+                        MatchedLevels.Add(l)
+                    End If
+
+                End If
+            Next
+
+            If MatchedLevels.Count = 0 Then
+                'No matches, tries to find an empty level then
+                For Each l As Long In availableLevels
+                    If Simulation_Results.VRTMTrayData(currentSimulationTimeStep - 1, 0, l).ConveyorIndex = -1 Then
+                        MatchedLevels.Add(l)
+                    End If
+                Next
+
+                If MatchedLevels.Count = 0 Then
+                    'Now we're locked... 
+
+                    'Tries to use a level that was a match but was full and firstly wasn't being considered.
+                    If MatchedFullLevels.Count = 0 Then
+                        'Now we're REALLY locked... 
+                        SelectLevelToFillTunnel = -1
+                        Exit Function
+                    Else
+                        For Each l As Long In MatchedFullLevels
+                            MatchedLevels.Add(l)
+                        Next
+                    End If
+                End If
+            End If
+
+            'If we didn't exit function then we can proceed to find the closest level to the loading level (minimize travel time)
+            Dim MinDist As Long = Long.MaxValue
+            Dim MinDistAt As Long = 0
+
+            For Each Level As Long In MatchedLevels
+                If Math.Abs(Level - VRTM_SimVariables.LoadLevel) < MinDist Then
+                    MinDist = Math.Abs(Level - VRTM_SimVariables.LoadLevel)
+                    MinDistAt = Level
+                End If
+            Next
+
+            SelectLevelToFillTunnel = MinDistAt
+        End With
+    End Function
+
     Public Function DemandUniformRandomProduct() As Long
         'This function selects a random product and outputs a conveyor index according to the inflow rate
         Dim R As Double = Rnd()
@@ -699,6 +772,7 @@ PostProcessing:
         Dim TotalProductionRate As Double = 0
         ReDim ProductionRates(VRTM_SimVariables.InletConveyors.Count - 1)
         ReDim UniformConveyorRandomNumberLimits(VRTM_SimVariables.InletConveyors.Count - 1)
+        ReDim ConveyorProductionRatios(VRTM_SimVariables.InletConveyors.Count - 1)
 
 
         For Each P As ProductData In VRTM_SimVariables.ProductMix
@@ -711,6 +785,7 @@ PostProcessing:
         For I As Long = 0 To VRTM_SimVariables.InletConveyors.Count - 1
             AccumProductionRate += ProductionRates(I)
             UniformConveyorRandomNumberLimits(I) = AccumProductionRate / TotalProductionRate
+            ConveyorProductionRatios(I) = ProductionRates(I) / TotalProductionRate
         Next
 
     End Sub

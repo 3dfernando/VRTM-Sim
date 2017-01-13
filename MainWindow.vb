@@ -69,6 +69,7 @@ Public Class MainWindow
         txtLevelChoosing.SelectedIndex = VRTM_SimVariables.LevelChoosing
         chkDelayDemand.Checked = VRTM_SimVariables.DelayDemand
         txtDelayDemandTime.Text = Trim(Str(VRTM_SimVariables.DelayDemandTime))
+        chkStopOnDemand.Checked = VRTM_SimVariables.StopIfDemandNotMet
         chkIdleHoursReshelving.Checked = VRTM_SimVariables.EnableIdleReshelving
         txtMinimumReshelvingWindow.Text = Trim(Str(VRTM_SimVariables.MinimumReshelvingWindow))
         chkImprovedWeekendStrat.Checked = VRTM_SimVariables.EnableImprovedWeekendStrat
@@ -84,6 +85,7 @@ Public Class MainWindow
         txtLoadLevel.Text = Trim(Str(VRTM_SimVariables.LoadLevel))
         txtUnloadLevel.Text = Trim(Str(VRTM_SimVariables.UnloadLevel))
         txtReturnLevel.Text = Trim(Str(VRTM_SimVariables.ReturnLevel))
+        txtEmptyLevel.Text = Trim(Str(VRTM_SimVariables.EmptyLevel))
         txtTrayTransferTime.Text = Trim(Str(VRTM_SimVariables.TrayTransferTime))
         txtBoxLoadingTime.Text = Trim(Str(VRTM_SimVariables.BoxLoadingTime))
         txtBoxUnloadingTime.Text = Trim(Str(VRTM_SimVariables.BoxUnloadingTime))
@@ -126,6 +128,13 @@ Public Class MainWindow
         currentPlaybackSpeedIndex = My.Settings.Main_PlaybackSpeed
         playbackSpeed = (playbackTimerPeriod / 1000) * playbackDefaultSpeeds(currentPlaybackSpeedIndex)
         lblTimeWarp.Text = playbackDefaultSpeedNames(currentPlaybackSpeedIndex)
+
+        'Inits the listviews
+        lstCurrentFrameStats.Columns.Clear()
+        lstCurrentFrameStats.Columns.Add("Variable", 150)
+        lstCurrentFrameStats.Columns.Add("Value", 175)
+        lstCurrentFrameStats.View = View.Details
+
     End Sub
 
     Private Sub MainWindow_Shown(sender As Object, e As EventArgs) Handles Me.Shown
@@ -490,16 +499,19 @@ Public Class MainWindow
                 grpTunnelOrg.Enabled = True
                 chkDelayDemand.Enabled = False
                 txtDelayDemandTime.Enabled = False
+                chkStopOnDemand.Enabled = False
             Case 1 'Demand
                 grpDemandProf.Enabled = True
                 grpTunnelOrg.Enabled = True
                 chkDelayDemand.Enabled = True
                 txtDelayDemandTime.Enabled = chkDelayDemand.Checked
+                chkStopOnDemand.Enabled = True
             Case 2 'Rnd
                 grpDemandProf.Enabled = False
                 grpTunnelOrg.Enabled = True
                 chkDelayDemand.Enabled = False
                 txtDelayDemandTime.Enabled = False
+                chkStopOnDemand.Enabled = False
         End Select
 
     End Sub
@@ -597,7 +609,7 @@ Public Class MainWindow
     Private Sub Validate_SimulationTab(ByVal sender As Object, ByVal e As System.ComponentModel.CancelEventArgs) Handles _
         txtTotalSimTime.Validating, txtMinimumSimDT.Validating, txtReturnLevel.Validating, txtLoadLevel.Validating, txtUnloadLevel.Validating,
         txtElevatorAccel.Validating, txtElevatorSpeed.Validating, txtTrayTransferTime.Validating, txtBoxUnloadingTime.Validating, txtBoxLoadingTime.Validating,
-        txtUnloaderRetractionTime.Validating
+        txtUnloaderRetractionTime.Validating, txtEmptyLevel.Validating
         If (Not (IsNumeric(sender.Text) And Val(sender.text) > 0)) Or
             ((sender.Name = txtReturnLevel.Name Or sender.Name = txtLoadLevel.Name Or sender.Name = txtUnloadLevel.Name) AndAlso (Int(Val(sender.text)) > VRTM_SimVariables.nLevels Or Int(Val(sender.text)) < 0)) Then
             ' Cancel the event and select the text to be corrected by the user.
@@ -616,7 +628,7 @@ Public Class MainWindow
     Private Sub Validated_SimulationTab(ByVal sender As Object, ByVal e As System.EventArgs) Handles _
         txtTotalSimTime.Validated, txtMinimumSimDT.Validated, txtReturnLevel.Validated, txtLoadLevel.Validated, txtUnloadLevel.Validated,
         txtElevatorAccel.Validated, txtElevatorSpeed.Validated, txtTrayTransferTime.Validated, txtBoxUnloadingTime.Validated, txtBoxLoadingTime.Validated,
-        txtUnloaderRetractionTime.Validated
+        txtUnloaderRetractionTime.Validated, txtEmptyLevel.Validated
         ' If all conditions have been met, clear the error provider of errors.
         ErrorProvider1.SetError(sender, "")
 
@@ -628,6 +640,7 @@ Public Class MainWindow
         VRTM_SimVariables.LoadLevel = Int(Val(txtLoadLevel.Text))
         VRTM_SimVariables.UnloadLevel = Int(Val(txtUnloadLevel.Text))
         VRTM_SimVariables.ReturnLevel = Int(Val(txtReturnLevel.Text))
+        VRTM_SimVariables.EmptyLevel = Int(Val(txtEmptyLevel.Text))
         VRTM_SimVariables.TrayTransferTime = Val(txtTrayTransferTime.Text)
         VRTM_SimVariables.BoxLoadingTime = Val(txtBoxLoadingTime.Text)
         VRTM_SimVariables.BoxUnloadingTime = Val(txtBoxUnloadingTime.Text)
@@ -867,10 +880,90 @@ Public Class MainWindow
             'Updates the cells that have content
             UpdateElevatorWellCells(thisT_index)
             UpdateDisplayVariableLabel()
+
+            '---Statistics---
+            UpdateCurrentFrameList(thisT_index)
+
+
         Else
             lblDisplayVariable.Text = "Simulation Not Ready"
+            lstCurrentFrameStats.Items.Clear()
         End If
 
+
+    End Sub
+
+    Private Sub UpdateCurrentFrameList(thisT_index As Long)
+        'Gets statistics about this frame and lists them in the current frame listview
+
+        '----Generates the data----
+        Dim I, J As Integer
+
+        'Frozen trays
+        Dim RTime As Double
+        Dim Frozen As Boolean
+        Dim Conv As Long
+        Dim TotalFrozen As Long = 0
+        Dim TotalTrays As Long = 0
+        For I = 0 To VRTM_SimVariables.nTrays - 1
+            For J = 0 To VRTM_SimVariables.nLevels - 1
+                RTime = hsSimPosition.Value - Simulation_Results.TrayEntryTimes(Simulation_Results.VRTMTrayData(thisT_index, I, J).TrayIndex)
+                Conv = Simulation_Results.VRTMTrayData(thisT_index, I, J).ConveyorIndex
+
+                If Conv > -1 Then
+                    Frozen = RTime > (VRTM_SimVariables.InletConveyors(Conv).MinRetTime * 3600)
+                    TotalFrozen -= Frozen
+                    TotalTrays += 1
+                End If
+            Next
+        Next
+
+        'Demands not accomplished
+        Dim DemandCount As Long = 0
+        Dim LastDemandNotAccomplished As KeyValuePair(Of Double, Long)
+
+        For Each Item As KeyValuePair(Of Double, Long) In DemandsNotAccomplished
+            If Item.Key < hsSimPosition.Value Then
+                DemandCount += 1
+                If LastDemandNotAccomplished.Key = 0 Then
+                    LastDemandNotAccomplished = Item
+                Else
+                    If LastDemandNotAccomplished.Key < Item.Key Then
+                        LastDemandNotAccomplished = Item
+                    End If
+                End If
+            End If
+
+        Next
+
+
+        '----Displays the data----
+        Dim CurrentItem As ListViewItem
+
+        lstCurrentFrameStats.BeginUpdate()
+        lstCurrentFrameStats.Items.Clear()
+
+        If TotalTrays > 0 Then
+            CurrentItem = lstCurrentFrameStats.Items.Add("Frozen Trays")
+            CurrentItem.SubItems.Add(Trim(Str(TotalFrozen)) & "/" & Trim(Str(TotalTrays)) & " (" & Trim(Str(Int(10 * 100 * TotalFrozen / TotalTrays) / 10)) & "%)")
+        Else
+            CurrentItem = lstCurrentFrameStats.Items.Add("Frozen Trays")
+            CurrentItem.SubItems.Add("0/0")
+        End If
+
+        CurrentItem = lstCurrentFrameStats.Items.Add("Demands unavailable so far")
+        CurrentItem.SubItems.Add(Trim(Str(DemandCount)) & " trays")
+
+        CurrentItem = lstCurrentFrameStats.Items.Add("Last demand unavailable")
+        If LastDemandNotAccomplished.Key = 0 Then
+            CurrentItem.SubItems.Add("None")
+        Else
+            CurrentItem.SubItems.Add("Conveyor " & Trim(Str(LastDemandNotAccomplished.Value)) & ", at " & GetCurrentTimeString(LastDemandNotAccomplished.Key))
+        End If
+
+
+
+        lstCurrentFrameStats.EndUpdate()
 
     End Sub
 
@@ -1011,7 +1104,6 @@ Public Class MainWindow
         End With
 
     End Sub
-
 
     Private Sub VRTMTable_CellPainting(sender As Object, e As DataGridViewCellPaintingEventArgs) Handles VRTMTable.CellPainting
         'Handles the elevator well cell painting and border removal

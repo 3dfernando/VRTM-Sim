@@ -61,17 +61,14 @@
 
         Dim R, G, B As Integer
         Try
-            R = Int(Pos * (Convert.ToDouble(C2.R) -
-                        Convert.ToDouble(C1.R)) +
-                        Convert.ToDouble(C1.R))
+            R = Int(Pos * (Convert.ToDouble(C1.R) - Convert.ToDouble(C2.R)) +
+                        Convert.ToDouble(C2.R))
 
-            G = Int(Pos * (Convert.ToDouble(C2.G) -
-                        Convert.ToDouble(C1.G)) +
-                        Convert.ToDouble(C1.G))
+            G = Int(Pos * (Convert.ToDouble(C1.G) - Convert.ToDouble(C2.G)) +
+                        Convert.ToDouble(C2.G))
 
-            B = Int(Pos * (Convert.ToDouble(C2.B) -
-                        Convert.ToDouble(C1.B)) +
-                        Convert.ToDouble(C1.B))
+            B = Int(Pos * (Convert.ToDouble(C1.B) - Convert.ToDouble(C2.B)) +
+                        Convert.ToDouble(C2.B))
 
             Return Color.FromArgb(R, G, B)
         Catch
