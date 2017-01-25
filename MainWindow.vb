@@ -10,11 +10,15 @@ Public Class MainWindow
     Dim playbackSpeed As Double 'Playback speed in seconds/timer tick
     Public playbackDefaultSpeeds As List(Of Long) 'Contains all the default playback speeds
     Public playbackDefaultSpeedNames As List(Of String) 'Contains all the default playback speed names (ie. "1.0 h/s")
+
+    Public Shared MainForm As MainWindow 'To access the form from other modules
 #End Region
 
 #Region "Initialization"
     Private Sub MainWindow_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         'Initializes all the fields according to the new, blank VRTM
+        MainForm = Me
+
         txtNTrays.Text = Trim(Str(VRTM_SimVariables.nTrays))
         txtNLevels.Text = Trim(Str(VRTM_SimVariables.nLevels))
         txtBoxesPerTray.Text = Trim(Str(VRTM_SimVariables.boxesPerTray))
@@ -249,6 +253,14 @@ Public Class MainWindow
         UpdateDGVPlayback(Nothing, Nothing)
 
         lblDisplayVariable.Text = "Simulation Completed"
+    End Sub
+
+    Private Sub RunThermalSimulationToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles RunThermalSimulationToolStripMenuItem.Click
+        'Runs the thermal simulation given a process sim was done already
+        If Simulation_Results.SimulationComplete Then
+
+            RunThermalSimulation()
+        End If
     End Sub
 
     Private Sub cmdHLEdit_Click(sender As Object, e As EventArgs) Handles cmdHLEdit.Click
@@ -868,7 +880,6 @@ Public Class MainWindow
                     UpdateDGVInnerCell(thisT_index, I, J)
                 Next
             Next
-
             'Updates the Elevator Wells.
             For J As Integer = 0 To VRTM_SimVariables.nLevels - 1
                 'Clears the elevator well
@@ -1035,8 +1046,11 @@ Public Class MainWindow
                     Case 2 'Retention Time
                         .Value = Int(RetTime * 10) / 10
                     Case 3 'Center T
+                        .Value = Round(TrayInfo.CenterTemperature, 1)
                     Case 4 'Surf T
+                        .Value = Round(TrayInfo.SurfTemperature, 1)
                     Case 5 'Power
+                        .Value = Round(TrayInfo.TrayPower, 0)
                 End Select
 
                 Dim ColorPos As Double
@@ -1051,8 +1065,16 @@ Public Class MainWindow
                         ColorPos = RetTime / VRTM_SimVariables.InletConveyors(TrayInfo.ConveyorIndex).MinRetTime
                         .Style.ForeColor = Interpolate_Color(ColorPos, My.Settings.Display_MinColor_ForeColor, My.Settings.Display_MaxColor_ForeColor)
                     Case 3 'Center T
+                        ColorPos = 1 - ((TrayInfo.CenterTemperature - VRTM_SimVariables.Tevap_Setpoint) /
+                            (VRTM_SimVariables.ProductMix(TrayInfo.ProductIndices.First.Key).InletTemperature - VRTM_SimVariables.Tevap_Setpoint))
+                        .Style.ForeColor = Interpolate_Color(ColorPos, My.Settings.Display_MinColor_ForeColor, My.Settings.Display_MaxColor_ForeColor)
                     Case 4 'Surf T
+                        ColorPos = 1 - ((TrayInfo.SurfTemperature - VRTM_SimVariables.Tevap_Setpoint) /
+                            (VRTM_SimVariables.ProductMix(TrayInfo.ProductIndices.First.Key).InletTemperature - VRTM_SimVariables.Tevap_Setpoint))
+                        .Style.ForeColor = Interpolate_Color(ColorPos, My.Settings.Display_MinColor_ForeColor, My.Settings.Display_MaxColor_ForeColor)
                     Case 5 'Power
+                        ColorPos = TrayInfo.TrayPower / 10000
+                        .Style.ForeColor = Interpolate_Color(ColorPos, My.Settings.Display_MinColor_ForeColor, My.Settings.Display_MaxColor_ForeColor)
                     Case 6 'Bool Frozen
                         If Frozen Then
                             .Style.ForeColor = My.Settings.Display_MinColor_ForeColor
@@ -1074,8 +1096,16 @@ Public Class MainWindow
                         ColorPos = RetTime / VRTM_SimVariables.InletConveyors(TrayInfo.ConveyorIndex).MinRetTime
                         .Style.BackColor = Interpolate_Color(ColorPos, My.Settings.Display_MinColor_BackColor, My.Settings.Display_MaxColor_BackColor)
                     Case 3 'Center T
+                        ColorPos = 1 - ((TrayInfo.CenterTemperature - VRTM_SimVariables.Tevap_Setpoint) /
+                            (VRTM_SimVariables.ProductMix(TrayInfo.ProductIndices.First.Key).InletTemperature - VRTM_SimVariables.Tevap_Setpoint))
+                        .Style.BackColor = Interpolate_Color(ColorPos, My.Settings.Display_MinColor_BackColor, My.Settings.Display_MaxColor_BackColor)
                     Case 4 'Surf T
+                        ColorPos = 1 - ((TrayInfo.SurfTemperature - VRTM_SimVariables.Tevap_Setpoint) /
+                            (VRTM_SimVariables.ProductMix(TrayInfo.ProductIndices.First.Key).InletTemperature - VRTM_SimVariables.Tevap_Setpoint))
+                        .Style.BackColor = Interpolate_Color(ColorPos, My.Settings.Display_MinColor_BackColor, My.Settings.Display_MaxColor_BackColor)
                     Case 5 'Power
+                        ColorPos = TrayInfo.TrayPower / 10000
+                        .Style.BackColor = Interpolate_Color(ColorPos, My.Settings.Display_MinColor_BackColor, My.Settings.Display_MaxColor_BackColor)
                     Case 6 'Bool Frozen
                         If Frozen Then
                             .Style.BackColor = My.Settings.Display_MinColor_BackColor
@@ -1090,9 +1120,9 @@ Public Class MainWindow
                 .ToolTipText = "Tray Index: " & Trim(Str(TrayInfo.TrayIndex)) & vbCrLf &
                     "Conveyor: " & VRTM_SimVariables.InletConveyors(TrayInfo.ConveyorIndex).ConveyorTag & "(Idx " & Trim(Str(TrayInfo.ConveyorIndex)) & ")" & vbCrLf &
                     "Current Ret. Time: " & Trim(Str(Int(RetTime * 10) / 10)) & " h/" & Trim(Str(VRTM_SimVariables.InletConveyors(TrayInfo.ConveyorIndex).MinRetTime)) & " h" & vbCrLf &
-                    "Center Temperature: " & Trim(Str(0)) & " ºC" & vbCrLf &
-                    "Surface Temperature: " & Trim(Str(0)) & " ºC" & vbCrLf &
-                    "Instantaneous Power Exchanged: " & Trim(Str(0)) & " W" & vbCrLf & vbCrLf & "Boxes in This Tray:"
+                    "Center Temperature: " & Trim(Str(Round(TrayInfo.CenterTemperature, 1))) & " ºC" & vbCrLf &
+                    "Surface Temperature: " & Trim(Str(Round(TrayInfo.SurfTemperature, 1))) & " ºC" & vbCrLf &
+                    "Instantaneous Power Exchanged: " & Trim(Str(Round(TrayInfo.TrayPower, 0))) & " W" & vbCrLf & vbCrLf & "Boxes in This Tray:"
 
                 'Adds the box/product list [index of product, quantity]
                 For Each i As KeyValuePair(Of Long, Long) In TrayInfo.ProductIndices
@@ -1172,6 +1202,7 @@ Public Class MainWindow
                 UpdateDGVPlayback(Nothing, Nothing)
             End If
         End If
+
     End Sub
 
 #End Region
@@ -1218,6 +1249,7 @@ Public Class MainWindow
 
 
     End Sub
+
 
 
 

@@ -1,6 +1,7 @@
 ﻿Public Class ProductMixSetup
     Private IndexOfProductBeingEdited As Integer = -1
     Private AirTemperatureApproach As Double = 7 'Models a constant approach as a first approx. for air temperature (Tair-Tevap)
+    Public Const nx As Long = 20
 
 #Region "Product list handling/saving"
     Private Sub ProductMixSetup_Load(sender As Object, e As EventArgs) Handles MyBase.Load
@@ -254,7 +255,6 @@
         Else
             L = Val(txtSimDiameter.Text) / 1000
         End If
-        Dim nx As Long = 20
         Dim totalt As Double = Val(txtMinStayTime.Text) * 3600
         Dim nt As Long = 300
         Dim Ti As Double = Val(txtInletTemp.Text)

@@ -114,6 +114,7 @@
             Dim prevLevel As Long = 1
             Dim ElevatorWaitUntil As Double = 0 'Absolute time where the elevator will be ready
             Dim lostBoxes As Long = 0 'Counts the boxes that have been lost due to elevator wait
+            Dim TimeDelay As Double = 0
 
             For Each k In ArrivalTimes
                 'Adds the next box to the conveyor
@@ -167,7 +168,7 @@
 
                     'Goes through all conveyors and the ones that are not empty will generate a loading 
                     Dim boxCount As Long = 0
-                    Dim TimeDelay As Double = 0
+                    TimeDelay = 0
                     For Each C As Conveyor In Conveyors
                         boxCount = 0
                         For Each boxType In C.BoxesInConveyor
@@ -204,7 +205,7 @@
                         'Defines if the window is sufficient according to the configs
                         If (k.Key - prevBoxTime) > VRTM_SimVariables.MinimumReshelvingWindow * 3600 Then
                             Dim AvailableTime As Double
-                            AvailableTime = (k.Key - prevBoxTime) 'Gets how much time is available to reshelve
+                            AvailableTime = (k.Key - prevBoxTime - TimeDelay) 'Gets how much time is available to reshelve
 
                             'Reshelving won't make sense unless the configuration is demand-based, so checks that.
                             If VRTM_SimVariables.LevelChoosing = 1 Then
@@ -240,6 +241,20 @@
 
                         End If
                     End If
+                End If
+
+                If ((k.Key - prevBoxTime - TimeDelay) > VRTM_SimVariables.MinimumSimDt) AndAlso (prevBoxTime > 0) Then
+                    'Fills up the arrays with (currently empty) timesteps for the thermal simulation
+                    Dim newT As Double
+                    For newT = (prevBoxTime + TimeDelay + VRTM_SimVariables.MinimumSimDt) To k.Key Step VRTM_SimVariables.MinimumSimDt
+                        'Rolls through all next time steps
+                        If k.Key - newT > (VRTM_SimVariables.MinimumSimDt / 2) Then 'Just so it doesn't create a ridiculously small timestep
+
+                            ClonePreviousSimulationTimeStep(currentSimulationTimeStep, newT)
+                            currentSimulationTimeStep += 1
+                        End If
+                    Next
+
                 End If
 
                 'Updates the previous box time
@@ -285,6 +300,29 @@ PostProcessing:
 
             Simulation_Results.SimulationComplete = True
         End With
+    End Sub
+
+    Public Sub ClonePreviousSimulationTimeStep(ByVal currentSimulationTimeStep As Long, ByVal CurrentTime As Double)
+        'This performs one reshelving operation.
+
+        If currentSimulationTimeStep <> 0 Then
+            For I As Long = 0 To VRTM_SimVariables.nTrays - 1
+                For J As Long = 0 To VRTM_SimVariables.nLevels - 1
+                    'Copies the last timestep onto the current timestep
+                    Simulation_Results.VRTMTrayData(currentSimulationTimeStep, I, J) = Simulation_Results.VRTMTrayData(currentSimulationTimeStep - 1, I, J).Clone
+                Next
+            Next
+        End If
+
+        If Not IsNothing(Simulation_Results.Elevator(currentSimulationTimeStep - 1)) Then _
+            Simulation_Results.Elevator(currentSimulationTimeStep) = Simulation_Results.Elevator(currentSimulationTimeStep - 1).Clone
+        If Not IsNothing(Simulation_Results.EmptyElevatorB(currentSimulationTimeStep - 1)) Then _
+            Simulation_Results.EmptyElevatorB(currentSimulationTimeStep) = Simulation_Results.EmptyElevatorB(currentSimulationTimeStep - 1)
+
+
+        Simulation_Results.VRTMTimePositions(currentSimulationTimeStep) = CurrentTime
+        Simulation_Results.TrayEntryLevels(currentSimulationTimeStep) = Simulation_Results.TrayEntryLevels(currentSimulationTimeStep - 1)
+
     End Sub
 
     Public Function PerformReshelvingMovement(ByRef currentLevel As Long, ByVal currentSimulationTimeStep As Long, ByVal CurrentTime As Double) As Boolean

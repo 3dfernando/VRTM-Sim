@@ -198,6 +198,19 @@
 
     End Function
 
+    Public Function Geometry_Exponent(Geometry As String) As Long
+        'Returns the geometry exponent based on the geometry string
+        Select Case Geometry
+            Case "Thin Slab"
+                Return 0
+            Case "Long Cylinder"
+                Return 1
+            Case "Sphere"
+                Return 2
+        End Select
+    End Function
+
+
     Public Enum Boundary As Byte
         'Implements an enumeration of boundary types
         Dirichlet = 0

@@ -384,7 +384,7 @@ TryAgain:
     <Serializable> Public Class SimulationData
         'This class will contain all the variables in the process simulation data (variables of the process simulation)
         Public VRTMTrayData(,,) As TrayData   'ARRAY OF TRAY DATA IN THE FORMAT of timestep, Tray no, Level no
-        Public VRTMTimePositions() As Double 'This array links the TrayEntryPositions with VRTMTrayData through the time array
+        Public VRTMTimePositions() As Double 'This array links the TrayEntryPositions with VRTMTrayData through the time array. VRTMTimePositions(TimeStep)=Time
         Public TrayEntryPositions() As Long 'This array contains the "timesteps" where the given tray indices entered the TRVM.
         Public TrayEntryTimes() As Double 'Array of simulation entry time indices for each tray index mentioned in TRVMTrayIndices
         Public TrayExitTimes() As Double 'Array of simulation exit time indices for each tray index mentioned in TRVMTrayIndices
@@ -394,6 +394,8 @@ TryAgain:
         Public Elevator() As TrayData 'Representation of the tray in the elevator, array in timesteps
         Public EmptyElevatorB() As Boolean 'Number of the elevator that is empty (FALSE = left [A], TRUE = right [B])
 
+        Public TotalPower() As Double 'Total Power integralized in [W] for each time step
+
         Public SimulationComplete As Boolean = False
     End Class
 
@@ -401,7 +403,7 @@ TryAgain:
         'This class contains the data of a tray after simulation has been processed
         Public TrayIndex As Long ' Sequential tray index (Starts at 1)
         Public ConveyorIndex As Long ' Conveyor index
-        Public ProductIndices As Dictionary(Of Long, Long) 'Product index in the array of ProductMix() [In other words, the SKU]. 
+        Public ProductIndices As Dictionary(Of Long, Long) 'Key=Product index in the array of ProductMix() [In other words, the SKU]. Value=Quantity of boxes
         Public SurfTemperature As Double 'Surface temperature of the product after thermal sim [ºC]
         Public CenterTemperature As Double 'Center temperature of the product after thermal sim [ºC]
         Public TrayPower As Double 'Heat power released in the current timestep after thermal sim [W]

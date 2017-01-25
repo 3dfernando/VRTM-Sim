@@ -175,6 +175,7 @@ Partial Class MainWindow
         Me.txtExternalDemandProfileFile = New System.Windows.Forms.TextBox()
         Me.Label84 = New System.Windows.Forms.Label()
         Me.GroupBox11 = New System.Windows.Forms.GroupBox()
+        Me.chkStopOnDemand = New System.Windows.Forms.CheckBox()
         Me.chkDelayDemand = New System.Windows.Forms.CheckBox()
         Me.txtLevelChoosing = New System.Windows.Forms.ComboBox()
         Me.Label81 = New System.Windows.Forms.Label()
@@ -196,6 +197,8 @@ Partial Class MainWindow
         Me.txtBoxLoadingTime = New System.Windows.Forms.TextBox()
         Me.Label60 = New System.Windows.Forms.Label()
         Me.Label62 = New System.Windows.Forms.Label()
+        Me.txtEmptyLevel = New System.Windows.Forms.TextBox()
+        Me.Label71 = New System.Windows.Forms.Label()
         Me.txtReturnLevel = New System.Windows.Forms.TextBox()
         Me.Label54 = New System.Windows.Forms.Label()
         Me.txtTrayTransferTime = New System.Windows.Forms.TextBox()
@@ -227,6 +230,12 @@ Partial Class MainWindow
         Me.lblCurrentPos = New System.Windows.Forms.Label()
         Me.hsSimPosition = New System.Windows.Forms.HScrollBar()
         Me.VRTMTable = New System.Windows.Forms.DataGridView()
+        Me.Label70 = New System.Windows.Forms.Label()
+        Me.lstSimTotalsStats = New System.Windows.Forms.TabControl()
+        Me.TabPage3 = New System.Windows.Forms.TabPage()
+        Me.lstCurrentFrameStats = New System.Windows.Forms.ListView()
+        Me.TabPage4 = New System.Windows.Forms.TabPage()
+        Me.ListView1 = New System.Windows.Forms.ListView()
         Me.ErrorProvider1 = New System.Windows.Forms.ErrorProvider(Me.components)
         Me.ErrorProvider2 = New System.Windows.Forms.ErrorProvider(Me.components)
         Me.tmrPlayback = New System.Windows.Forms.Timer(Me.components)
@@ -234,15 +243,6 @@ Partial Class MainWindow
         Me.OpenFileDialog1 = New System.Windows.Forms.OpenFileDialog()
         Me.BindingSource1 = New System.Windows.Forms.BindingSource(Me.components)
         Me.ToolTip1 = New System.Windows.Forms.ToolTip(Me.components)
-        Me.lstSimTotalsStats = New System.Windows.Forms.TabControl()
-        Me.TabPage3 = New System.Windows.Forms.TabPage()
-        Me.TabPage4 = New System.Windows.Forms.TabPage()
-        Me.Label70 = New System.Windows.Forms.Label()
-        Me.chkStopOnDemand = New System.Windows.Forms.CheckBox()
-        Me.ListView1 = New System.Windows.Forms.ListView()
-        Me.lstCurrentFrameStats = New System.Windows.Forms.ListView()
-        Me.Label71 = New System.Windows.Forms.Label()
-        Me.txtEmptyLevel = New System.Windows.Forms.TextBox()
         CType(Me.Divisor1, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.Divisor1.Panel1.SuspendLayout()
         Me.Divisor1.Panel2.SuspendLayout()
@@ -281,12 +281,12 @@ Partial Class MainWindow
         Me.MidPanel.Panel2.SuspendLayout()
         Me.MidPanel.SuspendLayout()
         CType(Me.VRTMTable, System.ComponentModel.ISupportInitialize).BeginInit()
-        CType(Me.ErrorProvider1, System.ComponentModel.ISupportInitialize).BeginInit()
-        CType(Me.ErrorProvider2, System.ComponentModel.ISupportInitialize).BeginInit()
-        CType(Me.BindingSource1, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.lstSimTotalsStats.SuspendLayout()
         Me.TabPage3.SuspendLayout()
         Me.TabPage4.SuspendLayout()
+        CType(Me.ErrorProvider1, System.ComponentModel.ISupportInitialize).BeginInit()
+        CType(Me.ErrorProvider2, System.ComponentModel.ISupportInitialize).BeginInit()
+        CType(Me.BindingSource1, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
         '
         'Divisor1
@@ -444,14 +444,14 @@ Partial Class MainWindow
         '
         Me.RunProcessSimulationToolStripMenuItem.Image = Global.VRTM_Simulator.My.Resources.Resources.script_gear
         Me.RunProcessSimulationToolStripMenuItem.Name = "RunProcessSimulationToolStripMenuItem"
-        Me.RunProcessSimulationToolStripMenuItem.Size = New System.Drawing.Size(202, 22)
+        Me.RunProcessSimulationToolStripMenuItem.Size = New System.Drawing.Size(206, 26)
         Me.RunProcessSimulationToolStripMenuItem.Text = "Run Process Simulation"
         '
         'RunThermalSimulationToolStripMenuItem
         '
         Me.RunThermalSimulationToolStripMenuItem.Image = Global.VRTM_Simulator.My.Resources.Resources.pictograms_hazard_signs_xtremely_flammable
         Me.RunThermalSimulationToolStripMenuItem.Name = "RunThermalSimulationToolStripMenuItem"
-        Me.RunThermalSimulationToolStripMenuItem.Size = New System.Drawing.Size(202, 22)
+        Me.RunThermalSimulationToolStripMenuItem.Size = New System.Drawing.Size(206, 26)
         Me.RunThermalSimulationToolStripMenuItem.Text = "Run Thermal Simulation"
         '
         'PlaybackToolStripMenuItem
@@ -1778,6 +1778,16 @@ Partial Class MainWindow
         Me.GroupBox11.TabStop = False
         Me.GroupBox11.Text = "Shelving Strategy"
         '
+        'chkStopOnDemand
+        '
+        Me.chkStopOnDemand.AutoSize = True
+        Me.chkStopOnDemand.Location = New System.Drawing.Point(10, 108)
+        Me.chkStopOnDemand.Name = "chkStopOnDemand"
+        Me.chkStopOnDemand.Size = New System.Drawing.Size(192, 17)
+        Me.chkStopOnDemand.TabIndex = 63
+        Me.chkStopOnDemand.Text = "Stop Simulation If Demand Not Met"
+        Me.chkStopOnDemand.UseVisualStyleBackColor = True
+        '
         'chkDelayDemand
         '
         Me.chkDelayDemand.AutoSize = True
@@ -1996,6 +2006,23 @@ Partial Class MainWindow
         Me.Label62.Size = New System.Drawing.Size(12, 13)
         Me.Label62.TabIndex = 70
         Me.Label62.Text = "s"
+        '
+        'txtEmptyLevel
+        '
+        Me.txtEmptyLevel.Location = New System.Drawing.Point(124, 170)
+        Me.txtEmptyLevel.Name = "txtEmptyLevel"
+        Me.txtEmptyLevel.Size = New System.Drawing.Size(43, 20)
+        Me.txtEmptyLevel.TabIndex = 63
+        Me.txtEmptyLevel.TextAlign = System.Windows.Forms.HorizontalAlignment.Right
+        '
+        'Label71
+        '
+        Me.Label71.AutoSize = True
+        Me.Label71.Location = New System.Drawing.Point(7, 172)
+        Me.Label71.Name = "Label71"
+        Me.Label71.Size = New System.Drawing.Size(68, 13)
+        Me.Label71.TabIndex = 62
+        Me.Label71.Text = "Empty Level:"
         '
         'txtReturnLevel
         '
@@ -2307,21 +2334,15 @@ Partial Class MainWindow
         Me.VRTMTable.Size = New System.Drawing.Size(601, 734)
         Me.VRTMTable.TabIndex = 0
         '
-        'ErrorProvider1
+        'Label70
         '
-        Me.ErrorProvider1.ContainerControl = Me
-        '
-        'ErrorProvider2
-        '
-        Me.ErrorProvider2.ContainerControl = Me
-        '
-        'tmrPlayback
-        '
-        Me.tmrPlayback.Interval = 500
-        '
-        'OpenFileDialog1
-        '
-        Me.OpenFileDialog1.FileName = "OpenFileDialog1"
+        Me.Label70.AutoSize = True
+        Me.Label70.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label70.Location = New System.Drawing.Point(7, 12)
+        Me.Label70.Name = "Label70"
+        Me.Label70.Size = New System.Drawing.Size(185, 13)
+        Me.Label70.TabIndex = 1
+        Me.Label70.Text = "Statistics of Current Simulation:"
         '
         'lstSimTotalsStats
         '
@@ -2344,6 +2365,14 @@ Partial Class MainWindow
         Me.TabPage3.Text = "Current Frame"
         Me.TabPage3.UseVisualStyleBackColor = True
         '
+        'lstCurrentFrameStats
+        '
+        Me.lstCurrentFrameStats.Location = New System.Drawing.Point(10, 10)
+        Me.lstCurrentFrameStats.Name = "lstCurrentFrameStats"
+        Me.lstCurrentFrameStats.Size = New System.Drawing.Size(350, 215)
+        Me.lstCurrentFrameStats.TabIndex = 1
+        Me.lstCurrentFrameStats.UseCompatibleStateImageBehavior = False
+        '
         'TabPage4
         '
         Me.TabPage4.Controls.Add(Me.ListView1)
@@ -2355,26 +2384,6 @@ Partial Class MainWindow
         Me.TabPage4.Text = "Simulation Totals"
         Me.TabPage4.UseVisualStyleBackColor = True
         '
-        'Label70
-        '
-        Me.Label70.AutoSize = True
-        Me.Label70.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label70.Location = New System.Drawing.Point(7, 12)
-        Me.Label70.Name = "Label70"
-        Me.Label70.Size = New System.Drawing.Size(185, 13)
-        Me.Label70.TabIndex = 1
-        Me.Label70.Text = "Statistics of Current Simulation:"
-        '
-        'chkStopOnDemand
-        '
-        Me.chkStopOnDemand.AutoSize = True
-        Me.chkStopOnDemand.Location = New System.Drawing.Point(10, 108)
-        Me.chkStopOnDemand.Name = "chkStopOnDemand"
-        Me.chkStopOnDemand.Size = New System.Drawing.Size(192, 17)
-        Me.chkStopOnDemand.TabIndex = 63
-        Me.chkStopOnDemand.Text = "Stop Simulation If Demand Not Met"
-        Me.chkStopOnDemand.UseVisualStyleBackColor = True
-        '
         'ListView1
         '
         Me.ListView1.Location = New System.Drawing.Point(10, 10)
@@ -2383,30 +2392,21 @@ Partial Class MainWindow
         Me.ListView1.TabIndex = 0
         Me.ListView1.UseCompatibleStateImageBehavior = False
         '
-        'lstCurrentFrameStats
+        'ErrorProvider1
         '
-        Me.lstCurrentFrameStats.Location = New System.Drawing.Point(10, 10)
-        Me.lstCurrentFrameStats.Name = "lstCurrentFrameStats"
-        Me.lstCurrentFrameStats.Size = New System.Drawing.Size(350, 215)
-        Me.lstCurrentFrameStats.TabIndex = 1
-        Me.lstCurrentFrameStats.UseCompatibleStateImageBehavior = False
+        Me.ErrorProvider1.ContainerControl = Me
         '
-        'Label71
+        'ErrorProvider2
         '
-        Me.Label71.AutoSize = True
-        Me.Label71.Location = New System.Drawing.Point(7, 172)
-        Me.Label71.Name = "Label71"
-        Me.Label71.Size = New System.Drawing.Size(68, 13)
-        Me.Label71.TabIndex = 62
-        Me.Label71.Text = "Empty Level:"
+        Me.ErrorProvider2.ContainerControl = Me
         '
-        'txtEmptyLevel
+        'tmrPlayback
         '
-        Me.txtEmptyLevel.Location = New System.Drawing.Point(124, 170)
-        Me.txtEmptyLevel.Name = "txtEmptyLevel"
-        Me.txtEmptyLevel.Size = New System.Drawing.Size(43, 20)
-        Me.txtEmptyLevel.TabIndex = 63
-        Me.txtEmptyLevel.TextAlign = System.Windows.Forms.HorizontalAlignment.Right
+        Me.tmrPlayback.Interval = 500
+        '
+        'OpenFileDialog1
+        '
+        Me.OpenFileDialog1.FileName = "OpenFileDialog1"
         '
         'MainWindow
         '
@@ -2474,12 +2474,12 @@ Partial Class MainWindow
         CType(Me.MidPanel, System.ComponentModel.ISupportInitialize).EndInit()
         Me.MidPanel.ResumeLayout(False)
         CType(Me.VRTMTable, System.ComponentModel.ISupportInitialize).EndInit()
-        CType(Me.ErrorProvider1, System.ComponentModel.ISupportInitialize).EndInit()
-        CType(Me.ErrorProvider2, System.ComponentModel.ISupportInitialize).EndInit()
-        CType(Me.BindingSource1, System.ComponentModel.ISupportInitialize).EndInit()
         Me.lstSimTotalsStats.ResumeLayout(False)
         Me.TabPage3.ResumeLayout(False)
         Me.TabPage4.ResumeLayout(False)
+        CType(Me.ErrorProvider1, System.ComponentModel.ISupportInitialize).EndInit()
+        CType(Me.ErrorProvider2, System.ComponentModel.ISupportInitialize).EndInit()
+        CType(Me.BindingSource1, System.ComponentModel.ISupportInitialize).EndInit()
         Me.ResumeLayout(False)
 
     End Sub

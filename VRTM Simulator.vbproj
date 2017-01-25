@@ -119,6 +119,7 @@
     <Compile Include="ProductMixSetup.vb">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="ThermalSimulationEngine.vb" />
     <Compile Include="Tridiagonal.vb" />
     <Compile Include="VRTMTableFormatting.vb" />
     <Compile Include="SimVariables.vb" />
