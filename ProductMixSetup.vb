@@ -555,23 +555,6 @@
 
     End Sub
 
-    Public Function GetTickInterval(MinValue As Double, MaxValue As Double, MinDivisions As Double) As Double
-        'This function returns a smart tick interval for the chart
-        Dim Interval As Double = (MaxValue - MinValue) / MinDivisions
-        If Interval < 0 Then Interval = -Interval
-        Dim Magnitude As Double = Math.Pow(10, Int(Math.Log10(Interval)))
-
-        If Magnitude > Interval Then
-            GetTickInterval = Magnitude * 0.5
-        ElseIf Magnitude * 2 > Interval Then
-            GetTickInterval = Magnitude * 1
-        ElseIf Magnitude * 5 > Interval Then
-            GetTickInterval = Magnitude * 2
-        Else
-            GetTickInterval = Magnitude * 5
-        End If
-
-    End Function
 
     Private Sub ClearGraph()
         'Clears the data in the chart
@@ -579,19 +562,6 @@
         ProductFreezingChart.Series.Clear()
     End Sub
 
-    Private Sub MinMax(Array() As Double, ByRef Min As Double, ByRef Max As Double)
-        'Determines the minimum and maximum elements of the array
-        Dim largest As Double = Double.MinValue
-        Dim smallest As Double = Double.MaxValue
-
-        For Each element As Double In Array
-            largest = Math.Max(largest, element)
-            smallest = Math.Min(smallest, element)
-        Next
-
-        Min = smallest
-        Max = largest
-    End Sub
 
 #End Region
 

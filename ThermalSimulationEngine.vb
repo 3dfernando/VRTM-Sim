@@ -112,12 +112,17 @@
                 Next
             Next
 
-            Simulation_Results.TotalPower(TimeStep) = TotalPower 'Updates total power in [W]
+            Simulation_Results.TotalPower(TimeStep) = (TotalPower + 1000 * (VRTM_SimVariables.FixedHeatLoadData.FixedHL + VRTM_SimVariables.fanPower)) *
+                                            VRTM_SimVariables.SafetyFactorVRTM 'Updates total power in [W]
         Next
         Watch.Stop()
 
         MainWindow.MainForm.Text = "VRTM Simulator V1.0"
+        MainWindow.MainForm.LoadTotalHeatLoadGraph()
+
+
         MsgBox("Thermal Simulation Completed Successully.")
+
 
     End Sub
 

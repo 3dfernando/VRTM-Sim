@@ -23,6 +23,7 @@ Partial Class MainWindow
     <System.Diagnostics.DebuggerStepThrough()>
     Private Sub InitializeComponent()
         Me.components = New System.ComponentModel.Container()
+        Dim ChartArea1 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(MainWindow))
         Me.Divisor1 = New System.Windows.Forms.SplitContainer()
         Me.LeftPanel = New System.Windows.Forms.SplitContainer()
@@ -243,6 +244,15 @@ Partial Class MainWindow
         Me.OpenFileDialog1 = New System.Windows.Forms.OpenFileDialog()
         Me.BindingSource1 = New System.Windows.Forms.BindingSource(Me.components)
         Me.ToolTip1 = New System.Windows.Forms.ToolTip(Me.components)
+        Me.GraphicalSummaryTab = New System.Windows.Forms.TabControl()
+        Me.TabPage1 = New System.Windows.Forms.TabPage()
+        Me.TabPage2 = New System.Windows.Forms.TabPage()
+        Me.Label72 = New System.Windows.Forms.Label()
+        Me.TabPage5 = New System.Windows.Forms.TabPage()
+        Me.HLProfileGraph = New System.Windows.Forms.DataVisualization.Charting.Chart()
+        Me.SplitContainer1 = New System.Windows.Forms.SplitContainer()
+        Me.SplitContainer2 = New System.Windows.Forms.SplitContainer()
+        Me.SplitContainer3 = New System.Windows.Forms.SplitContainer()
         CType(Me.Divisor1, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.Divisor1.Panel1.SuspendLayout()
         Me.Divisor1.Panel2.SuspendLayout()
@@ -287,6 +297,21 @@ Partial Class MainWindow
         CType(Me.ErrorProvider1, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.ErrorProvider2, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.BindingSource1, System.ComponentModel.ISupportInitialize).BeginInit()
+        Me.GraphicalSummaryTab.SuspendLayout()
+        Me.TabPage1.SuspendLayout()
+        CType(Me.HLProfileGraph, System.ComponentModel.ISupportInitialize).BeginInit()
+        CType(Me.SplitContainer1, System.ComponentModel.ISupportInitialize).BeginInit()
+        Me.SplitContainer1.Panel1.SuspendLayout()
+        Me.SplitContainer1.Panel2.SuspendLayout()
+        Me.SplitContainer1.SuspendLayout()
+        CType(Me.SplitContainer2, System.ComponentModel.ISupportInitialize).BeginInit()
+        Me.SplitContainer2.Panel1.SuspendLayout()
+        Me.SplitContainer2.Panel2.SuspendLayout()
+        Me.SplitContainer2.SuspendLayout()
+        CType(Me.SplitContainer3, System.ComponentModel.ISupportInitialize).BeginInit()
+        Me.SplitContainer3.Panel1.SuspendLayout()
+        Me.SplitContainer3.Panel2.SuspendLayout()
+        Me.SplitContainer3.SuspendLayout()
         Me.SuspendLayout()
         '
         'Divisor1
@@ -444,14 +469,14 @@ Partial Class MainWindow
         '
         Me.RunProcessSimulationToolStripMenuItem.Image = Global.VRTM_Simulator.My.Resources.Resources.script_gear
         Me.RunProcessSimulationToolStripMenuItem.Name = "RunProcessSimulationToolStripMenuItem"
-        Me.RunProcessSimulationToolStripMenuItem.Size = New System.Drawing.Size(206, 26)
+        Me.RunProcessSimulationToolStripMenuItem.Size = New System.Drawing.Size(202, 22)
         Me.RunProcessSimulationToolStripMenuItem.Text = "Run Process Simulation"
         '
         'RunThermalSimulationToolStripMenuItem
         '
         Me.RunThermalSimulationToolStripMenuItem.Image = Global.VRTM_Simulator.My.Resources.Resources.pictograms_hazard_signs_xtremely_flammable
         Me.RunThermalSimulationToolStripMenuItem.Name = "RunThermalSimulationToolStripMenuItem"
-        Me.RunThermalSimulationToolStripMenuItem.Size = New System.Drawing.Size(206, 26)
+        Me.RunThermalSimulationToolStripMenuItem.Size = New System.Drawing.Size(202, 22)
         Me.RunThermalSimulationToolStripMenuItem.Text = "Run Thermal Simulation"
         '
         'PlaybackToolStripMenuItem
@@ -2262,8 +2287,7 @@ Partial Class MainWindow
         '
         'Divisor2.Panel2
         '
-        Me.Divisor2.Panel2.Controls.Add(Me.Label70)
-        Me.Divisor2.Panel2.Controls.Add(Me.lstSimTotalsStats)
+        Me.Divisor2.Panel2.Controls.Add(Me.SplitContainer3)
         Me.Divisor2.Size = New System.Drawing.Size(1004, 792)
         Me.Divisor2.SplitterDistance = 601
         Me.Divisor2.TabIndex = 0
@@ -2338,20 +2362,21 @@ Partial Class MainWindow
         '
         Me.Label70.AutoSize = True
         Me.Label70.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label70.Location = New System.Drawing.Point(7, 12)
+        Me.Label70.Location = New System.Drawing.Point(7, 7)
         Me.Label70.Name = "Label70"
-        Me.Label70.Size = New System.Drawing.Size(185, 13)
+        Me.Label70.Size = New System.Drawing.Size(181, 13)
         Me.Label70.TabIndex = 1
-        Me.Label70.Text = "Statistics of Current Simulation:"
+        Me.Label70.Text = "Statistics of Current Simulation"
         '
         'lstSimTotalsStats
         '
         Me.lstSimTotalsStats.Controls.Add(Me.TabPage3)
         Me.lstSimTotalsStats.Controls.Add(Me.TabPage4)
-        Me.lstSimTotalsStats.Location = New System.Drawing.Point(8, 37)
+        Me.lstSimTotalsStats.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.lstSimTotalsStats.Location = New System.Drawing.Point(0, 0)
         Me.lstSimTotalsStats.Name = "lstSimTotalsStats"
         Me.lstSimTotalsStats.SelectedIndex = 0
-        Me.lstSimTotalsStats.Size = New System.Drawing.Size(379, 261)
+        Me.lstSimTotalsStats.Size = New System.Drawing.Size(399, 278)
         Me.lstSimTotalsStats.TabIndex = 0
         '
         'TabPage3
@@ -2360,16 +2385,17 @@ Partial Class MainWindow
         Me.TabPage3.Location = New System.Drawing.Point(4, 22)
         Me.TabPage3.Name = "TabPage3"
         Me.TabPage3.Padding = New System.Windows.Forms.Padding(3)
-        Me.TabPage3.Size = New System.Drawing.Size(371, 235)
+        Me.TabPage3.Size = New System.Drawing.Size(391, 252)
         Me.TabPage3.TabIndex = 0
         Me.TabPage3.Text = "Current Frame"
         Me.TabPage3.UseVisualStyleBackColor = True
         '
         'lstCurrentFrameStats
         '
-        Me.lstCurrentFrameStats.Location = New System.Drawing.Point(10, 10)
+        Me.lstCurrentFrameStats.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.lstCurrentFrameStats.Location = New System.Drawing.Point(3, 3)
         Me.lstCurrentFrameStats.Name = "lstCurrentFrameStats"
-        Me.lstCurrentFrameStats.Size = New System.Drawing.Size(350, 215)
+        Me.lstCurrentFrameStats.Size = New System.Drawing.Size(385, 246)
         Me.lstCurrentFrameStats.TabIndex = 1
         Me.lstCurrentFrameStats.UseCompatibleStateImageBehavior = False
         '
@@ -2386,9 +2412,10 @@ Partial Class MainWindow
         '
         'ListView1
         '
-        Me.ListView1.Location = New System.Drawing.Point(10, 10)
+        Me.ListView1.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.ListView1.Location = New System.Drawing.Point(3, 3)
         Me.ListView1.Name = "ListView1"
-        Me.ListView1.Size = New System.Drawing.Size(350, 215)
+        Me.ListView1.Size = New System.Drawing.Size(365, 229)
         Me.ListView1.TabIndex = 0
         Me.ListView1.UseCompatibleStateImageBehavior = False
         '
@@ -2407,6 +2434,126 @@ Partial Class MainWindow
         'OpenFileDialog1
         '
         Me.OpenFileDialog1.FileName = "OpenFileDialog1"
+        '
+        'GraphicalSummaryTab
+        '
+        Me.GraphicalSummaryTab.Controls.Add(Me.TabPage1)
+        Me.GraphicalSummaryTab.Controls.Add(Me.TabPage2)
+        Me.GraphicalSummaryTab.Controls.Add(Me.TabPage5)
+        Me.GraphicalSummaryTab.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.GraphicalSummaryTab.Location = New System.Drawing.Point(0, 0)
+        Me.GraphicalSummaryTab.Name = "GraphicalSummaryTab"
+        Me.GraphicalSummaryTab.SelectedIndex = 0
+        Me.GraphicalSummaryTab.Size = New System.Drawing.Size(399, 446)
+        Me.GraphicalSummaryTab.TabIndex = 2
+        '
+        'TabPage1
+        '
+        Me.TabPage1.Controls.Add(Me.HLProfileGraph)
+        Me.TabPage1.Location = New System.Drawing.Point(4, 22)
+        Me.TabPage1.Name = "TabPage1"
+        Me.TabPage1.Padding = New System.Windows.Forms.Padding(3)
+        Me.TabPage1.Size = New System.Drawing.Size(391, 420)
+        Me.TabPage1.TabIndex = 0
+        Me.TabPage1.Text = "Heat Load Profile"
+        Me.TabPage1.UseVisualStyleBackColor = True
+        '
+        'TabPage2
+        '
+        Me.TabPage2.Location = New System.Drawing.Point(4, 22)
+        Me.TabPage2.Name = "TabPage2"
+        Me.TabPage2.Padding = New System.Windows.Forms.Padding(3)
+        Me.TabPage2.Size = New System.Drawing.Size(371, 235)
+        Me.TabPage2.TabIndex = 1
+        Me.TabPage2.Text = "Retention Time"
+        Me.TabPage2.UseVisualStyleBackColor = True
+        '
+        'Label72
+        '
+        Me.Label72.AutoSize = True
+        Me.Label72.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label72.Location = New System.Drawing.Point(7, 8)
+        Me.Label72.Name = "Label72"
+        Me.Label72.Size = New System.Drawing.Size(115, 13)
+        Me.Label72.TabIndex = 3
+        Me.Label72.Text = "Graphical Summary"
+        '
+        'TabPage5
+        '
+        Me.TabPage5.Location = New System.Drawing.Point(4, 22)
+        Me.TabPage5.Name = "TabPage5"
+        Me.TabPage5.Size = New System.Drawing.Size(371, 235)
+        Me.TabPage5.TabIndex = 2
+        Me.TabPage5.Text = "Exit Temperature"
+        Me.TabPage5.UseVisualStyleBackColor = True
+        '
+        'HLProfileGraph
+        '
+        Me.HLProfileGraph.BorderlineColor = System.Drawing.Color.Gray
+        Me.HLProfileGraph.BorderlineDashStyle = System.Windows.Forms.DataVisualization.Charting.ChartDashStyle.Solid
+        ChartArea1.Name = "ChartArea1"
+        Me.HLProfileGraph.ChartAreas.Add(ChartArea1)
+        Me.HLProfileGraph.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.HLProfileGraph.Location = New System.Drawing.Point(3, 3)
+        Me.HLProfileGraph.Name = "HLProfileGraph"
+        Me.HLProfileGraph.Size = New System.Drawing.Size(385, 414)
+        Me.HLProfileGraph.TabIndex = 5
+        Me.HLProfileGraph.Text = "Chart1"
+        '
+        'SplitContainer1
+        '
+        Me.SplitContainer1.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.SplitContainer1.IsSplitterFixed = True
+        Me.SplitContainer1.Location = New System.Drawing.Point(0, 0)
+        Me.SplitContainer1.Name = "SplitContainer1"
+        Me.SplitContainer1.Orientation = System.Windows.Forms.Orientation.Horizontal
+        '
+        'SplitContainer1.Panel1
+        '
+        Me.SplitContainer1.Panel1.Controls.Add(Me.Label70)
+        '
+        'SplitContainer1.Panel2
+        '
+        Me.SplitContainer1.Panel2.Controls.Add(Me.lstSimTotalsStats)
+        Me.SplitContainer1.Size = New System.Drawing.Size(399, 310)
+        Me.SplitContainer1.SplitterDistance = 28
+        Me.SplitContainer1.TabIndex = 4
+        '
+        'SplitContainer2
+        '
+        Me.SplitContainer2.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.SplitContainer2.Location = New System.Drawing.Point(0, 0)
+        Me.SplitContainer2.Name = "SplitContainer2"
+        Me.SplitContainer2.Orientation = System.Windows.Forms.Orientation.Horizontal
+        '
+        'SplitContainer2.Panel1
+        '
+        Me.SplitContainer2.Panel1.Controls.Add(Me.Label72)
+        '
+        'SplitContainer2.Panel2
+        '
+        Me.SplitContainer2.Panel2.Controls.Add(Me.GraphicalSummaryTab)
+        Me.SplitContainer2.Size = New System.Drawing.Size(399, 478)
+        Me.SplitContainer2.SplitterDistance = 28
+        Me.SplitContainer2.TabIndex = 5
+        '
+        'SplitContainer3
+        '
+        Me.SplitContainer3.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.SplitContainer3.Location = New System.Drawing.Point(0, 0)
+        Me.SplitContainer3.Name = "SplitContainer3"
+        Me.SplitContainer3.Orientation = System.Windows.Forms.Orientation.Horizontal
+        '
+        'SplitContainer3.Panel1
+        '
+        Me.SplitContainer3.Panel1.Controls.Add(Me.SplitContainer1)
+        '
+        'SplitContainer3.Panel2
+        '
+        Me.SplitContainer3.Panel2.Controls.Add(Me.SplitContainer2)
+        Me.SplitContainer3.Size = New System.Drawing.Size(399, 792)
+        Me.SplitContainer3.SplitterDistance = 310
+        Me.SplitContainer3.TabIndex = 6
         '
         'MainWindow
         '
@@ -2465,7 +2612,6 @@ Partial Class MainWindow
         Me.GroupBox9.PerformLayout()
         Me.Divisor2.Panel1.ResumeLayout(False)
         Me.Divisor2.Panel2.ResumeLayout(False)
-        Me.Divisor2.Panel2.PerformLayout()
         CType(Me.Divisor2, System.ComponentModel.ISupportInitialize).EndInit()
         Me.Divisor2.ResumeLayout(False)
         Me.MidPanel.Panel1.ResumeLayout(False)
@@ -2480,6 +2626,23 @@ Partial Class MainWindow
         CType(Me.ErrorProvider1, System.ComponentModel.ISupportInitialize).EndInit()
         CType(Me.ErrorProvider2, System.ComponentModel.ISupportInitialize).EndInit()
         CType(Me.BindingSource1, System.ComponentModel.ISupportInitialize).EndInit()
+        Me.GraphicalSummaryTab.ResumeLayout(False)
+        Me.TabPage1.ResumeLayout(False)
+        CType(Me.HLProfileGraph, System.ComponentModel.ISupportInitialize).EndInit()
+        Me.SplitContainer1.Panel1.ResumeLayout(False)
+        Me.SplitContainer1.Panel1.PerformLayout()
+        Me.SplitContainer1.Panel2.ResumeLayout(False)
+        CType(Me.SplitContainer1, System.ComponentModel.ISupportInitialize).EndInit()
+        Me.SplitContainer1.ResumeLayout(False)
+        Me.SplitContainer2.Panel1.ResumeLayout(False)
+        Me.SplitContainer2.Panel1.PerformLayout()
+        Me.SplitContainer2.Panel2.ResumeLayout(False)
+        CType(Me.SplitContainer2, System.ComponentModel.ISupportInitialize).EndInit()
+        Me.SplitContainer2.ResumeLayout(False)
+        Me.SplitContainer3.Panel1.ResumeLayout(False)
+        Me.SplitContainer3.Panel2.ResumeLayout(False)
+        CType(Me.SplitContainer3, System.ComponentModel.ISupportInitialize).EndInit()
+        Me.SplitContainer3.ResumeLayout(False)
         Me.ResumeLayout(False)
 
     End Sub
@@ -2702,4 +2865,13 @@ Partial Class MainWindow
     Friend WithEvents ListView1 As ListView
     Friend WithEvents txtEmptyLevel As TextBox
     Friend WithEvents Label71 As Label
+    Friend WithEvents Label72 As Label
+    Friend WithEvents GraphicalSummaryTab As TabControl
+    Friend WithEvents TabPage1 As TabPage
+    Friend WithEvents TabPage2 As TabPage
+    Friend WithEvents TabPage5 As TabPage
+    Friend WithEvents HLProfileGraph As DataVisualization.Charting.Chart
+    Friend WithEvents SplitContainer3 As SplitContainer
+    Friend WithEvents SplitContainer1 As SplitContainer
+    Friend WithEvents SplitContainer2 As SplitContainer
 End Class

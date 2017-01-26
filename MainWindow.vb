@@ -103,9 +103,9 @@ Public Class MainWindow
             VRTM_SimVariables.ProductMix(1).FoodThermalPropertiesModel.FoodModelUsed = FoodPropertiesList(18)
             VRTM_SimVariables.ProductMix(2).FoodThermalPropertiesModel.FoodModelUsed = FoodPropertiesList(18)
         Catch ex As Exception
-            VRTM_SimVariables.ProductMix(0).FoodThermalPropertiesModel.FoodModelUsed = FoodPropertiesList(0)
-            VRTM_SimVariables.ProductMix(1).FoodThermalPropertiesModel.FoodModelUsed = FoodPropertiesList(0)
-            VRTM_SimVariables.ProductMix(2).FoodThermalPropertiesModel.FoodModelUsed = FoodPropertiesList(0)
+            For Each p As ProductData In VRTM_SimVariables.ProductMix
+                p.FoodThermalPropertiesModel.FoodModelUsed = FoodPropertiesList(1)
+            Next
         End Try
 
 
@@ -1255,5 +1255,151 @@ Public Class MainWindow
 
 #End Region
 
+
+#Region "Chart update"
+    Public Sub LoadTotalHeatLoadGraph()
+        ClearGraph(HLProfileGraph)
+        InitializeGraph(HLProfileGraph)
+
+        Dim HL As Double
+
+        'The heat load has already been computed:
+        If Not IsNothing(Simulation_Results.TotalPower) Then
+            Dim HeatLoadSeries(0) As DataVisualization.Charting.Series
+            HeatLoadSeries(0) = New DataVisualization.Charting.Series
+
+            For I As Long = 0 To Simulation_Results.TotalPower.Count - 1 Step Int(Simulation_Results.TotalPower.Count / 1000) '1000 points
+                HL = Simulation_Results.TotalPower(I) / 1000
+                If HL < 100000 And HL >= 0 Then
+                    'Converts power to kW and Time to Days
+                    HeatLoadSeries(0).Points.AddXY(Simulation_Results.VRTMTimePositions(I) / (24 * 3600), HL)
+                End If
+            Next
+
+            HeatLoadSeries(0).Legend = "Instantaneous Heat Load"
+            HeatLoadSeries(0).Color = Color.Black
+            HeatLoadSeries(0).BorderWidth = 1
+            HeatLoadSeries(0).ChartType = DataVisualization.Charting.SeriesChartType.Line
+
+            UpdateGraph(HLProfileGraph, "Instantaneous Heat Load", HeatLoadSeries, "Time [days]", "Heat Load [kW]")
+
+
+        End If
+
+    End Sub
+
+
+    Private Sub UpdateGraph(WhicheverGraph As DataVisualization.Charting.Chart, Title As String,
+                            Data() As DataVisualization.Charting.Series, XLabel As String, YLabel As String)
+        'Updates the graph with the three results from the simulation
+        'Axis title
+        WhicheverGraph.ChartAreas(0).AxisX.Title = XLabel
+        WhicheverGraph.ChartAreas(0).AxisY.Title = YLabel
+
+
+        'Titles
+        WhicheverGraph.Titles.Clear()
+        WhicheverGraph.Titles.Add(Title)
+
+        'Series
+        Dim XMin, XMax, YMin, YMax, padding As Double
+        padding = 0.1
+
+        XMin = Double.MaxValue
+        YMin = Double.MaxValue
+        XMax = Double.MinValue
+        YMax = Double.MinValue
+
+
+        For Each S As DataVisualization.Charting.Series In Data
+            WhicheverGraph.Series.Add(S)
+
+            'Finds the minima and maxima
+            For Each P As DataVisualization.Charting.DataPoint In S.Points
+                If P.XValue < XMin Then XMin = P.XValue
+                If P.XValue > XMax Then XMax = P.XValue
+
+                If P.YValues(0) < YMin Then YMin = P.YValues(0)
+                If P.YValues(0) > YMax Then YMax = P.YValues(0)
+            Next
+        Next
+
+
+        'Chart resizing
+        Dim XInterval As Double = XMax - XMin
+        Dim YInterval As Double = YMax - YMin
+
+        If Not XMin = 0 Then
+            WhicheverGraph.ChartAreas(0).AxisX.Minimum = XMin - padding * XInterval
+        Else
+            WhicheverGraph.ChartAreas(0).AxisX.Minimum = 0
+        End If
+        WhicheverGraph.ChartAreas(0).AxisX.Maximum = XMax + padding * XInterval
+
+        If Not YMin = 0 Then
+            WhicheverGraph.ChartAreas(0).AxisY.Minimum = YMin - padding * YInterval
+        Else
+            WhicheverGraph.ChartAreas(0).AxisY.Minimum = 0
+        End If
+        WhicheverGraph.ChartAreas(0).AxisY.Maximum = YMax + padding * YInterval
+
+
+        'Implements smart axis tick marks
+        With WhicheverGraph.ChartAreas(0)
+            .AxisX.Interval = GetTickInterval(.AxisX.Minimum, .AxisX.Maximum, 5)
+            .AxisX.MajorTickMark.Interval = .AxisX.Interval
+            .AxisX.Minimum = Int(.AxisX.Minimum / .AxisX.Interval) * .AxisX.Interval
+            .AxisX.Maximum = Int(.AxisX.Maximum / .AxisX.Interval) * .AxisX.Interval
+
+            .AxisY.Interval = GetTickInterval(.AxisY.Minimum, .AxisY.Maximum, 5)
+            .AxisY.MajorTickMark.Interval = .AxisY.Interval
+            .AxisY.Minimum = Int(.AxisY.Minimum / .AxisY.Interval) * .AxisY.Interval
+            .AxisY.Maximum = Int(.AxisY.Maximum / .AxisY.Interval) * .AxisY.Interval
+        End With
+
+        'Binds axes tooltips
+        For Each S As DataVisualization.Charting.Series In WhicheverGraph.Series
+            S.ToolTip = "x=#VALX" & vbCrLf & "y=#VALY"
+        Next
+
+        'Legends
+        'WhicheverGraph.Legends(0).Position.Auto = False
+        'WhicheverGraph.Legends(0).Position = New DataVisualization.Charting.ElementPosition(80, 10, 15, 20)
+
+    End Sub
+
+
+    Private Sub ClearGraph(WhicheverGraph As DataVisualization.Charting.Chart)
+        'Clears the data in the chart
+        WhicheverGraph.Titles.Clear()
+        WhicheverGraph.Series.Clear()
+    End Sub
+
+    Private Sub InitializeGraph(WhicheverGraph As DataVisualization.Charting.Chart)
+        'Initializes the graph formatting (because the default formatting is awful!!)
+        Dim LightGrayColor, DarkGrayColor As Color
+        LightGrayColor = Color.FromArgb(230, 230, 230)
+        DarkGrayColor = Color.FromArgb(100, 100, 100)
+
+        With WhicheverGraph
+            .ChartAreas(0).AxisX.LineColor = DarkGrayColor
+            .ChartAreas(0).AxisX.MajorGrid.LineColor = LightGrayColor
+            .ChartAreas(0).AxisX.MinorGrid.LineColor = LightGrayColor
+            .ChartAreas(0).AxisX.MajorTickMark.LineColor = DarkGrayColor
+            .ChartAreas(0).AxisX.MinorTickMark.LineColor = DarkGrayColor
+            .ChartAreas(0).AxisY.LineColor = DarkGrayColor
+            .ChartAreas(0).AxisY.MajorGrid.LineColor = LightGrayColor
+            .ChartAreas(0).AxisY.MinorGrid.LineColor = LightGrayColor
+            .ChartAreas(0).AxisY.MajorTickMark.LineColor = DarkGrayColor
+            .ChartAreas(0).AxisY.MinorTickMark.LineColor = DarkGrayColor
+
+            .ChartAreas(0).AxisX.LabelStyle.Font = New Font(.ChartAreas(0).AxisX.LabelStyle.Font.FontFamily, 8)
+            .ChartAreas(0).AxisY.LabelStyle.Font = New Font(.ChartAreas(0).AxisY.LabelStyle.Font.FontFamily, 8)
+            .ChartAreas(0).AxisX.LabelStyle.ForeColor = DarkGrayColor
+            .ChartAreas(0).AxisY.LabelStyle.ForeColor = DarkGrayColor
+
+        End With
+    End Sub
+#End Region
 
 End Class
