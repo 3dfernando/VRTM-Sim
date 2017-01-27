@@ -393,6 +393,7 @@ TryAgain:
         Public TrayEntryLevels() As Integer 'Array of levels where each tray was entering onto for the tray index mentioned in TRVMTrayIndices
         Public Elevator() As TrayData 'Representation of the tray in the elevator, array in timesteps
         Public EmptyElevatorB() As Boolean 'Number of the elevator that is empty (FALSE = left [A], TRUE = right [B])
+        Public AirTemperatures(,) As Double 'Stores the air temperatures inside the tunnel. AirTemperatures(TimeStep, Tray position)=Air Temperature
 
         Public TotalPower() As Double 'Total Power integralized in [W] for each time step
 

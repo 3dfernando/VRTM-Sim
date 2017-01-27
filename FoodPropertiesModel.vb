@@ -138,6 +138,7 @@
 
             FitCoeffs_rho_frozen2 = FindPolynomialLeastSquaresFit(rho, 10)
         End Sub
+
         Public Function get_rho(T As Double) As Double
             'Returns the value of rho(T)
 
@@ -228,6 +229,12 @@
                             +xi * k_i.Replace_X(Tc) / rho_i.Replace_X(Tc) + xw * k_w.Replace_X(Tc) / rho_w.Replace_X(Tc))
                 k.Add(newPoint)
             Next
+            newPoint.X = Tf
+            newPoint.Y = get_rho(Tc) * (xp * k_p.Replace_X(Tc) / rho_p.Replace_X(Tc) + xf * k_f.Replace_X(Tc) / rho_f.Replace_X(Tc) +
+                            +xc * k_c.Replace_X(Tc) / rho_c.Replace_X(Tc) + xa * k_a.Replace_X(Tc) / rho_a.Replace_X(Tc) +
+                            +xi * k_i.Replace_X(Tc) / rho_i.Replace_X(Tc) + xw * k_w.Replace_X(Tc) / rho_w.Replace_X(Tc))
+            k.Add(newPoint)
+
 
             FitCoeffs_k_frozen1 = FindPolynomialLeastSquaresFit(k, 10)
 

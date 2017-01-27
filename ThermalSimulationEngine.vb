@@ -4,19 +4,42 @@
         Dim I, J, TimeStep As Long
         Dim CurrentIndex As Long
         Dim Delta_Time As Double
+        Dim PowerColumn As Double 'Stores the power of the current time step in the current tray column position
         Dim TotalPower As Double
+        Dim PowerFansFixed As Double 'Power in W of fans and others
+        Dim Air_T_Evaporator, T_inlet_evap, NTU, epsilon, C_min As Double
+
+        'Begins counting sim time
+        Dim Watch As New Stopwatch
+        Watch.Start()
+
+        Const ThermalSimulationMethod As Long = 0 '[0=DT Heat balance method], [1=Surface convection method]
 
         'Inits a thermal data array
         Dim TrayThermalInformation() As TrayThermalData
         ReDim TrayThermalInformation(Simulation_Results.VRTMTimePositions.Count - 1)
 
-        'Inits the total power array
-        ReDim Simulation_Results.TotalPower(Simulation_Results.VRTMTimePositions.Count - 1)
+        ReDim Simulation_Results.TotalPower(Simulation_Results.VRTMTimePositions.Count - 1) 'Inits the total power array
+        ReDim Simulation_Results.AirTemperatures(Simulation_Results.VRTMTimePositions.Count - 1,
+                                                 VRTM_SimVariables.nTrays - 1) 'Inits the air temperature array
+
+        'Makes sure the thermal property models are initialized
+        For Each P As ProductData In VRTM_SimVariables.ProductMix
+            P.FoodThermalPropertiesModel.Initialize()
+        Next
+
+        'Inits the air temperatures with the evaporator T
+        For I = 0 To VRTM_SimVariables.nTrays - 1
+            Simulation_Results.AirTemperatures(0, I) = VRTM_SimVariables.Tevap_Setpoint
+        Next
+
+        'Inits the evaporator
+        C_min = ((VRTM_SimVariables.fanFlowRate / 3600) * 1.44 * 1005) 'Air flow heat capacity, [W/K]
+        NTU = (VRTM_SimVariables.globalHX_Coeff * VRTM_SimVariables.evapSurfArea) / C_min
+        epsilon = 1 - Math.Exp(-NTU)
+        PowerFansFixed = 1000 * ((VRTM_SimVariables.FixedHeatLoadData.FixedHL + VRTM_SimVariables.fanPower)) * VRTM_SimVariables.SafetyFactorVRTM
 
         'Begins the main sim loop
-        Dim Watch As New Stopwatch
-        Watch.Start()
-
         For TimeStep = 0 To Simulation_Results.VRTMTimePositions.Count - 1
 
             If TimeStep Mod 100 Then
@@ -25,13 +48,39 @@
                     Trim(Str(Round(TimeStep * 100 / (Simulation_Results.VRTMTimePositions.Count - 1), 1))) & " %..."
             End If
 
+            'If Simulation_Results.VRTMTimePositions(TimeStep) > 86390 Then
+            '    Dim hehe As Long = 0
+            'End If
+
+
             TotalPower = 0 'Inits the power for this t_step
+            If TimeStep > 0 Then Delta_Time = Simulation_Results.VRTMTimePositions(TimeStep) - Simulation_Results.VRTMTimePositions(TimeStep - 1)
+
+            'Inits the evaporator, using the epsilon-NTU method
+            If TimeStep > 0 Then
+                T_inlet_evap = Simulation_Results.AirTemperatures(TimeStep, VRTM_SimVariables.nTrays - 1) + PowerFansFixed / C_min 'ºC
+                Air_T_Evaporator = T_inlet_evap - epsilon *
+                    (Simulation_Results.AirTemperatures(TimeStep, VRTM_SimVariables.nTrays - 1) - VRTM_SimVariables.Tevap_Setpoint) 'ºC
+
+                If Air_T_Evaporator < VRTM_SimVariables.Tevap_Setpoint Then Air_T_Evaporator = VRTM_SimVariables.Tevap_Setpoint 'Prevent the outlet temperature from dropping too much
+
+                If Air_T_Evaporator > 35 Then
+                    'What is happening???
+                    Dim asd As String = ""
+                End If
+
+            Else
+                Air_T_Evaporator = VRTM_SimVariables.Tevap_Setpoint
+            End If
+
+
             For I = 0 To VRTM_SimVariables.nTrays - 1
+
+                PowerColumn = 0 'Inits the power in the current tray position
+                'Runs the thermal sim on all the levels in the tunnel
                 For J = 0 To VRTM_SimVariables.nLevels - 1
-
-
                     CurrentIndex = Simulation_Results.VRTMTrayData(TimeStep, I, J).TrayIndex 'Gets the current tray index
-                    If TimeStep > 0 Then Delta_Time = Simulation_Results.VRTMTimePositions(TimeStep) - Simulation_Results.VRTMTimePositions(TimeStep - 1)
+
 
                     If CurrentIndex > 0 Then
                         If IsNothing(TrayThermalInformation(CurrentIndex)) Then
@@ -48,7 +97,8 @@
 
                             TrayThermalInformation(CurrentIndex).CurrentTProfs_AllProds =
                                                 GenerateNextTemperatureProfile(Simulation_Results.VRTMTrayData(TimeStep, I, J),
-                                                TrayThermalInformation(CurrentIndex).PastTProfs_AllProds, Delta_Time, -35)
+                                                TrayThermalInformation(CurrentIndex).PastTProfs_AllProds, Delta_Time,
+                                                Simulation_Results.AirTemperatures(TimeStep, I))
                         End If
 
 
@@ -60,69 +110,117 @@
                             If MaxTSurf < P.Value.TemperatureProfile(ProductMixSetup.nx - 1) Then MaxTSurf = P.Value.TemperatureProfile(ProductMixSetup.nx - 1)
                         Next
 
+
                         Simulation_Results.VRTMTrayData(TimeStep, I, J).CenterTemperature = MaxTCenter
-                        Simulation_Results.VRTMTrayData(TimeStep, I, J).SurfTemperature = MaxTSurf
+                            Simulation_Results.VRTMTrayData(TimeStep, I, J).SurfTemperature = MaxTSurf
 
-                        'Updates the power dissipated in the data array.
-                        Dim ProdMassEach As Double
-                        Dim ProdQty As Double
-                        Dim ProdCp As Double
+                            'Updates the power dissipated in the data array.
+                            Dim ProdMassEach As Double
+                            Dim ProdQty As Double
+                            Dim ProdCp As Double
 
-                        Dim dm As Double
-                        Dim dQ As Double
-                        Dim Q As Double
-                        Dim T1 As Double
-                        Dim T2 As Double
-                        Dim CurrDT As Double
+                            Dim dm, dQ, Q As Double
+                            Dim T1, T2, CurrDT As Double
+                            Dim A, h, rhoL As Double
 
-                        Dim Power As Double
+                            Dim Power As Double
 
-                        If Not (IsNothing(TrayThermalInformation(CurrentIndex).PastTProfs_AllProds) _
-                            Or IsNothing(TrayThermalInformation(CurrentIndex).CurrentTProfs_AllProds)) Then 'There must be data to work with
+                            If Not (IsNothing(TrayThermalInformation(CurrentIndex).PastTProfs_AllProds) _
+                                Or IsNothing(TrayThermalInformation(CurrentIndex).CurrentTProfs_AllProds)) Then 'There must be data to work with
 
-                            Q = 0
-                            For Each Product As KeyValuePair(Of Long, TProfile) In TrayThermalInformation(CurrentIndex).CurrentTProfs_AllProds 'Key=prod index, value=Tprof
-                                ProdMassEach = VRTM_SimVariables.ProductMix(Product.Key).BoxWeight
-                                ProdQty = Simulation_Results.VRTMTrayData(TimeStep, I, J).ProductIndices(Product.Key)
+                                Q = 0
+                                For Each Product As KeyValuePair(Of Long, TProfile) In TrayThermalInformation(CurrentIndex).CurrentTProfs_AllProds 'Key=prod index, value=Tprof
+                                    ProdMassEach = VRTM_SimVariables.ProductMix(Product.Key).BoxWeight
+                                    ProdQty = Simulation_Results.VRTMTrayData(TimeStep, I, J).ProductIndices(Product.Key)
 
-                                dm = (ProdQty * ProdMassEach) / ProductMixSetup.nx 'mass element [kg]
+                                    If ThermalSimulationMethod = 0 Then
+                                        '{{{{{{{{ DELTA-TEMPERATURE METHOD }}}}}}}
+                                        dm = (ProdQty * ProdMassEach) / ProductMixSetup.nx 'mass element [kg]
 
-                                For N As Long = 0 To ProductMixSetup.nx - 1
-                                    T1 = TrayThermalInformation(CurrentIndex).PastTProfs_AllProds(Product.Key).TemperatureProfile(N)
-                                    T2 = TrayThermalInformation(CurrentIndex).CurrentTProfs_AllProds(Product.Key).TemperatureProfile(N)
-                                    CurrDT = T1 - T2
+                                        For N As Long = 0 To ProductMixSetup.nx - 1
 
-                                    ProdCp = VRTM_SimVariables.ProductMix(Product.Key).FoodThermalPropertiesModel.get_cp((T1 + T2) / 2)
+                                            T1 = TrayThermalInformation(CurrentIndex).PastTProfs_AllProds(Product.Key).TemperatureProfile(N)
+                                            T2 = TrayThermalInformation(CurrentIndex).CurrentTProfs_AllProds(Product.Key).TemperatureProfile(N)
+                                            CurrDT = T1 - T2
 
-                                    dQ = dm * ProdCp * CurrDT 'Heat exchanged in the timestep for the current mass element [J]
-                                    Q += dQ 'Total heat exchanged [integral], across all products
+                                            ProdCp = VRTM_SimVariables.ProductMix(Product.Key).FoodThermalPropertiesModel.get_cp((T1 + T2) / 2)
+
+                                            dQ = dm * ProdCp * CurrDT 'Heat exchanged in the timestep for the current mass element [J]
+
+                                        If dQ < 0 Then
+                                            'That's not quite probable...
+                                            dQ = 0
+                                        End If
+                                        If CurrDT > 20 Then
+                                            'That's not quite probable either...
+                                            dQ = 0
+                                        End If
+
+                                        Q += dQ 'Total heat exchanged [integral], across all products
+                                    Next
+
+                                ElseIf ThermalSimulationMethod = 1 Then
+                                        '{{{{{{{{ SURFACE CONVECTION METHOD }}}}}}}
+                                        h = VRTM_SimVariables.ProductMix(Product.Key).ConvCoefficientUsed '[W/m².K]
+                                        rhoL = VRTM_SimVariables.ProductMix(Product.Key).FoodThermalPropertiesModel.get_rho(VRTM_SimVariables.ProductMix(Product.Key).InletTemperature) *
+                                            VRTM_SimVariables.ProductMix(Product.Key).SimThickness / 1000 '[kg/m²]
+                                        A = 2 * ProdMassEach * ProdQty / rhoL '[m²], both faces
+                                        T1 = TrayThermalInformation(CurrentIndex).PastTProfs_AllProds(Product.Key).TemperatureProfile(ProductMixSetup.nx - 1) 'Surf T, [C]
+                                        T2 = -35 'Fluid T, [C]
+                                        CurrDT = T1 - T2
+                                        'If CurrDT < 0 Then
+                                        '    'That's not quite probable...
+                                        '    Dim aseuhasueasue As Long = 0
+                                        'End If
+
+                                        dQ = h * A * CurrDT
+
+                                        Q += dQ 'Total heat exchanged [integral], across all products
+                                    End If
                                 Next
-                            Next
 
-                            'The power is Q/dt
-                            Power = Q / Delta_Time
-                        Else
-                            Power = 0
+                                If ThermalSimulationMethod = 0 Then 'Safety factor included here
+                                    Power = VRTM_SimVariables.SafetyFactorVRTM * (Q / Delta_Time) 'Power for the DT method is Q/dt
+                                ElseIf ThermalSimulationMethod = 1 Then
+                                    Power = VRTM_SimVariables.SafetyFactorVRTM * (Q) 'Power for the Surf Convection method is Q already
+                                End If
+
+                            Else
+                                Power = 0
+                            End If
+
+                            Simulation_Results.VRTMTrayData(TimeStep, I, J).TrayPower = Power
+                            TotalPower += Power
+                            PowerColumn += Power
                         End If
 
-                        Simulation_Results.VRTMTrayData(TimeStep, I, J).TrayPower = Power
-                        TotalPower += Power
+                Next
+
+                'Updates the next air temperature profile
+                If TimeStep < Simulation_Results.VRTMTimePositions.Count - 1 Then
+                    If I = 0 Then
+                        'First tray
+                        Simulation_Results.AirTemperatures(TimeStep + 1, I) = Air_T_Evaporator + (PowerColumn / C_min) 'ºC
+                    Else
+                        Simulation_Results.AirTemperatures(TimeStep + 1, I) = Simulation_Results.AirTemperatures(TimeStep + 1, I - 1) + (PowerColumn / C_min) 'ºC
+                    End If
+                    If Simulation_Results.AirTemperatures(TimeStep + 1, I) > 0 Then
+                        'Why?
+                        Dim asuehasuehase As Long = 0
                     End If
 
-                Next
+                End If
             Next
 
-            Simulation_Results.TotalPower(TimeStep) = (TotalPower + 1000 * (VRTM_SimVariables.FixedHeatLoadData.FixedHL + VRTM_SimVariables.fanPower)) *
-                                            VRTM_SimVariables.SafetyFactorVRTM 'Updates total power in [W]
+            Simulation_Results.TotalPower(TimeStep) = TotalPower + PowerFansFixed 'Updates total power in [W]
         Next
         Watch.Stop()
 
         MainWindow.MainForm.Text = "VRTM Simulator V1.0"
         MainWindow.MainForm.LoadTotalHeatLoadGraph()
-
+        MainWindow.MainForm.LoadTemperatureProfiledGraph()
 
         MsgBox("Thermal Simulation Completed Successully.")
-
 
     End Sub
 

@@ -1257,6 +1257,46 @@ Public Class MainWindow
 
 
 #Region "Chart update"
+    Public Sub LoadTemperatureProfiledGraph()
+        ClearGraph(TProfileGraph)
+        InitializeGraph(TProfileGraph)
+
+        If Not IsNothing(Simulation_Results.AirTemperatures) Then
+            Dim TSeries(2) As DataVisualization.Charting.Series
+            TSeries(0) = New DataVisualization.Charting.Series 'T first tray
+            TSeries(1) = New DataVisualization.Charting.Series 'T last tray
+            TSeries(2) = New DataVisualization.Charting.Series 'T evap SP
+
+            For I As Long = 0 To Simulation_Results.VRTMTimePositions.Count - 1 Step Int(Simulation_Results.VRTMTimePositions.Count / 1000) '1000 points
+                TSeries(0).Points.AddXY(Simulation_Results.VRTMTimePositions(I) / (24 * 3600),
+                                                   Simulation_Results.AirTemperatures(I, 0))
+                TSeries(1).Points.AddXY(Simulation_Results.VRTMTimePositions(I) / (24 * 3600),
+                                               Simulation_Results.AirTemperatures(I, VRTM_SimVariables.nTrays - 1))
+                TSeries(2).Points.AddXY(Simulation_Results.VRTMTimePositions(I) / (24 * 3600),
+                                               VRTM_SimVariables.Tevap_Setpoint)
+
+            Next
+
+            TSeries(0).LegendText = "T First Tray"
+            TSeries(0).Color = Color.Blue
+            TSeries(0).BorderWidth = 1
+            TSeries(0).ChartType = DataVisualization.Charting.SeriesChartType.Line
+
+            TSeries(1).LegendText = "T Last Tray"
+            TSeries(1).Color = Color.Red
+            TSeries(1).BorderWidth = 1
+            TSeries(1).ChartType = DataVisualization.Charting.SeriesChartType.Line
+
+            TSeries(2).LegendText = "T Evaporation"
+            TSeries(2).Color = Color.Black
+            TSeries(2).BorderWidth = 1
+            TSeries(2).ChartType = DataVisualization.Charting.SeriesChartType.Line
+
+            UpdateGraph(TProfileGraph, "Temperatures in the Tunnel", TSeries, "Time [days]", "Temperature [ºC]")
+
+        End If
+    End Sub
+
     Public Sub LoadTotalHeatLoadGraph()
         ClearGraph(HLProfileGraph)
         InitializeGraph(HLProfileGraph)
@@ -1273,6 +1313,8 @@ Public Class MainWindow
                 If HL < 100000 And HL >= 0 Then
                     'Converts power to kW and Time to Days
                     HeatLoadSeries(0).Points.AddXY(Simulation_Results.VRTMTimePositions(I) / (24 * 3600), HL)
+                Else
+                    'Dim aseh As Double = 0
                 End If
             Next
 

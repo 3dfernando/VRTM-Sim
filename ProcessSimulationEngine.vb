@@ -13,8 +13,12 @@
         'Inits variables
         Simulation_Results = New SimulationData
         TimeWhereSimulationStopped = 0
+        MainWindow.MainForm.Text = "VRTM Simulator V1.0 - Initializing Memory for Process Sim..."
+
         GenerateUniformDistributionWeightList()
         DemandsNotAccomplished.Clear()
+
+
 
         '################Preruns the box times########################
         With VRTM_SimVariables
@@ -115,8 +119,19 @@
             Dim ElevatorWaitUntil As Double = 0 'Absolute time where the elevator will be ready
             Dim lostBoxes As Long = 0 'Counts the boxes that have been lost due to elevator wait
             Dim TimeDelay As Double = 0
+            Dim PercentComplete As Double
 
             For Each k In ArrivalTimes
+
+                If currentSimulationTimeStep = 385 Then
+                    Dim b As Boolean = True
+                End If
+
+                If Int(k.Key / 3600) Mod 12 = 0 Then
+                    PercentComplete = Round((k.Key / VRTM_SimVariables.TotalSimTime) * 100, 1)
+                    MainWindow.MainForm.Text = "VRTM Simulator V1.0 - " & Trim(Str(PercentComplete)) & "%..."
+                End If
+
                 'Adds the next box to the conveyor
                 'k.Key is the time of arrival (seconds from start)
                 'k.Value is the index of the product in the ProductMix
@@ -234,6 +249,7 @@
                                         'Updates the loop variables
                                         prevLevel = currentLevel
                                         currentSimulationTimeStep += 1
+
                                     Next
                                 End If
 
@@ -252,6 +268,7 @@
 
                             ClonePreviousSimulationTimeStep(currentSimulationTimeStep, newT)
                             currentSimulationTimeStep += 1
+
                         End If
                     Next
 
@@ -291,6 +308,9 @@ PostProcessing:
             Simulation_Results.VRTMTrayData = TempArray
             Erase TempArray
 
+
+            MainWindow.MainForm.Text = "VRTM Simulator V1.0" 'Updates the text 
+
             'Warns the user if the tunnel hasn't been fast enough to feed all the boxes
             If lostBoxes > 0 Then
                 Dim PercentBoxes As Double = Int((lostBoxes / ArrivalTimes.Count) * 100 * 10) / 10
@@ -300,6 +320,7 @@ PostProcessing:
 
             Simulation_Results.SimulationComplete = True
         End With
+
     End Sub
 
     Public Sub ClonePreviousSimulationTimeStep(ByVal currentSimulationTimeStep As Long, ByVal CurrentTime As Double)

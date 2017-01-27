@@ -37,16 +37,7 @@
             TProfile(i) = T_Initial
         Next
 
-        Dim E As Long
-        'Defines the geometry exponent
-        If Geometry.ToLower = "thin slab" Then
-            E = 0
-        ElseIf Geometry.ToLower = "long cylinder" Then
-            E = 1
-        ElseIf Geometry.ToLower = "sphere" Then
-            E = 2
-        End If
-
+        Dim E As Long = Geometry_Exponent(Geometry)
 
         'Loops through the timesteps
         Dim dx As Double = L / (2 * (nx - 1))
@@ -114,6 +105,11 @@
         'Fills up the k array as it's heavily used
         For i = 0 To (n - 1)
             k(i) = Product.get_k(Prev_Timestep(i))
+            'If k(i) < 0 Then
+            '    'Shouldn't be, right?
+            '    Dim asuehasuehasuehasue As Long = 0
+            '    Product.get_k(Prev_Timestep(i))
+            'End If
         Next
 
         '----Boundary 1----
@@ -200,14 +196,17 @@
 
     Public Function Geometry_Exponent(Geometry As String) As Long
         'Returns the geometry exponent based on the geometry string
-        Select Case Geometry
-            Case "Thin Slab"
-                Return 0
-            Case "Long Cylinder"
-                Return 1
-            Case "Sphere"
-                Return 2
-        End Select
+        'Defines the geometry exponent
+        If Geometry.ToLower = "thin slab" Then
+            Geometry_Exponent = 0
+        ElseIf Geometry.ToLower = "long cylinder" Then
+            Geometry_Exponent = 1
+        ElseIf Geometry.ToLower = "sphere" Then
+            Geometry_Exponent = 2
+        Else
+            Geometry_Exponent = 0
+        End If
+
     End Function
 
 
