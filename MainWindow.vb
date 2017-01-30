@@ -1245,6 +1245,8 @@ Public Class MainWindow
             MainWindow_Load(Nothing, Nothing)
             VRTMTable.Columns.Clear()
             Simulation_Results = New SimulationData
+
+            ClearAllGraphs()
         End If
 
 
@@ -1255,9 +1257,163 @@ Public Class MainWindow
 
 #End Region
 
-
 #Region "Chart update"
-    Public Sub LoadTemperatureProfiledGraph()
+    Public Sub ClearAllGraphs()
+        'Will clear all graphs for a new simulation
+        ClearGraph(TProfileGraph)
+        ClearGraph(HLProfileGraph)
+        ClearGraph(RetentionTimeGraph)
+        ClearGraph(ExitTempGraph)
+    End Sub
+
+    Public Sub LoadTemperaturePercentileGraph()
+        ClearGraph(ExitTempGraph)
+        InitializeGraph(ExitTempGraph)
+
+        If Not IsNothing(Simulation_Results.AirTemperatures) Then
+            'Generates the Exit Temperature Array
+
+            Dim T As Double
+            Dim timeStep As Long
+            Dim currentTray As TrayData
+            Dim CenterTemperatures As New SortedSet(Of Double) '[ºC]
+
+            For I As Long = 0 To Simulation_Results.TrayExitTimes.Count - 1
+                If Simulation_Results.TrayEntryTimes(I) < Simulation_Results.TrayExitTimes(I) AndAlso Simulation_Results.TrayExitTimes(I) <> 0 Then
+                    'If stay time is negative, it means the tray hasn't exited
+                    'I is the index of the tray. Finds the tray in the timestep that corresponds to this time 
+                    T = Simulation_Results.TrayExitTimes(I)
+                    Try
+                        timeStep = Array.IndexOf(Simulation_Results.VRTMTimePositions, T)
+                        currentTray = SearchForTrayIndex(I, timeStep - 1)
+                        CenterTemperatures.Add(currentTray.CenterTemperature)
+                    Catch ex As Exception
+                        'Didn't find this one
+                    End Try
+                End If
+            Next
+
+
+            'Now parses the set
+            Const NPoints As Long = 20
+            Dim MinT As Double = CenterTemperatures(0)
+            Dim MaxT As Double = CenterTemperatures(CenterTemperatures.Count - 1)
+
+            Dim TPercentiles() As Double
+            ReDim TPercentiles(NPoints - 1)
+            Dim TThresholds() As Double
+            ReDim TThresholds(NPoints - 1)
+
+            Dim J As Long = 0
+            Dim CountPercentile As Long = 0
+            Dim LastPercentile As Long = 0
+
+            For I As Long = 0 To CenterTemperatures.Count - 1
+                CountPercentile += 1
+
+                If CountPercentile > (CenterTemperatures.Count / NPoints) Then
+                    TPercentiles(J) = LastPercentile + 100 / NPoints
+                    TThresholds(J) = CenterTemperatures(I)
+
+                    LastPercentile += 100 * CountPercentile / CenterTemperatures.Count
+                    CountPercentile = 0
+                    J += 1
+                End If
+            Next
+            'Adds the maximum point
+            TPercentiles(J) = 100
+            TThresholds(J) = CenterTemperatures(CenterTemperatures.Count - 1)
+
+
+            Dim TSeries(0) As DataVisualization.Charting.Series
+            TSeries(0) = New DataVisualization.Charting.Series 'Ret Time
+            Dim Percentile As Double = 0
+
+            TSeries(0).Points.AddXY(MinT, Percentile) 'First point is the percentile 0 at the minimum T
+            For I As Long = 0 To TPercentiles.Count - 1
+                TSeries(0).Points.AddXY(TThresholds(I), TPercentiles(I))
+            Next
+
+            TSeries(0).LegendText = "Exit Temperature"
+            TSeries(0).Color = Color.Blue
+            TSeries(0).BorderWidth = 1
+            TSeries(0).ChartType = DataVisualization.Charting.SeriesChartType.Line
+
+
+            UpdateGraph(ExitTempGraph, "Statistical Distribution of Exit Temperatures", TSeries, "Center Temperature [ºC]", "Percentile [%]")
+
+        End If
+    End Sub
+
+    Public Sub LoadRetentionTimeGraph()
+        ClearGraph(RetentionTimeGraph)
+        InitializeGraph(RetentionTimeGraph)
+
+        If Simulation_Results.SimulationComplete Then
+            Dim RetTimeOrderedList As New SortedSet(Of Double) '[h]
+            Dim StayTime As Double
+
+            'Orders stay times in a sorted set
+            For I As Long = 0 To Simulation_Results.TrayEntryTimes.Count - 1
+                If Simulation_Results.TrayEntryTimes(I) < Simulation_Results.TrayExitTimes(I) Then
+                    'If stay time is negative, it means the tray hasn't exited
+                    StayTime = Simulation_Results.TrayExitTimes(I) - Simulation_Results.TrayEntryTimes(I)
+                    RetTimeOrderedList.Add(StayTime / 3600) '[h]
+                End If
+            Next
+
+            'Now parses the set
+            Const NPoints As Long = 20
+            Dim MinRetTime As Double = RetTimeOrderedList(0)
+            Dim MaxRetTime As Double = RetTimeOrderedList(RetTimeOrderedList.Count - 1)
+
+            Dim RetTimePercentiles() As Double
+            ReDim RetTimePercentiles(NPoints - 1)
+            Dim RetTimeThresholds() As Double
+            ReDim RetTimeThresholds(NPoints - 1)
+
+            Dim J As Long = 0
+            Dim CountPercentile As Long = 0
+            Dim LastPercentile As Long = 0
+
+            For I As Long = 0 To RetTimeOrderedList.Count - 1
+                CountPercentile += 1
+
+                If CountPercentile > (RetTimeOrderedList.Count / NPoints) Then
+                    RetTimePercentiles(J) = LastPercentile + 100 / NPoints
+                    RetTimeThresholds(J) = RetTimeOrderedList(I)
+
+                    LastPercentile += 100 * CountPercentile / RetTimeOrderedList.Count
+                    CountPercentile = 0
+                    J += 1
+                End If
+            Next
+            'Adds the maximum point
+            RetTimePercentiles(J) = 100
+            RetTimeThresholds(J) = RetTimeOrderedList(RetTimeOrderedList.Count - 1)
+
+
+            Dim RSeries(0) As DataVisualization.Charting.Series
+            RSeries(0) = New DataVisualization.Charting.Series 'Ret Time
+            Dim Percentile As Double = 0
+
+            RSeries(0).Points.AddXY(MinRetTime, Percentile) 'First point is the percentile 0 at the minimum ret time
+            For I As Long = 0 To RetTimePercentiles.Count - 1
+                RSeries(0).Points.AddXY(RetTimeThresholds(I), RetTimePercentiles(I))
+            Next
+
+            RSeries(0).LegendText = "Retention Time"
+            RSeries(0).Color = Color.Blue
+            RSeries(0).BorderWidth = 1
+            RSeries(0).ChartType = DataVisualization.Charting.SeriesChartType.Line
+
+
+            UpdateGraph(RetentionTimeGraph, "Statistical Distribution of Retention Times", RSeries, "Time [h]", "Percentile [%]")
+
+        End If
+    End Sub
+
+    Public Sub LoadTemperatureProfileGraph()
         ClearGraph(TProfileGraph)
         InitializeGraph(TProfileGraph)
 
@@ -1442,6 +1598,7 @@ Public Class MainWindow
 
         End With
     End Sub
+
 #End Region
 
 End Class

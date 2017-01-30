@@ -148,4 +148,16 @@
 
     End Function
 
+    Public Function SearchForTrayIndex(TrayIndex As Long, TimeStep As Long) As TrayData
+        'Searches through Simulation_Results.VRTMTrayData and finds the index indicated, returning the object TrayData referring to it
+        For I As Long = 0 To UBound(Simulation_Results.VRTMTrayData, 2)
+            For J As Long = 0 To UBound(Simulation_Results.VRTMTrayData, 3)
+                If Simulation_Results.VRTMTrayData(TimeStep, I, J).TrayIndex = TrayIndex Then
+                    Return Simulation_Results.VRTMTrayData(TimeStep, I, J)
+                End If
+            Next
+        Next
+        Return Nothing
+    End Function
+
 End Module

@@ -23,8 +23,10 @@ Partial Class MainWindow
     <System.Diagnostics.DebuggerStepThrough()>
     Private Sub InitializeComponent()
         Me.components = New System.ComponentModel.Container()
-        Dim ChartArea2 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
         Dim ChartArea1 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
+        Dim ChartArea2 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
+        Dim ChartArea3 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
+        Dim ChartArea4 As System.Windows.Forms.DataVisualization.Charting.ChartArea = New System.Windows.Forms.DataVisualization.Charting.ChartArea()
         Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(MainWindow))
         Me.Divisor1 = New System.Windows.Forms.SplitContainer()
         Me.LeftPanel = New System.Windows.Forms.SplitContainer()
@@ -243,10 +245,14 @@ Partial Class MainWindow
         Me.SplitContainer2 = New System.Windows.Forms.SplitContainer()
         Me.Label72 = New System.Windows.Forms.Label()
         Me.GraphicalSummaryTab = New System.Windows.Forms.TabControl()
-        Me.TabPage1 = New System.Windows.Forms.TabPage()
+        Me.tabTunnelTemperature = New System.Windows.Forms.TabPage()
+        Me.TProfileGraph = New System.Windows.Forms.DataVisualization.Charting.Chart()
+        Me.tabHeatLoad = New System.Windows.Forms.TabPage()
         Me.HLProfileGraph = New System.Windows.Forms.DataVisualization.Charting.Chart()
-        Me.TabPage2 = New System.Windows.Forms.TabPage()
-        Me.TabPage5 = New System.Windows.Forms.TabPage()
+        Me.tabRetTime = New System.Windows.Forms.TabPage()
+        Me.RetentionTimeGraph = New System.Windows.Forms.DataVisualization.Charting.Chart()
+        Me.tabExitTemp = New System.Windows.Forms.TabPage()
+        Me.ExitTempGraph = New System.Windows.Forms.DataVisualization.Charting.Chart()
         Me.ErrorProvider1 = New System.Windows.Forms.ErrorProvider(Me.components)
         Me.ErrorProvider2 = New System.Windows.Forms.ErrorProvider(Me.components)
         Me.tmrPlayback = New System.Windows.Forms.Timer(Me.components)
@@ -254,8 +260,6 @@ Partial Class MainWindow
         Me.OpenFileDialog1 = New System.Windows.Forms.OpenFileDialog()
         Me.BindingSource1 = New System.Windows.Forms.BindingSource(Me.components)
         Me.ToolTip1 = New System.Windows.Forms.ToolTip(Me.components)
-        Me.TabPage6 = New System.Windows.Forms.TabPage()
-        Me.TProfileGraph = New System.Windows.Forms.DataVisualization.Charting.Chart()
         CType(Me.Divisor1, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.Divisor1.Panel1.SuspendLayout()
         Me.Divisor1.Panel2.SuspendLayout()
@@ -310,13 +314,17 @@ Partial Class MainWindow
         Me.SplitContainer2.Panel2.SuspendLayout()
         Me.SplitContainer2.SuspendLayout()
         Me.GraphicalSummaryTab.SuspendLayout()
-        Me.TabPage1.SuspendLayout()
+        Me.tabTunnelTemperature.SuspendLayout()
+        CType(Me.TProfileGraph, System.ComponentModel.ISupportInitialize).BeginInit()
+        Me.tabHeatLoad.SuspendLayout()
         CType(Me.HLProfileGraph, System.ComponentModel.ISupportInitialize).BeginInit()
+        Me.tabRetTime.SuspendLayout()
+        CType(Me.RetentionTimeGraph, System.ComponentModel.ISupportInitialize).BeginInit()
+        Me.tabExitTemp.SuspendLayout()
+        CType(Me.ExitTempGraph, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.ErrorProvider1, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.ErrorProvider2, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.BindingSource1, System.ComponentModel.ISupportInitialize).BeginInit()
-        Me.TabPage6.SuspendLayout()
-        CType(Me.TProfileGraph, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
         '
         'Divisor1
@@ -2491,10 +2499,10 @@ Partial Class MainWindow
         '
         'GraphicalSummaryTab
         '
-        Me.GraphicalSummaryTab.Controls.Add(Me.TabPage6)
-        Me.GraphicalSummaryTab.Controls.Add(Me.TabPage1)
-        Me.GraphicalSummaryTab.Controls.Add(Me.TabPage2)
-        Me.GraphicalSummaryTab.Controls.Add(Me.TabPage5)
+        Me.GraphicalSummaryTab.Controls.Add(Me.tabTunnelTemperature)
+        Me.GraphicalSummaryTab.Controls.Add(Me.tabHeatLoad)
+        Me.GraphicalSummaryTab.Controls.Add(Me.tabRetTime)
+        Me.GraphicalSummaryTab.Controls.Add(Me.tabExitTemp)
         Me.GraphicalSummaryTab.Dock = System.Windows.Forms.DockStyle.Fill
         Me.GraphicalSummaryTab.Location = New System.Drawing.Point(0, 0)
         Me.GraphicalSummaryTab.Name = "GraphicalSummaryTab"
@@ -2502,16 +2510,39 @@ Partial Class MainWindow
         Me.GraphicalSummaryTab.Size = New System.Drawing.Size(399, 447)
         Me.GraphicalSummaryTab.TabIndex = 2
         '
-        'TabPage1
+        'tabTunnelTemperature
         '
-        Me.TabPage1.Controls.Add(Me.HLProfileGraph)
-        Me.TabPage1.Location = New System.Drawing.Point(4, 22)
-        Me.TabPage1.Name = "TabPage1"
-        Me.TabPage1.Padding = New System.Windows.Forms.Padding(3)
-        Me.TabPage1.Size = New System.Drawing.Size(391, 421)
-        Me.TabPage1.TabIndex = 0
-        Me.TabPage1.Text = "Heat Load Profile"
-        Me.TabPage1.UseVisualStyleBackColor = True
+        Me.tabTunnelTemperature.Controls.Add(Me.TProfileGraph)
+        Me.tabTunnelTemperature.Location = New System.Drawing.Point(4, 22)
+        Me.tabTunnelTemperature.Name = "tabTunnelTemperature"
+        Me.tabTunnelTemperature.Size = New System.Drawing.Size(391, 421)
+        Me.tabTunnelTemperature.TabIndex = 3
+        Me.tabTunnelTemperature.Text = "Tunnel Temperatures"
+        Me.tabTunnelTemperature.UseVisualStyleBackColor = True
+        '
+        'TProfileGraph
+        '
+        Me.TProfileGraph.BorderlineColor = System.Drawing.Color.Gray
+        Me.TProfileGraph.BorderlineDashStyle = System.Windows.Forms.DataVisualization.Charting.ChartDashStyle.Solid
+        ChartArea1.Name = "ChartArea1"
+        Me.TProfileGraph.ChartAreas.Add(ChartArea1)
+        Me.TProfileGraph.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.TProfileGraph.Location = New System.Drawing.Point(0, 0)
+        Me.TProfileGraph.Name = "TProfileGraph"
+        Me.TProfileGraph.Size = New System.Drawing.Size(391, 421)
+        Me.TProfileGraph.TabIndex = 6
+        Me.TProfileGraph.Text = "Chart1"
+        '
+        'tabHeatLoad
+        '
+        Me.tabHeatLoad.Controls.Add(Me.HLProfileGraph)
+        Me.tabHeatLoad.Location = New System.Drawing.Point(4, 22)
+        Me.tabHeatLoad.Name = "tabHeatLoad"
+        Me.tabHeatLoad.Padding = New System.Windows.Forms.Padding(3)
+        Me.tabHeatLoad.Size = New System.Drawing.Size(391, 421)
+        Me.tabHeatLoad.TabIndex = 0
+        Me.tabHeatLoad.Text = "Heat Load Profile"
+        Me.tabHeatLoad.UseVisualStyleBackColor = True
         '
         'HLProfileGraph
         '
@@ -2526,24 +2557,52 @@ Partial Class MainWindow
         Me.HLProfileGraph.TabIndex = 5
         Me.HLProfileGraph.Text = "Chart1"
         '
-        'TabPage2
+        'tabRetTime
         '
-        Me.TabPage2.Location = New System.Drawing.Point(4, 22)
-        Me.TabPage2.Name = "TabPage2"
-        Me.TabPage2.Padding = New System.Windows.Forms.Padding(3)
-        Me.TabPage2.Size = New System.Drawing.Size(391, 421)
-        Me.TabPage2.TabIndex = 1
-        Me.TabPage2.Text = "Retention Time"
-        Me.TabPage2.UseVisualStyleBackColor = True
+        Me.tabRetTime.Controls.Add(Me.RetentionTimeGraph)
+        Me.tabRetTime.Location = New System.Drawing.Point(4, 22)
+        Me.tabRetTime.Name = "tabRetTime"
+        Me.tabRetTime.Padding = New System.Windows.Forms.Padding(3)
+        Me.tabRetTime.Size = New System.Drawing.Size(391, 421)
+        Me.tabRetTime.TabIndex = 1
+        Me.tabRetTime.Text = "Retention Time"
+        Me.tabRetTime.UseVisualStyleBackColor = True
         '
-        'TabPage5
+        'RetentionTimeGraph
         '
-        Me.TabPage5.Location = New System.Drawing.Point(4, 22)
-        Me.TabPage5.Name = "TabPage5"
-        Me.TabPage5.Size = New System.Drawing.Size(391, 421)
-        Me.TabPage5.TabIndex = 2
-        Me.TabPage5.Text = "Exit Temperature"
-        Me.TabPage5.UseVisualStyleBackColor = True
+        Me.RetentionTimeGraph.BorderlineColor = System.Drawing.Color.Gray
+        Me.RetentionTimeGraph.BorderlineDashStyle = System.Windows.Forms.DataVisualization.Charting.ChartDashStyle.Solid
+        ChartArea3.Name = "ChartArea1"
+        Me.RetentionTimeGraph.ChartAreas.Add(ChartArea3)
+        Me.RetentionTimeGraph.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.RetentionTimeGraph.Location = New System.Drawing.Point(3, 3)
+        Me.RetentionTimeGraph.Name = "RetentionTimeGraph"
+        Me.RetentionTimeGraph.Size = New System.Drawing.Size(385, 415)
+        Me.RetentionTimeGraph.TabIndex = 6
+        Me.RetentionTimeGraph.Text = "Chart1"
+        '
+        'tabExitTemp
+        '
+        Me.tabExitTemp.Controls.Add(Me.ExitTempGraph)
+        Me.tabExitTemp.Location = New System.Drawing.Point(4, 22)
+        Me.tabExitTemp.Name = "tabExitTemp"
+        Me.tabExitTemp.Size = New System.Drawing.Size(391, 421)
+        Me.tabExitTemp.TabIndex = 2
+        Me.tabExitTemp.Text = "Exit Temperature"
+        Me.tabExitTemp.UseVisualStyleBackColor = True
+        '
+        'ExitTempGraph
+        '
+        Me.ExitTempGraph.BorderlineColor = System.Drawing.Color.Gray
+        Me.ExitTempGraph.BorderlineDashStyle = System.Windows.Forms.DataVisualization.Charting.ChartDashStyle.Solid
+        ChartArea4.Name = "ChartArea1"
+        Me.ExitTempGraph.ChartAreas.Add(ChartArea4)
+        Me.ExitTempGraph.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.ExitTempGraph.Location = New System.Drawing.Point(0, 0)
+        Me.ExitTempGraph.Name = "ExitTempGraph"
+        Me.ExitTempGraph.Size = New System.Drawing.Size(391, 421)
+        Me.ExitTempGraph.TabIndex = 6
+        Me.ExitTempGraph.Text = "Chart1"
         '
         'ErrorProvider1
         '
@@ -2560,29 +2619,6 @@ Partial Class MainWindow
         'OpenFileDialog1
         '
         Me.OpenFileDialog1.FileName = "OpenFileDialog1"
-        '
-        'TabPage6
-        '
-        Me.TabPage6.Controls.Add(Me.TProfileGraph)
-        Me.TabPage6.Location = New System.Drawing.Point(4, 22)
-        Me.TabPage6.Name = "TabPage6"
-        Me.TabPage6.Size = New System.Drawing.Size(391, 421)
-        Me.TabPage6.TabIndex = 3
-        Me.TabPage6.Text = "Tunnel Temperatures"
-        Me.TabPage6.UseVisualStyleBackColor = True
-        '
-        'TProfileGraph
-        '
-        Me.TProfileGraph.BorderlineColor = System.Drawing.Color.Gray
-        Me.TProfileGraph.BorderlineDashStyle = System.Windows.Forms.DataVisualization.Charting.ChartDashStyle.Solid
-        ChartArea1.Name = "ChartArea1"
-        Me.TProfileGraph.ChartAreas.Add(ChartArea1)
-        Me.TProfileGraph.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.TProfileGraph.Location = New System.Drawing.Point(0, 0)
-        Me.TProfileGraph.Name = "TProfileGraph"
-        Me.TProfileGraph.Size = New System.Drawing.Size(391, 421)
-        Me.TProfileGraph.TabIndex = 6
-        Me.TProfileGraph.Text = "Chart1"
         '
         'MainWindow
         '
@@ -2667,13 +2703,17 @@ Partial Class MainWindow
         CType(Me.SplitContainer2, System.ComponentModel.ISupportInitialize).EndInit()
         Me.SplitContainer2.ResumeLayout(False)
         Me.GraphicalSummaryTab.ResumeLayout(False)
-        Me.TabPage1.ResumeLayout(False)
+        Me.tabTunnelTemperature.ResumeLayout(False)
+        CType(Me.TProfileGraph, System.ComponentModel.ISupportInitialize).EndInit()
+        Me.tabHeatLoad.ResumeLayout(False)
         CType(Me.HLProfileGraph, System.ComponentModel.ISupportInitialize).EndInit()
+        Me.tabRetTime.ResumeLayout(False)
+        CType(Me.RetentionTimeGraph, System.ComponentModel.ISupportInitialize).EndInit()
+        Me.tabExitTemp.ResumeLayout(False)
+        CType(Me.ExitTempGraph, System.ComponentModel.ISupportInitialize).EndInit()
         CType(Me.ErrorProvider1, System.ComponentModel.ISupportInitialize).EndInit()
         CType(Me.ErrorProvider2, System.ComponentModel.ISupportInitialize).EndInit()
         CType(Me.BindingSource1, System.ComponentModel.ISupportInitialize).EndInit()
-        Me.TabPage6.ResumeLayout(False)
-        CType(Me.TProfileGraph, System.ComponentModel.ISupportInitialize).EndInit()
         Me.ResumeLayout(False)
 
     End Sub
@@ -2898,13 +2938,15 @@ Partial Class MainWindow
     Friend WithEvents Label71 As Label
     Friend WithEvents Label72 As Label
     Friend WithEvents GraphicalSummaryTab As TabControl
-    Friend WithEvents TabPage1 As TabPage
-    Friend WithEvents TabPage2 As TabPage
-    Friend WithEvents TabPage5 As TabPage
+    Friend WithEvents tabHeatLoad As TabPage
+    Friend WithEvents tabRetTime As TabPage
+    Friend WithEvents tabExitTemp As TabPage
     Friend WithEvents HLProfileGraph As DataVisualization.Charting.Chart
     Friend WithEvents SplitContainer3 As SplitContainer
     Friend WithEvents SplitContainer1 As SplitContainer
     Friend WithEvents SplitContainer2 As SplitContainer
-    Friend WithEvents TabPage6 As TabPage
+    Friend WithEvents tabTunnelTemperature As TabPage
     Friend WithEvents TProfileGraph As DataVisualization.Charting.Chart
+    Friend WithEvents RetentionTimeGraph As DataVisualization.Charting.Chart
+    Friend WithEvents ExitTempGraph As DataVisualization.Charting.Chart
 End Class

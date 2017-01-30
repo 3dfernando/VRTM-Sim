@@ -151,10 +151,10 @@
                                             'That's not quite probable...
                                             dQ = 0
                                         End If
-                                        If CurrDT > 20 Then
-                                            'That's not quite probable either...
-                                            dQ = 0
-                                        End If
+                                        'If CurrDT > 20 Then
+                                        '    'That's not quite probable either...
+                                        '    dQ = 0
+                                        'End If
 
                                         Q += dQ 'Total heat exchanged [integral], across all products
                                     Next
@@ -218,7 +218,9 @@
 
         MainWindow.MainForm.Text = "VRTM Simulator V1.0"
         MainWindow.MainForm.LoadTotalHeatLoadGraph()
-        MainWindow.MainForm.LoadTemperatureProfiledGraph()
+        MainWindow.MainForm.LoadTemperatureProfileGraph()
+        MainWindow.MainForm.LoadTemperaturePercentileGraph()
+        MainWindow.MainForm.GraphicalSummaryTab.SelectedTab = MainWindow.MainForm.tabHeatLoad
 
         MsgBox("Thermal Simulation Completed Successully.")
 

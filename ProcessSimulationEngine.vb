@@ -18,7 +18,7 @@
         GenerateUniformDistributionWeightList()
         DemandsNotAccomplished.Clear()
 
-
+        MainWindow.MainForm.ClearAllGraphs()
 
         '################Preruns the box times########################
         With VRTM_SimVariables
@@ -113,7 +113,7 @@
 
 
             '####### As more boxes are created, advances into the day and defines the loading/organizing actions#######
-            Dim prevBoxTime As Long = 0
+            Dim prevBoxTime As Double = 0
             Dim elevatorMovementTime As Double
             Dim prevLevel As Long = 1
             Dim ElevatorWaitUntil As Double = 0 'Absolute time where the elevator will be ready
@@ -123,9 +123,7 @@
 
             For Each k In ArrivalTimes
 
-                If currentSimulationTimeStep = 385 Then
-                    Dim b As Boolean = True
-                End If
+
 
                 If Int(k.Key / 3600) Mod 12 = 0 Then
                     PercentComplete = Round((k.Key / VRTM_SimVariables.TotalSimTime) * 100, 1)
@@ -190,6 +188,8 @@
                             boxCount += boxType.Value
                         Next
 
+
+
                         If boxCount > 0 Then 'There's at least one box in the conveyor
                             Dim fakeKey As New KeyValuePair(Of Double, Long)(prevBoxTime + TimeDelay, C.BoxesInConveyor.Keys(0)) 'This generates a time delay between this and the next key
 
@@ -202,8 +202,8 @@
                                 TimeWhereSimulationStopped = prevBoxTime + TimeDelay
                                 GoTo PostProcessing
                             End If
-                            elevatorMovementTime = Compute_Entire_Cycle_Time(prevLevel, currentLevel)
                             prevLevel = currentLevel
+                            elevatorMovementTime = Compute_Entire_Cycle_Time(prevLevel, currentLevel)
 
 
                             'Updates the loop variables
@@ -262,6 +262,11 @@
                 If ((k.Key - prevBoxTime - TimeDelay) > VRTM_SimVariables.MinimumSimDt) AndAlso (prevBoxTime > 0) Then
                     'Fills up the arrays with (currently empty) timesteps for the thermal simulation
                     Dim newT As Double
+
+                    '---Necessary because the last box inserted was in the next period---
+                    currentSimulationTimeStep -= 1
+                    '-----
+
                     For newT = (prevBoxTime + TimeDelay + VRTM_SimVariables.MinimumSimDt) To k.Key Step VRTM_SimVariables.MinimumSimDt
                         'Rolls through all next time steps
                         If k.Key - newT > (VRTM_SimVariables.MinimumSimDt / 2) Then 'Just so it doesn't create a ridiculously small timestep
@@ -288,6 +293,7 @@ PostProcessing:
 
             'Resizes the tray data array back (yes, it's painful as coded...)
             ReDim Preserve Simulation_Results.TrayEntryTimes(currentTrayIndex - 1)
+            ReDim Preserve Simulation_Results.TrayExitTimes(currentTrayIndex - 1)
             ReDim Preserve Simulation_Results.TrayEntryPositions(currentTrayIndex - 1)
             ReDim Preserve Simulation_Results.TrayEntryLevels(currentSimulationTimeStep - 1)
             ReDim Preserve Simulation_Results.VRTMTimePositions(currentSimulationTimeStep - 1)
@@ -319,9 +325,25 @@ PostProcessing:
             End If
 
             Simulation_Results.SimulationComplete = True
+
+            MainWindow.MainForm.ClearAllGraphs()
+            MainWindow.MainForm.LoadRetentionTimeGraph()
+            MainWindow.MainForm.GraphicalSummaryTab.SelectedTab = MainWindow.MainForm.tabRetTime
         End With
 
+        'Dim Order As Boolean = Verify_Order_Of_Time_Array()
+
     End Sub
+
+    Public Function Verify_Order_Of_Time_Array() As Boolean
+        'For debug purposes. Facing a problem of a time array that is not ordered, which screws up the thermal simulation
+        Verify_Order_Of_Time_Array = True
+        For I = 1 To Simulation_Results.VRTMTimePositions.Count - 1
+            If Simulation_Results.VRTMTimePositions(I) < Simulation_Results.VRTMTimePositions(I - 1) Then
+                Verify_Order_Of_Time_Array = False
+            End If
+        Next
+    End Function
 
     Public Sub ClonePreviousSimulationTimeStep(ByVal currentSimulationTimeStep As Long, ByVal CurrentTime As Double)
         'This performs one reshelving operation.
@@ -342,6 +364,10 @@ PostProcessing:
 
 
         Simulation_Results.VRTMTimePositions(currentSimulationTimeStep) = CurrentTime
+        'If Simulation_Results.VRTMTimePositions(currentSimulationTimeStep) < Simulation_Results.VRTMTimePositions(currentSimulationTimeStep - 1) Then
+        '    Dim A As Boolean = False 'For debug purposes
+        'End If
+
         Simulation_Results.TrayEntryLevels(currentSimulationTimeStep) = Simulation_Results.TrayEntryLevels(currentSimulationTimeStep - 1)
 
     End Sub
@@ -447,6 +473,9 @@ PostProcessing:
         Simulation_Results.VRTMTrayData(currentSimulationTimeStep, 0, currentLevel).ProductIndices = New Dictionary(Of Long, Long)(Conveyors(ConveyorPosition_To_Index(VRTM_SimVariables.ProductMix(k.Value).ConveyorNumber)).BoxesInConveyor)
         Simulation_Results.TrayEntryPositions(currentTrayIndex) = currentSimulationTimeStep
         Simulation_Results.VRTMTimePositions(currentSimulationTimeStep) = k.Key
+        'If Simulation_Results.VRTMTimePositions(currentSimulationTimeStep) < Simulation_Results.VRTMTimePositions(currentSimulationTimeStep - 1) Then
+        '    Dim A As Boolean = False 'For debug purposes
+        'End If
 
         'Clears the conveyor
         Conveyors(ConveyorPosition_To_Index(VRTM_SimVariables.ProductMix(k.Value).ConveyorNumber)).BoxesInConveyor.Clear()
