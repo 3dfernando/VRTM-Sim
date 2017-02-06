@@ -215,7 +215,6 @@
         Next
     End Sub
 
-
     Private Sub UpdateFoodPropertiesList()
         'This updates the little list of "Product Model Properties"
         Dim i As ListViewItem
@@ -688,6 +687,7 @@
 
 
 #End Region
+
 
 
 End Class

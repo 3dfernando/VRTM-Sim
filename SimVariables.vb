@@ -2,6 +2,8 @@
     Public VRTM_SimVariables As New SimulationVariables
     Public Simulation_Results As New SimulationData
     Public FoodPropertiesList As New Collection
+    Public CompressorList As New List(Of CompressorFileInfo)
+    Public Ammonia As New AmmoniaProps
 
     <Serializable> Public Class SimulationVariables
         '============================
@@ -23,6 +25,8 @@
         Public IdleDaysVRTM() As Boolean 'Days that the VRTM will be idle at those hours
 
         '----Variables under Machine Room Tab----
+        Public CompressorSetup As New List(Of CompressorData)
+        Public CompromisedCap As Double '[kW]
         Public Tevap_Setpoint As Double
         Public Tcond As Double
 
@@ -101,6 +105,19 @@
             Me.IdleHourBeginVRTM = 18 / 24
             Me.IdleHourEndVRTM = 21 / 24
             Me.IdleDaysVRTM = {True, True, True, True, True, False, False}
+
+            Dim Comp As New CompressorData
+            Comp.SelectedCompressorIndex = 0
+            Comp.CompressorType = CompressorSystemInterconnectionType.OneStageNoEco
+            Comp.IntermediateT = 0
+            Comp.VolumeDisplacement_m3rev = 0.002
+            Comp.rpm = 3550
+            Comp.VolumeDisplacement_m3h = Comp.VolumeDisplacement_m3rev * Comp.rpm * 60
+            Comp.VolumeEfficiency = 0.89
+            Comp.Qty = 1
+
+
+            Me.CompressorSetup.Add(Comp)
 
             Me.Tevap_Setpoint = -35
             Me.Tcond = 35
@@ -318,8 +335,14 @@
         Public FixedHL As Double 'kW
     End Class
 
+#Region "CSV Load"
     Public Sub LoadFoodPropertiesCSVIntoMemory()
         Try
+            Dim ThisFolderPath As String = System.IO.Path.Combine(Environment.CurrentDirectory, "Food Properties.csv")
+            If System.IO.File.Exists(ThisFolderPath) Then
+                My.Settings.FoodProductCSVPath = ThisFolderPath
+                My.Settings.Save()
+            End If
             If Not System.IO.File.Exists(My.Settings.FoodProductCSVPath) Then
 TryAgain:
                 Dim fDiag As New System.Windows.Forms.OpenFileDialog
@@ -381,6 +404,72 @@ TryAgain:
         End Try
     End Sub
 
+    Public Sub LoadCompressorCSV()
+        Try
+            Dim ThisFolderPath As String = System.IO.Path.Combine(Environment.CurrentDirectory, "Compressors.csv")
+            If System.IO.File.Exists(ThisFolderPath) Then
+                My.Settings.CompressorCSV = ThisFolderPath
+                My.Settings.Save()
+            End If
+            If Not System.IO.File.Exists(My.Settings.CompressorCSV) Then
+TryAgain:
+                Dim fDiag As New System.Windows.Forms.OpenFileDialog
+                fDiag.Title = "Select a CSV file for the compressor data table"
+                fDiag.Filter = "CSV Files|*.csv"
+                fDiag.ShowDialog()
+                If Not System.IO.File.Exists(fDiag.FileName) Then
+                    MsgBox("Invalid file. Shutting down.")
+                Else
+                    My.Settings.CompressorCSV = fDiag.FileName
+                End If
+            End If
+
+            CompressorList.Clear()
+            Try
+                Using Reader As New Microsoft.VisualBasic.FileIO.TextFieldParser(My.Settings.CompressorCSV, System.Text.Encoding.GetEncoding("Windows-1252"))
+                    Reader.TextFieldType = FileIO.FieldType.Delimited
+                    Reader.SetDelimiters({";"})
+
+                    Dim currentRow As String()
+                    Dim firstLine As Boolean = True
+                    'Reads data from file
+                    While Not Reader.EndOfData
+                        currentRow = Reader.ReadFields()
+                        If Not firstLine Then
+                            If UBound(currentRow) = 1 Then
+                                Dim TempCompressor As New CompressorFileInfo
+                                With TempCompressor
+                                    .CompressorName = currentRow(0)
+                                    .VolumeDisplacement = Double.Parse(currentRow(1).Replace(",", "."), System.Globalization.CultureInfo.InvariantCulture)
+
+                                    If .VolumeDisplacement > 0 Then 'Incorrect volume displacement
+                                        CompressorList.Add(TempCompressor)
+                                    End If
+                                End With
+                            Else
+                                Throw New Exception("CSV File Format incorrect for a compressor table (should be exactly 2 columns)")
+                            End If
+                        Else
+                            firstLine = False
+                        End If
+                    End While
+                End Using
+            Catch ex As Exception
+                If MsgBox("Problem trying to read this file. Do you want to open another file?", vbYesNo + vbCritical, "Error") = vbYes Then
+                    GoTo TryAgain
+                End If
+            End Try
+
+
+        Catch ex As Exception
+            MsgBox("Error whilst trying to find a compressor properties list. Shutting down.")
+            Application.Exit()
+        End Try
+    End Sub
+
+#End Region
+
+
     <Serializable> Public Class SimulationData
         'This class will contain all the variables in the process simulation data (variables of the process simulation)
         Public VRTMTrayData(,,) As TrayData   'ARRAY OF TRAY DATA IN THE FORMAT of timestep, Tray no, Level no
@@ -394,6 +483,7 @@ TryAgain:
         Public Elevator() As TrayData 'Representation of the tray in the elevator, array in timesteps
         Public EmptyElevatorB() As Boolean 'Number of the elevator that is empty (FALSE = left [A], TRUE = right [B])
         Public AirTemperatures(,) As Double 'Stores the air temperatures inside the tunnel. AirTemperatures(TimeStep, Tray position)=Air Temperature
+        Public EvaporatorTemperatures() As Double 'Stores the evaporator temperatures each time step
 
         Public TotalPower() As Double 'Total Power integralized in [W] for each time step
 
@@ -421,4 +511,30 @@ TryAgain:
         Public MinRetTime As Double 'hours
     End Class
 
+    <Serializable> Public Class CompressorData
+        'Implements the compressor data for a single compressor
+        Public SelectedCompressorIndex As Long
+        Public Qty As Long
+        Public VolumeDisplacement_m3rev As Double 'm³/rev
+        Public rpm As Double 'rpm
+        Public VolumeDisplacement_m3h As Double 'm³/h
+
+        Public VolumeEfficiency As Double
+        Public CompressorType As CompressorSystemInterconnectionType
+        Public IntermediateT As Double
+    End Class
+
+    <Serializable> Public Class CompressorFileInfo
+        'Implements the compressor data for a single compressor in a file
+        Public CompressorName As String
+        Public VolumeDisplacement As Double 'm³/rev
+    End Class
+
+    <Serializable> Public Enum CompressorSystemInterconnectionType
+        OneStageNoEco = 0
+        OneStageEco = 1
+        TwoStage = 2
+    End Enum
+
 End Module
+

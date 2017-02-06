@@ -160,4 +160,56 @@
         Return Nothing
     End Function
 
+#Region "Binary Search"
+    Public Delegate Function Y(X As Double)
+
+    Public Function Binary_Search_F(XMin As Double, XMax As Double, YTarget As Double, Adm_Error_Y As Double, F As Y) As Double
+        'Makes a binary search (log search) in a function delegate Y(X)
+
+        Const MaxIter As Long = 100
+        Dim XR As Double = XMax
+        Dim XL As Double = XMin
+        Dim YR As Double = F(XR)
+        Dim YL As Double = F(XL)
+        Dim XM, YM As Double
+        Dim Curr_E As Double
+        Dim I As Long
+
+        If (YTarget > YR And YTarget > YL) Then
+            Return XMax
+        ElseIf (YTarget < YR And YTarget < YL) Then
+            Return XMin
+        End If
+
+        For I = 0 To MaxIter
+            XM = (XR + XL) / 2
+            YM = F(XM)
+            Curr_E = Math.Abs(YM - YTarget)
+
+            If Curr_E < Adm_Error_Y Then
+                Return XM
+            End If
+
+            If YM > YL Then
+                If YTarget > YM Then
+                    XL = XM
+                    YL = YM
+                Else
+                    XR = XM
+                    YR = YM
+                End If
+            ElseIf YM < YL Then
+                If YTarget > YM Then
+                    XR = XM
+                    YR = YM
+                Else
+                    XL = XM
+                    YL = YM
+                End If
+            End If
+        Next
+
+        Return Double.MinValue
+    End Function
+#End Region
 End Module

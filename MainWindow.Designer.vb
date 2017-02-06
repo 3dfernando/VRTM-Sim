@@ -116,6 +116,8 @@ Partial Class MainWindow
         Me.Label23 = New System.Windows.Forms.Label()
         Me.Label24 = New System.Windows.Forms.Label()
         Me.GroupBox3 = New System.Windows.Forms.GroupBox()
+        Me.cmbFluidRefrigerant = New System.Windows.Forms.ComboBox()
+        Me.Label75 = New System.Windows.Forms.Label()
         Me.cmdMRSetup = New System.Windows.Forms.Button()
         Me.txtReferenceCapacity = New System.Windows.Forms.TextBox()
         Me.Label11 = New System.Windows.Forms.Label()
@@ -254,12 +256,11 @@ Partial Class MainWindow
         Me.tabExitTemp = New System.Windows.Forms.TabPage()
         Me.ExitTempGraph = New System.Windows.Forms.DataVisualization.Charting.Chart()
         Me.ErrorProvider1 = New System.Windows.Forms.ErrorProvider(Me.components)
-        Me.ErrorProvider2 = New System.Windows.Forms.ErrorProvider(Me.components)
         Me.tmrPlayback = New System.Windows.Forms.Timer(Me.components)
         Me.SaveFileDialog1 = New System.Windows.Forms.SaveFileDialog()
         Me.OpenFileDialog1 = New System.Windows.Forms.OpenFileDialog()
-        Me.BindingSource1 = New System.Windows.Forms.BindingSource(Me.components)
         Me.ToolTip1 = New System.Windows.Forms.ToolTip(Me.components)
+        Me.BindingSource1 = New System.Windows.Forms.BindingSource(Me.components)
         CType(Me.Divisor1, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.Divisor1.Panel1.SuspendLayout()
         Me.Divisor1.Panel2.SuspendLayout()
@@ -323,7 +324,6 @@ Partial Class MainWindow
         Me.tabExitTemp.SuspendLayout()
         CType(Me.ExitTempGraph, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.ErrorProvider1, System.ComponentModel.ISupportInitialize).BeginInit()
-        CType(Me.ErrorProvider2, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.BindingSource1, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
         '
@@ -565,7 +565,7 @@ Partial Class MainWindow
         Me.VRTMParams.Padding = New System.Windows.Forms.Padding(3)
         Me.VRTMParams.Size = New System.Drawing.Size(316, 692)
         Me.VRTMParams.TabIndex = 0
-        Me.VRTMParams.Text = "VRTM Params"
+        Me.VRTMParams.Text = "VRT Params"
         Me.VRTMParams.UseVisualStyleBackColor = True
         '
         'Label32
@@ -740,7 +740,7 @@ Partial Class MainWindow
         Me.GroupBox1.Size = New System.Drawing.Size(211, 127)
         Me.GroupBox1.TabIndex = 2
         Me.GroupBox1.TabStop = False
-        Me.GroupBox1.Text = "VRTM Parameters"
+        Me.GroupBox1.Text = "VRT Parameters"
         '
         'txtStCap
         '
@@ -1030,7 +1030,7 @@ Partial Class MainWindow
         Me.GroupBox6.Controls.Add(Me.Label22)
         Me.GroupBox6.Controls.Add(Me.Label23)
         Me.GroupBox6.Controls.Add(Me.Label24)
-        Me.GroupBox6.Location = New System.Drawing.Point(15, 165)
+        Me.GroupBox6.Location = New System.Drawing.Point(15, 177)
         Me.GroupBox6.Name = "GroupBox6"
         Me.GroupBox6.Size = New System.Drawing.Size(211, 272)
         Me.GroupBox6.TabIndex = 16
@@ -1163,6 +1163,8 @@ Partial Class MainWindow
         '
         'GroupBox3
         '
+        Me.GroupBox3.Controls.Add(Me.cmbFluidRefrigerant)
+        Me.GroupBox3.Controls.Add(Me.Label75)
         Me.GroupBox3.Controls.Add(Me.cmdMRSetup)
         Me.GroupBox3.Controls.Add(Me.txtReferenceCapacity)
         Me.GroupBox3.Controls.Add(Me.Label11)
@@ -1175,14 +1177,33 @@ Partial Class MainWindow
         Me.GroupBox3.Controls.Add(Me.Label14)
         Me.GroupBox3.Location = New System.Drawing.Point(15, 6)
         Me.GroupBox3.Name = "GroupBox3"
-        Me.GroupBox3.Size = New System.Drawing.Size(211, 148)
+        Me.GroupBox3.Size = New System.Drawing.Size(211, 165)
         Me.GroupBox3.TabIndex = 5
         Me.GroupBox3.TabStop = False
         Me.GroupBox3.Text = "Machines"
         '
+        'cmbFluidRefrigerant
+        '
+        Me.cmbFluidRefrigerant.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
+        Me.cmbFluidRefrigerant.FormattingEnabled = True
+        Me.cmbFluidRefrigerant.Items.AddRange(New Object() {"Ammonia"})
+        Me.cmbFluidRefrigerant.Location = New System.Drawing.Point(112, 55)
+        Me.cmbFluidRefrigerant.Name = "cmbFluidRefrigerant"
+        Me.cmbFluidRefrigerant.Size = New System.Drawing.Size(88, 21)
+        Me.cmbFluidRefrigerant.TabIndex = 30
+        '
+        'Label75
+        '
+        Me.Label75.AutoSize = True
+        Me.Label75.Location = New System.Drawing.Point(6, 59)
+        Me.Label75.Name = "Label75"
+        Me.Label75.Size = New System.Drawing.Size(87, 13)
+        Me.Label75.TabIndex = 29
+        Me.Label75.Text = "Fluid Refrigerant:"
+        '
         'cmdMRSetup
         '
-        Me.cmdMRSetup.Location = New System.Drawing.Point(33, 23)
+        Me.cmdMRSetup.Location = New System.Drawing.Point(33, 21)
         Me.cmdMRSetup.Name = "cmdMRSetup"
         Me.cmdMRSetup.Size = New System.Drawing.Size(134, 26)
         Me.cmdMRSetup.TabIndex = 27
@@ -1192,16 +1213,16 @@ Partial Class MainWindow
         'txtReferenceCapacity
         '
         Me.txtReferenceCapacity.Enabled = False
-        Me.txtReferenceCapacity.Location = New System.Drawing.Point(87, 111)
+        Me.txtReferenceCapacity.Location = New System.Drawing.Point(116, 130)
         Me.txtReferenceCapacity.Name = "txtReferenceCapacity"
-        Me.txtReferenceCapacity.Size = New System.Drawing.Size(89, 20)
+        Me.txtReferenceCapacity.Size = New System.Drawing.Size(60, 20)
         Me.txtReferenceCapacity.TabIndex = 26
         Me.txtReferenceCapacity.TextAlign = System.Windows.Forms.HorizontalAlignment.Right
         '
         'Label11
         '
         Me.Label11.AutoSize = True
-        Me.Label11.Location = New System.Drawing.Point(182, 114)
+        Me.Label11.Location = New System.Drawing.Point(182, 133)
         Me.Label11.Name = "Label11"
         Me.Label11.Size = New System.Drawing.Size(24, 13)
         Me.Label11.TabIndex = 11
@@ -1210,7 +1231,7 @@ Partial Class MainWindow
         'Label10
         '
         Me.Label10.AutoSize = True
-        Me.Label10.Location = New System.Drawing.Point(182, 90)
+        Me.Label10.Location = New System.Drawing.Point(182, 109)
         Me.Label10.Name = "Label10"
         Me.Label10.Size = New System.Drawing.Size(18, 13)
         Me.Label10.TabIndex = 11
@@ -1219,7 +1240,7 @@ Partial Class MainWindow
         'Label9
         '
         Me.Label9.AutoSize = True
-        Me.Label9.Location = New System.Drawing.Point(182, 66)
+        Me.Label9.Location = New System.Drawing.Point(182, 85)
         Me.Label9.Name = "Label9"
         Me.Label9.Size = New System.Drawing.Size(18, 13)
         Me.Label9.TabIndex = 11
@@ -1228,7 +1249,7 @@ Partial Class MainWindow
         'Label15
         '
         Me.Label15.AutoSize = True
-        Me.Label15.Location = New System.Drawing.Point(6, 66)
+        Me.Label15.Location = New System.Drawing.Point(6, 85)
         Me.Label15.Name = "Label15"
         Me.Label15.Size = New System.Drawing.Size(99, 13)
         Me.Label15.TabIndex = 11
@@ -1237,7 +1258,7 @@ Partial Class MainWindow
         'Label16
         '
         Me.Label16.AutoSize = True
-        Me.Label16.Location = New System.Drawing.Point(7, 114)
+        Me.Label16.Location = New System.Drawing.Point(7, 133)
         Me.Label16.Name = "Label16"
         Me.Label16.Size = New System.Drawing.Size(74, 13)
         Me.Label16.TabIndex = 13
@@ -1245,7 +1266,7 @@ Partial Class MainWindow
         '
         'txtTevapSP
         '
-        Me.txtTevapSP.Location = New System.Drawing.Point(115, 87)
+        Me.txtTevapSP.Location = New System.Drawing.Point(115, 106)
         Me.txtTevapSP.Name = "txtTevapSP"
         Me.txtTevapSP.Size = New System.Drawing.Size(61, 20)
         Me.txtTevapSP.TabIndex = 27
@@ -1253,7 +1274,7 @@ Partial Class MainWindow
         '
         'txtTCond
         '
-        Me.txtTCond.Location = New System.Drawing.Point(115, 63)
+        Me.txtTCond.Location = New System.Drawing.Point(115, 82)
         Me.txtTCond.Name = "txtTCond"
         Me.txtTCond.Size = New System.Drawing.Size(61, 20)
         Me.txtTCond.TabIndex = 28
@@ -1262,7 +1283,7 @@ Partial Class MainWindow
         'Label14
         '
         Me.Label14.AutoSize = True
-        Me.Label14.Location = New System.Drawing.Point(6, 90)
+        Me.Label14.Location = New System.Drawing.Point(6, 109)
         Me.Label14.Name = "Label14"
         Me.Label14.Size = New System.Drawing.Size(83, 13)
         Me.Label14.TabIndex = 9
@@ -2608,10 +2629,6 @@ Partial Class MainWindow
         '
         Me.ErrorProvider1.ContainerControl = Me
         '
-        'ErrorProvider2
-        '
-        Me.ErrorProvider2.ContainerControl = Me
-        '
         'tmrPlayback
         '
         Me.tmrPlayback.Interval = 500
@@ -2628,7 +2645,7 @@ Partial Class MainWindow
         Me.Controls.Add(Me.Divisor1)
         Me.Icon = CType(resources.GetObject("$this.Icon"), System.Drawing.Icon)
         Me.Name = "MainWindow"
-        Me.Text = "VRTM Simulator V1.0"
+        Me.Text = "VRT Simulator V1.0"
         Me.Divisor1.Panel1.ResumeLayout(False)
         Me.Divisor1.Panel2.ResumeLayout(False)
         CType(Me.Divisor1, System.ComponentModel.ISupportInitialize).EndInit()
@@ -2712,7 +2729,6 @@ Partial Class MainWindow
         Me.tabExitTemp.ResumeLayout(False)
         CType(Me.ExitTempGraph, System.ComponentModel.ISupportInitialize).EndInit()
         CType(Me.ErrorProvider1, System.ComponentModel.ISupportInitialize).EndInit()
-        CType(Me.ErrorProvider2, System.ComponentModel.ISupportInitialize).EndInit()
         CType(Me.BindingSource1, System.ComponentModel.ISupportInitialize).EndInit()
         Me.ResumeLayout(False)
 
@@ -2872,7 +2888,6 @@ Partial Class MainWindow
     Friend WithEvents txtFanPower As TextBox
     Friend WithEvents Label51 As Label
     Friend WithEvents DisplayParametersToolStripMenuItem As ToolStripMenuItem
-    Friend WithEvents ErrorProvider2 As ErrorProvider
     Friend WithEvents tmrPlayback As Timer
     Friend WithEvents SaveFileDialog1 As SaveFileDialog
     Friend WithEvents OpenSimulationVariablesToolStripMenuItem As ToolStripMenuItem
@@ -2949,4 +2964,6 @@ Partial Class MainWindow
     Friend WithEvents TProfileGraph As DataVisualization.Charting.Chart
     Friend WithEvents RetentionTimeGraph As DataVisualization.Charting.Chart
     Friend WithEvents ExitTempGraph As DataVisualization.Charting.Chart
+    Friend WithEvents cmbFluidRefrigerant As ComboBox
+    Friend WithEvents Label75 As Label
 End Class

@@ -591,6 +591,7 @@ PostProcessing:
         Return False
     End Function
 
+
     Public Function Fast_Forward_Next_Turn(t As Double) As Double
         'Returns the next value of t that is inside a valid turn time
         Dim Hours_Intraday As Double

@@ -74,6 +74,7 @@
     <Import Include="System.Threading.Tasks" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="RefrigerantProperties.vb" />
     <Compile Include="A_Star.vb" />
     <Compile Include="ConveyorSetup.Designer.vb">
       <DependentUpon>ConveyorSetup.vb</DependentUpon>
@@ -102,6 +103,12 @@
     <Compile Include="GeneralFunctions.vb" />
     <Compile Include="ImageTip.vb">
       <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="MachineRoom.Designer.vb">
+      <DependentUpon>MachineRoom.vb</DependentUpon>
+    </Compile>
+    <Compile Include="MachineRoom.vb">
+      <SubType>Form</SubType>
     </Compile>
     <Compile Include="MainWindow.vb">
       <SubType>Form</SubType>
@@ -148,6 +155,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="FixedHLComponents.resx">
       <DependentUpon>FixedHLComponents.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="MachineRoom.resx">
+      <DependentUpon>MachineRoom.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="MainWindow.resx">
       <DependentUpon>MainWindow.vb</DependentUpon>

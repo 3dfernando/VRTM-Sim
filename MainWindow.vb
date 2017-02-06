@@ -40,8 +40,11 @@ Public Class MainWindow
         chkSaturdayVRTM.Checked = VRTM_SimVariables.IdleDaysVRTM(5)
         chkSundayVRTM.Checked = VRTM_SimVariables.IdleDaysVRTM(6)
 
+        cmbFluidRefrigerant.SelectedIndex = 0
         txtTevapSP.Text = Trim(Str(VRTM_SimVariables.Tevap_Setpoint))
         txtTCond.Text = Trim(Str(VRTM_SimVariables.Tcond))
+        txtReferenceCapacity.Text = Trim(Str(Round(MachineRoom.Get_MR_Capacity(VRTM_SimVariables.Tevap_Setpoint), 1)))
+
         txtIdleHourBeginMR.Text = DayFractionToHourString(VRTM_SimVariables.IdleHourBeginMRoom)
         txtIdleHourEndsMR.Text = DayFractionToHourString(VRTM_SimVariables.IdleHourEndMRoom)
         chkMondayMR.Checked = VRTM_SimVariables.IdleDaysMRoom(0)
@@ -107,6 +110,9 @@ Public Class MainWindow
                 p.FoodThermalPropertiesModel.FoodModelUsed = FoodPropertiesList(1)
             Next
         End Try
+
+        'Loads the compressor list, also
+        LoadCompressorCSV()
 
 
         'Creates tooltips for the image tooltip components
@@ -305,6 +311,13 @@ Public Class MainWindow
         F.ShowDialog()
         UpdateDGVPlayback(Nothing, Nothing)
     End Sub
+
+    Private Sub cmdMRSetup_Click(sender As Object, e As EventArgs) Handles cmdMRSetup.Click
+        Dim M As New MachineRoom
+        M.ShowDialog()
+
+        txtReferenceCapacity.Text = Trim(Str(Round(M.Get_MR_Capacity(VRTM_SimVariables.Tevap_Setpoint), 1)))
+    End Sub
 #End Region
 
 #Region "Validations ====Tab VRTM Params===="
@@ -411,6 +424,8 @@ Public Class MainWindow
 
         VRTM_SimVariables.Tcond = Int(txtTCond.Text)
         VRTM_SimVariables.Tevap_Setpoint = Int(txtTevapSP.Text)
+
+        txtReferenceCapacity.Text = Trim(Str(Round(MachineRoom.Get_MR_Capacity(VRTM_SimVariables.Tevap_Setpoint), 1)))
     End Sub
 
     Private Sub Validated_Textbox_Time_MR(ByVal sender As Object, ByVal e As System.EventArgs) Handles _
@@ -729,7 +744,7 @@ Public Class MainWindow
             For Each Prod As ProductData In VRTM_SimVariables.ProductMix
                 TotalBoxFlowIn = TotalBoxFlowIn + Prod.AvgFlowRate
                 TotalMassFlowIn = TotalMassFlowIn + Prod.AvgFlowRate * Prod.BoxWeight
-                TotalInstHeatLoad = TotalInstHeatLoad + Prod.DeltaHSimulated * (TotalMassFlowIn / 3600)
+                TotalInstHeatLoad = TotalInstHeatLoad + Prod.DeltaHSimulated * (Prod.AvgFlowRate * Prod.BoxWeight / 3600)
             Next
         End If
 
@@ -1429,7 +1444,7 @@ Public Class MainWindow
                 TSeries(1).Points.AddXY(Simulation_Results.VRTMTimePositions(I) / (24 * 3600),
                                                Simulation_Results.AirTemperatures(I, VRTM_SimVariables.nTrays - 1))
                 TSeries(2).Points.AddXY(Simulation_Results.VRTMTimePositions(I) / (24 * 3600),
-                                               VRTM_SimVariables.Tevap_Setpoint)
+                                               Simulation_Results.EvaporatorTemperatures(I))
 
             Next
 
@@ -1461,14 +1476,18 @@ Public Class MainWindow
 
         'The heat load has already been computed:
         If Not IsNothing(Simulation_Results.TotalPower) Then
-            Dim HeatLoadSeries(0) As DataVisualization.Charting.Series
+            Dim HeatLoadSeries(2) As DataVisualization.Charting.Series
             HeatLoadSeries(0) = New DataVisualization.Charting.Series
+            HeatLoadSeries(1) = New DataVisualization.Charting.Series
+            HeatLoadSeries(2) = New DataVisualization.Charting.Series
 
             For I As Long = 0 To Simulation_Results.TotalPower.Count - 1 Step Int(Simulation_Results.TotalPower.Count / 1000) '1000 points
                 HL = Simulation_Results.TotalPower(I) / 1000
                 If HL < 100000 And HL >= 0 Then
                     'Converts power to kW and Time to Days
                     HeatLoadSeries(0).Points.AddXY(Simulation_Results.VRTMTimePositions(I) / (24 * 3600), HL)
+                    HeatLoadSeries(1).Points.AddXY(Simulation_Results.VRTMTimePositions(I) / (24 * 3600), Val(txtAvgHeatLoad.Text))
+                    HeatLoadSeries(2).Points.AddXY(Simulation_Results.VRTMTimePositions(I) / (24 * 3600), Val(txtWeeklyHeatLoad.Text))
                 Else
                     'Dim aseh As Double = 0
                 End If
@@ -1478,6 +1497,16 @@ Public Class MainWindow
             HeatLoadSeries(0).Color = Color.Black
             HeatLoadSeries(0).BorderWidth = 1
             HeatLoadSeries(0).ChartType = DataVisualization.Charting.SeriesChartType.Line
+
+            HeatLoadSeries(1).Legend = "Average Daily Heat Load"
+            HeatLoadSeries(1).Color = Color.Red
+            HeatLoadSeries(1).BorderWidth = 1
+            HeatLoadSeries(1).ChartType = DataVisualization.Charting.SeriesChartType.Line
+
+            HeatLoadSeries(2).Legend = "Average Weekly Heat Load"
+            HeatLoadSeries(2).Color = Color.Blue
+            HeatLoadSeries(2).BorderWidth = 1
+            HeatLoadSeries(2).ChartType = DataVisualization.Charting.SeriesChartType.Line
 
             UpdateGraph(HLProfileGraph, "Instantaneous Heat Load", HeatLoadSeries, "Time [days]", "Heat Load [kW]")
 
@@ -1598,6 +1627,11 @@ Public Class MainWindow
 
         End With
     End Sub
+
+    Private Sub VRTMTable_CellContentClick(sender As Object, e As DataGridViewCellEventArgs) Handles VRTMTable.CellContentClick
+
+    End Sub
+
 
 #End Region
 

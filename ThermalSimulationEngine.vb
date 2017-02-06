@@ -1,4 +1,7 @@
 ﻿Module ThermalSimulationEngine
+    Public VentilationMultiplier As Double = 1
+    Public Const Low_Pass_T_Constant As Double = 600 'Time constant of the low pass filter (to prevent the machine room from oscillating)
+
     Public Sub RunThermalSimulation()
         'This sub will review the current process simulation data and will run a thermal simulation.
         Dim I, J, TimeStep As Long
@@ -7,7 +10,9 @@
         Dim PowerColumn As Double 'Stores the power of the current time step in the current tray column position
         Dim TotalPower As Double
         Dim PowerFansFixed As Double 'Power in W of fans and others
-        Dim Air_T_Evaporator, T_inlet_evap, NTU, epsilon, C_min As Double
+        Dim Air_T_Evaporator, T_inlet_evap, NTU, epsilon, epsilon_low, C_min As Double
+        Dim VentilationOn As Boolean
+        Dim Target_TE As Double 'Target evaporator temperature C
 
         'Begins counting sim time
         Dim Watch As New Stopwatch
@@ -22,6 +27,7 @@
         ReDim Simulation_Results.TotalPower(Simulation_Results.VRTMTimePositions.Count - 1) 'Inits the total power array
         ReDim Simulation_Results.AirTemperatures(Simulation_Results.VRTMTimePositions.Count - 1,
                                                  VRTM_SimVariables.nTrays - 1) 'Inits the air temperature array
+        ReDim Simulation_Results.EvaporatorTemperatures(Simulation_Results.VRTMTimePositions.Count - 1) 'Inits the evaporator temperatures array
 
         'Makes sure the thermal property models are initialized
         For Each P As ProductData In VRTM_SimVariables.ProductMix
@@ -37,6 +43,7 @@
         C_min = ((VRTM_SimVariables.fanFlowRate / 3600) * 1.44 * 1005) 'Air flow heat capacity, [W/K]
         NTU = (VRTM_SimVariables.globalHX_Coeff * VRTM_SimVariables.evapSurfArea) / C_min
         epsilon = 1 - Math.Exp(-NTU)
+
         PowerFansFixed = 1000 * ((VRTM_SimVariables.FixedHeatLoadData.FixedHL + VRTM_SimVariables.fanPower)) * VRTM_SimVariables.SafetyFactorVRTM
 
         'Begins the main sim loop
@@ -56,21 +63,37 @@
             TotalPower = 0 'Inits the power for this t_step
             If TimeStep > 0 Then Delta_Time = Simulation_Results.VRTMTimePositions(TimeStep) - Simulation_Results.VRTMTimePositions(TimeStep - 1)
 
-            'Inits the evaporator, using the epsilon-NTU method
+            VentilationOn = IsVentilationTurnedOn(Simulation_Results.VRTMTimePositions(TimeStep)) 'Indicates whether the fans are turned on
+            If VentilationOn Then
+                VentilationMultiplier = 1
+            Else
+                VentilationMultiplier = 0.01
+            End If
+
+
             If TimeStep > 0 Then
-                T_inlet_evap = Simulation_Results.AirTemperatures(TimeStep, VRTM_SimVariables.nTrays - 1) + PowerFansFixed / C_min 'ºC
-                Air_T_Evaporator = T_inlet_evap - epsilon *
-                    (Simulation_Results.AirTemperatures(TimeStep, VRTM_SimVariables.nTrays - 1) - VRTM_SimVariables.Tevap_Setpoint) 'ºC
+                'Calculates the machine room
+                Target_TE = MachineRoom.Get_Evaporating_Temperature(Simulation_Results.TotalPower(TimeStep - 1) / 1000) 'power in kW
+                Simulation_Results.EvaporatorTemperatures(TimeStep) = (Delta_Time / Low_Pass_T_Constant) *
+                                                    (Target_TE - Simulation_Results.EvaporatorTemperatures(TimeStep - 1)) +
+                                                    Simulation_Results.EvaporatorTemperatures(TimeStep - 1)
+                If Simulation_Results.EvaporatorTemperatures(TimeStep) < VRTM_SimVariables.Tevap_Setpoint Then Simulation_Results.EvaporatorTemperatures(TimeStep) = VRTM_SimVariables.Tevap_Setpoint
 
-                If Air_T_Evaporator < VRTM_SimVariables.Tevap_Setpoint Then Air_T_Evaporator = VRTM_SimVariables.Tevap_Setpoint 'Prevent the outlet temperature from dropping too much
-
-                If Air_T_Evaporator > 35 Then
-                    'What is happening???
-                    Dim asd As String = ""
+                'Calculates the evaporator (e-NTU method)
+                If VentilationOn Then
+                    T_inlet_evap = Simulation_Results.AirTemperatures(TimeStep, VRTM_SimVariables.nTrays - 1) + PowerFansFixed / C_min 'ºC
+                    Air_T_Evaporator = T_inlet_evap - epsilon *
+                    (Simulation_Results.AirTemperatures(TimeStep, VRTM_SimVariables.nTrays - 1) - Simulation_Results.EvaporatorTemperatures(TimeStep)) 'ºC
+                Else
+                    Air_T_Evaporator = VRTM_SimVariables.Tevap_Setpoint 'ºC
                 End If
+
+                If Air_T_Evaporator < Simulation_Results.EvaporatorTemperatures(TimeStep) Then _
+                    Air_T_Evaporator = Simulation_Results.EvaporatorTemperatures(TimeStep) 'Prevent the outlet temperature from dropping too much
 
             Else
                 Air_T_Evaporator = VRTM_SimVariables.Tevap_Setpoint
+                Simulation_Results.EvaporatorTemperatures(0) = VRTM_SimVariables.Tevap_Setpoint 'Inits the machine room
             End If
 
 
@@ -98,7 +121,7 @@
                             TrayThermalInformation(CurrentIndex).CurrentTProfs_AllProds =
                                                 GenerateNextTemperatureProfile(Simulation_Results.VRTMTrayData(TimeStep, I, J),
                                                 TrayThermalInformation(CurrentIndex).PastTProfs_AllProds, Delta_Time,
-                                                Simulation_Results.AirTemperatures(TimeStep, I))
+                                                Simulation_Results.AirTemperatures(TimeStep, I), VentilationOn)
                         End If
 
 
@@ -112,40 +135,40 @@
 
 
                         Simulation_Results.VRTMTrayData(TimeStep, I, J).CenterTemperature = MaxTCenter
-                            Simulation_Results.VRTMTrayData(TimeStep, I, J).SurfTemperature = MaxTSurf
+                        Simulation_Results.VRTMTrayData(TimeStep, I, J).SurfTemperature = MaxTSurf
 
-                            'Updates the power dissipated in the data array.
-                            Dim ProdMassEach As Double
-                            Dim ProdQty As Double
-                            Dim ProdCp As Double
+                        'Updates the power dissipated in the data array.
+                        Dim ProdMassEach As Double
+                        Dim ProdQty As Double
+                        Dim ProdCp As Double
 
-                            Dim dm, dQ, Q As Double
-                            Dim T1, T2, CurrDT As Double
-                            Dim A, h, rhoL As Double
+                        Dim dm, dQ, Q As Double
+                        Dim T1, T2, CurrDT As Double
+                        Dim A, h, rhoL As Double
 
-                            Dim Power As Double
+                        Dim Power As Double
 
-                            If Not (IsNothing(TrayThermalInformation(CurrentIndex).PastTProfs_AllProds) _
-                                Or IsNothing(TrayThermalInformation(CurrentIndex).CurrentTProfs_AllProds)) Then 'There must be data to work with
+                        If Not (IsNothing(TrayThermalInformation(CurrentIndex).PastTProfs_AllProds) _
+                            Or IsNothing(TrayThermalInformation(CurrentIndex).CurrentTProfs_AllProds)) Then 'There must be data to work with
 
-                                Q = 0
-                                For Each Product As KeyValuePair(Of Long, TProfile) In TrayThermalInformation(CurrentIndex).CurrentTProfs_AllProds 'Key=prod index, value=Tprof
-                                    ProdMassEach = VRTM_SimVariables.ProductMix(Product.Key).BoxWeight
-                                    ProdQty = Simulation_Results.VRTMTrayData(TimeStep, I, J).ProductIndices(Product.Key)
+                            Q = 0
+                            For Each Product As KeyValuePair(Of Long, TProfile) In TrayThermalInformation(CurrentIndex).CurrentTProfs_AllProds 'Key=prod index, value=Tprof
+                                ProdMassEach = VRTM_SimVariables.ProductMix(Product.Key).BoxWeight
+                                ProdQty = Simulation_Results.VRTMTrayData(TimeStep, I, J).ProductIndices(Product.Key)
 
-                                    If ThermalSimulationMethod = 0 Then
-                                        '{{{{{{{{ DELTA-TEMPERATURE METHOD }}}}}}}
-                                        dm = (ProdQty * ProdMassEach) / ProductMixSetup.nx 'mass element [kg]
+                                If ThermalSimulationMethod = 0 Then
+                                    '{{{{{{{{ DELTA-TEMPERATURE METHOD }}}}}}}
+                                    dm = (ProdQty * ProdMassEach) / ProductMixSetup.nx 'mass element [kg]
 
-                                        For N As Long = 0 To ProductMixSetup.nx - 1
+                                    For N As Long = 0 To ProductMixSetup.nx - 1
 
-                                            T1 = TrayThermalInformation(CurrentIndex).PastTProfs_AllProds(Product.Key).TemperatureProfile(N)
-                                            T2 = TrayThermalInformation(CurrentIndex).CurrentTProfs_AllProds(Product.Key).TemperatureProfile(N)
-                                            CurrDT = T1 - T2
+                                        T1 = TrayThermalInformation(CurrentIndex).PastTProfs_AllProds(Product.Key).TemperatureProfile(N)
+                                        T2 = TrayThermalInformation(CurrentIndex).CurrentTProfs_AllProds(Product.Key).TemperatureProfile(N)
+                                        CurrDT = T1 - T2
 
-                                            ProdCp = VRTM_SimVariables.ProductMix(Product.Key).FoodThermalPropertiesModel.get_cp((T1 + T2) / 2)
+                                        ProdCp = VRTM_SimVariables.ProductMix(Product.Key).FoodThermalPropertiesModel.get_cp((T1 + T2) / 2)
 
-                                            dQ = dm * ProdCp * CurrDT 'Heat exchanged in the timestep for the current mass element [J]
+                                        dQ = dm * ProdCp * CurrDT 'Heat exchanged in the timestep for the current mass element [J]
 
                                         If dQ < 0 Then
                                             'That's not quite probable...
@@ -160,39 +183,40 @@
                                     Next
 
                                 ElseIf ThermalSimulationMethod = 1 Then
-                                        '{{{{{{{{ SURFACE CONVECTION METHOD }}}}}}}
-                                        h = VRTM_SimVariables.ProductMix(Product.Key).ConvCoefficientUsed '[W/m².K]
-                                        rhoL = VRTM_SimVariables.ProductMix(Product.Key).FoodThermalPropertiesModel.get_rho(VRTM_SimVariables.ProductMix(Product.Key).InletTemperature) *
-                                            VRTM_SimVariables.ProductMix(Product.Key).SimThickness / 1000 '[kg/m²]
-                                        A = 2 * ProdMassEach * ProdQty / rhoL '[m²], both faces
-                                        T1 = TrayThermalInformation(CurrentIndex).PastTProfs_AllProds(Product.Key).TemperatureProfile(ProductMixSetup.nx - 1) 'Surf T, [C]
-                                        T2 = -35 'Fluid T, [C]
-                                        CurrDT = T1 - T2
-                                        'If CurrDT < 0 Then
-                                        '    'That's not quite probable...
-                                        '    Dim aseuhasueasue As Long = 0
-                                        'End If
+                                    '{{{{{{{{ SURFACE CONVECTION METHOD }}}}}}}
+                                    h = VRTM_SimVariables.ProductMix(Product.Key).ConvCoefficientUsed '[W/m².K]
+                                    rhoL = VRTM_SimVariables.ProductMix(Product.Key).FoodThermalPropertiesModel.get_rho(VRTM_SimVariables.ProductMix(Product.Key).InletTemperature) *
+                                        VRTM_SimVariables.ProductMix(Product.Key).SimThickness / 1000 '[kg/m²]
+                                    A = 2 * ProdMassEach * ProdQty / rhoL '[m²], both faces
+                                    T1 = TrayThermalInformation(CurrentIndex).PastTProfs_AllProds(Product.Key).TemperatureProfile(ProductMixSetup.nx - 1) 'Surf T, [C]
+                                    T2 = -35 'Fluid T, [C]
+                                    CurrDT = T1 - T2
+                                    'If CurrDT < 0 Then
+                                    '    'That's not quite probable...
+                                    '    Dim aseuhasueasue As Long = 0
+                                    'End If
 
-                                        dQ = h * A * CurrDT
+                                    dQ = h * A * CurrDT
 
-                                        Q += dQ 'Total heat exchanged [integral], across all products
-                                    End If
-                                Next
-
-                                If ThermalSimulationMethod = 0 Then 'Safety factor included here
-                                    Power = VRTM_SimVariables.SafetyFactorVRTM * (Q / Delta_Time) 'Power for the DT method is Q/dt
-                                ElseIf ThermalSimulationMethod = 1 Then
-                                    Power = VRTM_SimVariables.SafetyFactorVRTM * (Q) 'Power for the Surf Convection method is Q already
+                                    Q += dQ 'Total heat exchanged [integral], across all products
                                 End If
+                            Next
 
-                            Else
-                                Power = 0
+                            If ThermalSimulationMethod = 0 Then 'Safety factor included here
+                                Power = VRTM_SimVariables.SafetyFactorVRTM * (Q / Delta_Time) 'Power for the DT method is Q/dt
+                            ElseIf ThermalSimulationMethod = 1 Then
+                                Power = VRTM_SimVariables.SafetyFactorVRTM * (Q) 'Power for the Surf Convection method is Q already
                             End If
+                            If Not VentilationOn Then Power = 0
 
-                            Simulation_Results.VRTMTrayData(TimeStep, I, J).TrayPower = Power
-                            TotalPower += Power
-                            PowerColumn += Power
+                        Else
+                            Power = 0
                         End If
+
+                        Simulation_Results.VRTMTrayData(TimeStep, I, J).TrayPower = Power
+                        TotalPower += Power
+                        PowerColumn += Power
+                    End If
 
                 Next
 
@@ -204,10 +228,10 @@
                     Else
                         Simulation_Results.AirTemperatures(TimeStep + 1, I) = Simulation_Results.AirTemperatures(TimeStep + 1, I - 1) + (PowerColumn / C_min) 'ºC
                     End If
-                    If Simulation_Results.AirTemperatures(TimeStep + 1, I) > 0 Then
-                        'Why?
-                        Dim asuehasuehase As Long = 0
-                    End If
+                    'If Simulation_Results.AirTemperatures(TimeStep + 1, I) > 0 Then
+                    '    'Why?
+                    '    Dim asuehasuehase As Long = 0
+                    'End If
 
                 End If
             Next
@@ -227,7 +251,7 @@
     End Sub
 
     Public Function GenerateNextTemperatureProfile(Tray As TrayData, CurrentTProfiles As Dictionary(Of Long, TProfile),
-                                                   Delta_time As Double, AirTemperature As Double) As Dictionary(Of Long, TProfile)
+                                                   Delta_time As Double, AirTemperature As Double, VentilationOn As Boolean) As Dictionary(Of Long, TProfile)
         'This function will perform a timestep in the simulation and will generate a new set of temperature profiles as output for each product.
 
         GenerateNextTemperatureProfile = New Dictionary(Of Long, TProfile)
@@ -237,9 +261,10 @@
         For Each Product As KeyValuePair(Of Long, TProfile) In CurrentTProfiles 'Key=Product index in the array of ProductMix() . Value=T profile
             Tprof = Product.Value.TemperatureProfile
 
+
             NewTprof = Next_Timestep(Tprof, VRTM_SimVariables.ProductMix(Product.Key).SimThickness / (2000 * ProductMixSetup.nx),
                                      Delta_time, Crank_Nicolson.Boundary.Neumann, 0, 0, 0, Crank_Nicolson.Boundary.Robin, AirTemperature,
-                                     VRTM_SimVariables.ProductMix(Product.Key).ConvCoefficientUsed, 0,
+                                     VRTM_SimVariables.ProductMix(Product.Key).ConvCoefficientUsed * VentilationMultiplier, 0,
                                      Geometry_Exponent(VRTM_SimVariables.ProductMix(Product.Key).SimGeometry),
                                      VRTM_SimVariables.ProductMix(Product.Key).FoodThermalPropertiesModel)
 
@@ -294,4 +319,37 @@
             Return DirectCast(Me.MemberwiseClone(), TProfile)
         End Function
     End Class
+
+    Public Function IsVentilationTurnedOn(t As Double) As Boolean
+        'Defines whether this time t (in s from zero) is inside the ventilation hours.
+        Dim DayOfWeek As Integer
+        DayOfWeek = Math.Floor((t / 86400)) Mod 7
+
+        If VRTM_SimVariables.IdleDaysVRTM(DayOfWeek) Then 'It might be idle today
+            Dim Hours_Intraday As Double
+            Hours_Intraday = (t Mod 86400) / 86400
+            If (VRTM_SimVariables.IdleHourBeginVRTM <= Hours_Intraday And VRTM_SimVariables.IdleHourEndVRTM >= Hours_Intraday) Then
+                'It's actually idle.
+                Return False
+            End If
+        End If
+
+        Return True
+    End Function
+
+    Public Function IsMachineRoomTurnedOn(t As Double) As Boolean
+        'Defines whether this time t (in s from zero) is inside the ventilation hours.
+        Dim DayOfWeek As Integer
+        DayOfWeek = Math.Floor((t / 86400)) Mod 7
+
+        If VRTM_SimVariables.IdleDaysMRoom(DayOfWeek) Then 'It might be idle today
+            Dim Hours_Intraday As Double
+            Hours_Intraday = (t Mod 86400) / 86400
+            If (VRTM_SimVariables.IdleHourBeginMRoom <= Hours_Intraday And VRTM_SimVariables.IdleHourEndMRoom >= Hours_Intraday) Then
+                'It's actually idle.
+                Return False
+            End If
+        End If
+        Return True
+    End Function
 End Module

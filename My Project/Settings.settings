@@ -47,5 +47,8 @@
     <Setting Name="Display_TableHeaderBColor" Type="System.Drawing.Color" Scope="User">
       <Value Profile="(Default)">255, 255, 150</Value>
     </Setting>
+    <Setting Name="CompressorCSV" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
   </Settings>
 </SettingsFile>
