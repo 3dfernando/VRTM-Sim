@@ -245,6 +245,7 @@
         MainWindow.MainForm.LoadTemperatureProfileGraph()
         MainWindow.MainForm.LoadTemperaturePercentileGraph()
         MainWindow.MainForm.GraphicalSummaryTab.SelectedTab = MainWindow.MainForm.tabHeatLoad
+        MainWindow.MainForm.UpdateSimTotalsList()
 
         MsgBox("Thermal Simulation Completed Successully.")
 

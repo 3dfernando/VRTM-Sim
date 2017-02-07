@@ -145,6 +145,11 @@ Public Class MainWindow
         lstCurrentFrameStats.Columns.Add("Value", 175)
         lstCurrentFrameStats.View = View.Details
 
+        lstSimTotalsStats.Columns.Clear()
+        lstSimTotalsStats.Columns.Add("Variable", 150)
+        lstSimTotalsStats.Columns.Add("Value", 175)
+        lstSimTotalsStats.View = View.Details
+
     End Sub
 
     Private Sub MainWindow_Shown(sender As Object, e As EventArgs) Handles Me.Shown
@@ -914,6 +919,7 @@ Public Class MainWindow
         Else
             lblDisplayVariable.Text = "Simulation Not Ready"
             lstCurrentFrameStats.Items.Clear()
+            lstSimTotalsStats.Items.Clear()
         End If
 
 
@@ -1628,7 +1634,81 @@ Public Class MainWindow
         End With
     End Sub
 
-    Private Sub VRTMTable_CellContentClick(sender As Object, e As DataGridViewCellEventArgs) Handles VRTMTable.CellContentClick
+
+    Public Sub UpdateSimTotalsList()
+        'Gets statistics about this frame and lists them in the current frame listview
+
+        '----Generates the data----
+        Dim I, J, timeStep As Integer
+        Dim T As Double
+        Dim currentTray As TrayData
+        Dim metTemperature As Boolean
+
+        'Fully processed trays
+        Dim TraysInlet As Long = 0
+        Dim TraysOutlet As Long = 0
+        Dim MassOutlet As Double = 0
+        Dim TraysThatMetTemperature As Long = 0
+        Dim MassThatMetTemperature As Long = 0
+
+        TraysInlet = UBound(Simulation_Results.TrayEntryTimes)
+
+        For I = 0 To Simulation_Results.TrayExitTimes.Count - 1
+            If Simulation_Results.TrayEntryTimes(I) < Simulation_Results.TrayExitTimes(I) AndAlso Simulation_Results.TrayExitTimes(I) <> 0 Then
+                'If stay time is negative, it means the tray hasn't exited
+                'I is the index of the tray. Finds the tray in the timestep that corresponds to this time 
+                T = Simulation_Results.TrayExitTimes(I)
+                TraysOutlet += 1
+                Try
+                    timeStep = Array.IndexOf(Simulation_Results.VRTMTimePositions, T)
+                    currentTray = SearchForTrayIndex(I, timeStep - 1)
+
+                    metTemperature = True
+                    For Each Prod As KeyValuePair(Of Long, Long) In currentTray.ProductIndices 'key=product index, value=quantity of boxes
+                        MassOutlet += VRTM_SimVariables.ProductMix(Prod.Key).BoxWeight * Prod.Value
+                        metTemperature = metTemperature And (currentTray.CenterTemperature <= VRTM_SimVariables.ProductMix(Prod.Key).OutletTemperatureDesign)
+
+                        If (currentTray.CenterTemperature <= VRTM_SimVariables.ProductMix(Prod.Key).OutletTemperatureDesign) Then
+                            MassThatMetTemperature += VRTM_SimVariables.ProductMix(Prod.Key).BoxWeight * Prod.Value
+                        End If
+                    Next
+                    If metTemperature Then TraysThatMetTemperature += 1
+
+                Catch ex As Exception
+                    'Didn't find this one
+                End Try
+            End If
+        Next
+
+
+
+        '----Displays the data----
+        Dim CurrentItem As ListViewItem
+
+        lstSimTotalsStats.BeginUpdate()
+        lstSimTotalsStats.Items.Clear()
+
+        CurrentItem = lstSimTotalsStats.Items.Add("Inbound Trays")
+        CurrentItem.SubItems.Add(Trim(Str(TraysInlet)))
+
+        CurrentItem = lstSimTotalsStats.Items.Add("Outbound Trays")
+        CurrentItem.SubItems.Add(Trim(Str(TraysOutlet)))
+
+        CurrentItem = lstSimTotalsStats.Items.Add("Processed Mass")
+        CurrentItem.SubItems.Add(Trim(Str(Round(MassOutlet / 1000, 1))) & " ton")
+
+        CurrentItem = lstSimTotalsStats.Items.Add("Trays that Met T Criterion")
+        CurrentItem.SubItems.Add(Trim(Str(TraysThatMetTemperature)) & "/" & Trim(Str(TraysOutlet)) &
+                                 " (" & Trim(Str(Round(100 * TraysThatMetTemperature / TraysOutlet, 1))) & "%)")
+
+        CurrentItem = lstSimTotalsStats.Items.Add("Mass of Product that Met T Criterion")
+        CurrentItem.SubItems.Add(Trim(Str(Round(MassThatMetTemperature / 1000, 1))) & "/" & Trim(Str(Round(MassOutlet / 1000, 1))) &
+                                 " ton (" & Trim(Str(Round(100 * MassThatMetTemperature / MassOutlet, 1))) & "%)")
+
+
+
+        lstSimTotalsStats.EndUpdate()
+        Tab1.Show()
 
     End Sub
 

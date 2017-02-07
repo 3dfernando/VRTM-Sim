@@ -239,11 +239,11 @@ Partial Class MainWindow
         Me.SplitContainer3 = New System.Windows.Forms.SplitContainer()
         Me.SplitContainer1 = New System.Windows.Forms.SplitContainer()
         Me.Label70 = New System.Windows.Forms.Label()
-        Me.lstSimTotalsStats = New System.Windows.Forms.TabControl()
+        Me.Tab1 = New System.Windows.Forms.TabControl()
         Me.TabPage3 = New System.Windows.Forms.TabPage()
         Me.lstCurrentFrameStats = New System.Windows.Forms.ListView()
         Me.TabPage4 = New System.Windows.Forms.TabPage()
-        Me.ListView1 = New System.Windows.Forms.ListView()
+        Me.lstSimTotalsStats = New System.Windows.Forms.ListView()
         Me.SplitContainer2 = New System.Windows.Forms.SplitContainer()
         Me.Label72 = New System.Windows.Forms.Label()
         Me.GraphicalSummaryTab = New System.Windows.Forms.TabControl()
@@ -307,7 +307,7 @@ Partial Class MainWindow
         Me.SplitContainer1.Panel1.SuspendLayout()
         Me.SplitContainer1.Panel2.SuspendLayout()
         Me.SplitContainer1.SuspendLayout()
-        Me.lstSimTotalsStats.SuspendLayout()
+        Me.Tab1.SuspendLayout()
         Me.TabPage3.SuspendLayout()
         Me.TabPage4.SuspendLayout()
         CType(Me.SplitContainer2, System.ComponentModel.ISupportInitialize).BeginInit()
@@ -2424,7 +2424,7 @@ Partial Class MainWindow
         '
         'SplitContainer1.Panel2
         '
-        Me.SplitContainer1.Panel2.Controls.Add(Me.lstSimTotalsStats)
+        Me.SplitContainer1.Panel2.Controls.Add(Me.Tab1)
         Me.SplitContainer1.Size = New System.Drawing.Size(399, 310)
         Me.SplitContainer1.SplitterDistance = 28
         Me.SplitContainer1.TabIndex = 4
@@ -2439,16 +2439,16 @@ Partial Class MainWindow
         Me.Label70.TabIndex = 1
         Me.Label70.Text = "Statistics of Current Simulation"
         '
-        'lstSimTotalsStats
+        'Tab1
         '
-        Me.lstSimTotalsStats.Controls.Add(Me.TabPage3)
-        Me.lstSimTotalsStats.Controls.Add(Me.TabPage4)
-        Me.lstSimTotalsStats.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.lstSimTotalsStats.Location = New System.Drawing.Point(0, 0)
-        Me.lstSimTotalsStats.Name = "lstSimTotalsStats"
-        Me.lstSimTotalsStats.SelectedIndex = 0
-        Me.lstSimTotalsStats.Size = New System.Drawing.Size(399, 278)
-        Me.lstSimTotalsStats.TabIndex = 0
+        Me.Tab1.Controls.Add(Me.TabPage3)
+        Me.Tab1.Controls.Add(Me.TabPage4)
+        Me.Tab1.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.Tab1.Location = New System.Drawing.Point(0, 0)
+        Me.Tab1.Name = "Tab1"
+        Me.Tab1.SelectedIndex = 0
+        Me.Tab1.Size = New System.Drawing.Size(399, 278)
+        Me.Tab1.TabIndex = 0
         '
         'TabPage3
         '
@@ -2472,7 +2472,7 @@ Partial Class MainWindow
         '
         'TabPage4
         '
-        Me.TabPage4.Controls.Add(Me.ListView1)
+        Me.TabPage4.Controls.Add(Me.lstSimTotalsStats)
         Me.TabPage4.Location = New System.Drawing.Point(4, 22)
         Me.TabPage4.Name = "TabPage4"
         Me.TabPage4.Padding = New System.Windows.Forms.Padding(3)
@@ -2481,14 +2481,14 @@ Partial Class MainWindow
         Me.TabPage4.Text = "Simulation Totals"
         Me.TabPage4.UseVisualStyleBackColor = True
         '
-        'ListView1
+        'lstSimTotalsStats
         '
-        Me.ListView1.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.ListView1.Location = New System.Drawing.Point(3, 3)
-        Me.ListView1.Name = "ListView1"
-        Me.ListView1.Size = New System.Drawing.Size(385, 246)
-        Me.ListView1.TabIndex = 0
-        Me.ListView1.UseCompatibleStateImageBehavior = False
+        Me.lstSimTotalsStats.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.lstSimTotalsStats.Location = New System.Drawing.Point(3, 3)
+        Me.lstSimTotalsStats.Name = "lstSimTotalsStats"
+        Me.lstSimTotalsStats.Size = New System.Drawing.Size(385, 246)
+        Me.lstSimTotalsStats.TabIndex = 0
+        Me.lstSimTotalsStats.UseCompatibleStateImageBehavior = False
         '
         'SplitContainer2
         '
@@ -2711,7 +2711,7 @@ Partial Class MainWindow
         Me.SplitContainer1.Panel2.ResumeLayout(False)
         CType(Me.SplitContainer1, System.ComponentModel.ISupportInitialize).EndInit()
         Me.SplitContainer1.ResumeLayout(False)
-        Me.lstSimTotalsStats.ResumeLayout(False)
+        Me.Tab1.ResumeLayout(False)
         Me.TabPage3.ResumeLayout(False)
         Me.TabPage4.ResumeLayout(False)
         Me.SplitContainer2.Panel1.ResumeLayout(False)
@@ -2943,12 +2943,12 @@ Partial Class MainWindow
     Friend WithEvents chkRandomPickingBias As CheckBox
     Friend WithEvents ToolTip1 As ToolTip
     Friend WithEvents Label70 As Label
-    Friend WithEvents lstSimTotalsStats As TabControl
+    Friend WithEvents Tab1 As TabControl
     Friend WithEvents TabPage3 As TabPage
     Friend WithEvents TabPage4 As TabPage
     Friend WithEvents chkStopOnDemand As CheckBox
     Friend WithEvents lstCurrentFrameStats As ListView
-    Friend WithEvents ListView1 As ListView
+    Friend WithEvents lstSimTotalsStats As ListView
     Friend WithEvents txtEmptyLevel As TextBox
     Friend WithEvents Label71 As Label
     Friend WithEvents Label72 As Label
