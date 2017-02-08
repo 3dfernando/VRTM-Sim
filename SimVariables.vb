@@ -147,7 +147,7 @@
             Me.ExternalDemandProfilePath = ""
 
             Me.TotalSimTime = 3600 * 24 * 7
-            Me.MinimumSimDt = 100
+            Me.MinimumSimDt = 50
 
             Me.ElevSpeed = 18.3 'Elevator speed [m/s]
             Me.ElevAccel = 0.61 'Elevator working acceleration [m/s²]
@@ -478,7 +478,7 @@ TryAgain:
         Public TrayEntryTimes() As Double 'Array of simulation entry time indices for each tray index mentioned in TRVMTrayIndices
         Public TrayExitTimes() As Double 'Array of simulation exit time indices for each tray index mentioned in TRVMTrayIndices
         Public TrayStayTime() As Double 'Array of stay times for each tray
-        Public TrayAirTemperatures() As Double 'Air temperatures on the trays
+        'Public TrayAirTemperatures() As Double 'Air temperatures on the trays
         Public TrayEntryLevels() As Integer 'Array of levels where each tray was entering onto for the tray index mentioned in TRVMTrayIndices
         Public Elevator() As TrayData 'Representation of the tray in the elevator, array in timesteps
         Public EmptyElevatorB() As Boolean 'Number of the elevator that is empty (FALSE = left [A], TRUE = right [B])

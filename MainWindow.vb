@@ -146,7 +146,7 @@ Public Class MainWindow
         lstCurrentFrameStats.View = View.Details
 
         lstSimTotalsStats.Columns.Clear()
-        lstSimTotalsStats.Columns.Add("Variable", 150)
+        lstSimTotalsStats.Columns.Add("Variable", 200)
         lstSimTotalsStats.Columns.Add("Value", 175)
         lstSimTotalsStats.View = View.Details
 
@@ -170,6 +170,8 @@ Public Class MainWindow
         'Initializes VRTM table
         Try
             Dim i As Integer
+            Dim j As Integer
+
 
             FormatTable()
             VRTMTable.Rows.Clear()
@@ -177,19 +179,31 @@ Public Class MainWindow
 
             For i = 0 To ColNumber + 1 'Adds two more columns for the elevator wells
                 If i = 0 Or i = ColNumber + 1 Then
-                    VRTMTable.Columns.Add("Elev", "Elev")
+                    j = VRTMTable.Columns.Add("Elev", "Elev")
+                    VRTMTable.Columns(j).SortMode = DataGridViewColumnSortMode.NotSortable
                 Else
-                    VRTMTable.Columns.Add(Str(i), Str(i))
+                    j = VRTMTable.Columns.Add(Str(i), Str(i))
+                    VRTMTable.Columns(j).SortMode = DataGridViewColumnSortMode.NotSortable
                 End If
             Next
             Redim_Width_DGV()
 
             VRTMTable.Rows.Add(RowNumber)
             For i = 1 To RowNumber
-                VRTMTable.Rows(i - 1).HeaderCell.Value = Str(i)
+                j = VRTMTable.Rows(i - 1).HeaderCell.Value = Str(i)
             Next
 
             DefaultBGColorTable() 'Makes the BG color the default one
+
+            'Resizes the splitter so the width of the graphs doesn't become too cluttered
+            Const TargetWidthColumn As Long = 40
+            Dim TotalWidth As Long
+            TotalWidth = Int((TargetWidthColumn * (ColNumber + 2)) + VRTMTable.RowHeadersWidth + 25)   '25 accounts for a possible vscrollbar
+            If TotalWidth > (Screen.FromControl(Me).Bounds.Width - (400)) Then '400 is the minimum left panel wdth
+                TotalWidth = Screen.FromControl(Me).Bounds.Width - (400)
+            End If
+            Divisor2.SplitterDistance = TotalWidth
+
             VRTMTable.ClearSelection()
         Catch ex As Exception
 
@@ -262,6 +276,7 @@ Public Class MainWindow
         hsSimPosition.LargeChange = VRTM_SimVariables.MinimumSimDt * 10
         hsSimPosition.Value = TimeWhereSimulationStopped
         UpdateDGVPlayback(Nothing, Nothing)
+        lstSimTotalsStats.Items.Clear()
 
         lblDisplayVariable.Text = "Simulation Completed"
     End Sub
@@ -1316,14 +1331,14 @@ Public Class MainWindow
 
 
             'Now parses the set
-            Const NPoints As Long = 20
             Dim MinT As Double = CenterTemperatures(0)
             Dim MaxT As Double = CenterTemperatures(CenterTemperatures.Count - 1)
 
+            Const nPercentiles As Long = 20
             Dim TPercentiles() As Double
-            ReDim TPercentiles(NPoints - 1)
+            ReDim TPercentiles(nPercentiles - 1)
             Dim TThresholds() As Double
-            ReDim TThresholds(NPoints - 1)
+            ReDim TThresholds(nPercentiles - 1)
 
             Dim J As Long = 0
             Dim CountPercentile As Long = 0
@@ -1332,8 +1347,8 @@ Public Class MainWindow
             For I As Long = 0 To CenterTemperatures.Count - 1
                 CountPercentile += 1
 
-                If CountPercentile > (CenterTemperatures.Count / NPoints) Then
-                    TPercentiles(J) = LastPercentile + 100 / NPoints
+                If CountPercentile > (CenterTemperatures.Count / nPercentiles) Then
+                    TPercentiles(J) = LastPercentile + 100 / nPercentiles
                     TThresholds(J) = CenterTemperatures(I)
 
                     LastPercentile += 100 * CountPercentile / CenterTemperatures.Count
@@ -1355,10 +1370,56 @@ Public Class MainWindow
                 TSeries(0).Points.AddXY(TThresholds(I), TPercentiles(I))
             Next
 
+            TSeries(0).Legend = "Exit Temperature"
             TSeries(0).LegendText = "Exit Temperature"
             TSeries(0).Color = Color.Blue
             TSeries(0).BorderWidth = 1
             TSeries(0).ChartType = DataVisualization.Charting.SeriesChartType.Line
+
+
+            '---Adds the minimum and maximum lines of temperature for each product---
+            Dim MinTExpected As Double = Double.MaxValue
+            Dim MaxTExpected As Double = Double.MinValue
+            For Each P As ProductData In VRTM_SimVariables.ProductMix
+
+                If P.OutletTemperatureDesign < MinTExpected Then MinTExpected = P.OutletTemperatureDesign
+                If P.OutletTemperatureDesign > MaxTExpected Then MaxTExpected = P.OutletTemperatureDesign
+            Next
+
+            If MinTExpected = MaxTExpected Then
+                ReDim Preserve TSeries(1)
+                TSeries(1) = New DataVisualization.Charting.Series
+                TSeries(1).Points.AddXY(MinTExpected, 0)
+                TSeries(1).Points.AddXY(MinTExpected, 100)
+                TSeries(1).Legend = "Lowest Expected Temperature"
+                TSeries(1).LegendText = "Lowest Expected Temperature"
+                TSeries(1).Color = Color.Black
+                TSeries(1).BorderWidth = 1
+                TSeries(1).ChartType = DataVisualization.Charting.SeriesChartType.Line
+                TSeries(1).BorderDashStyle = DataVisualization.Charting.ChartDashStyle.Dash
+
+            Else
+                ReDim Preserve TSeries(2)
+                TSeries(1) = New DataVisualization.Charting.Series
+                TSeries(1).Points.AddXY(MinTExpected, 0)
+                TSeries(1).Points.AddXY(MinTExpected, 100)
+                TSeries(1).Legend = "Lowest Expected Temperature"
+                TSeries(1).LegendText = "Lowest Expected Temperature"
+                TSeries(1).Color = Color.Black
+                TSeries(1).BorderWidth = 0.75
+                TSeries(1).ChartType = DataVisualization.Charting.SeriesChartType.Line
+                TSeries(1).BorderDashStyle = DataVisualization.Charting.ChartDashStyle.Dash
+
+                TSeries(2) = New DataVisualization.Charting.Series
+                TSeries(2).Points.AddXY(MaxTExpected, 0)
+                TSeries(2).Points.AddXY(MaxTExpected, 100)
+                TSeries(2).Legend = "Largest Expected Temperature"
+                TSeries(2).LegendText = "Largest Expected Temperature"
+                TSeries(2).Color = Color.Red
+                TSeries(2).BorderWidth = 0.75
+                TSeries(2).ChartType = DataVisualization.Charting.SeriesChartType.Line
+                TSeries(2).BorderDashStyle = DataVisualization.Charting.ChartDashStyle.Dash
+            End If
 
 
             UpdateGraph(ExitTempGraph, "Statistical Distribution of Exit Temperatures", TSeries, "Center Temperature [ºC]", "Percentile [%]")
@@ -1384,14 +1445,14 @@ Public Class MainWindow
             Next
 
             'Now parses the set
-            Const NPoints As Long = 20
             Dim MinRetTime As Double = RetTimeOrderedList(0)
             Dim MaxRetTime As Double = RetTimeOrderedList(RetTimeOrderedList.Count - 1)
 
+            Const nPercentiles As Long = 20
             Dim RetTimePercentiles() As Double
-            ReDim RetTimePercentiles(NPoints - 1)
+            ReDim RetTimePercentiles(nPercentiles - 1)
             Dim RetTimeThresholds() As Double
-            ReDim RetTimeThresholds(NPoints - 1)
+            ReDim RetTimeThresholds(nPercentiles - 1)
 
             Dim J As Long = 0
             Dim CountPercentile As Long = 0
@@ -1400,8 +1461,8 @@ Public Class MainWindow
             For I As Long = 0 To RetTimeOrderedList.Count - 1
                 CountPercentile += 1
 
-                If CountPercentile > (RetTimeOrderedList.Count / NPoints) Then
-                    RetTimePercentiles(J) = LastPercentile + 100 / NPoints
+                If CountPercentile > (RetTimeOrderedList.Count / nPercentiles) Then
+                    RetTimePercentiles(J) = LastPercentile + 100 / nPercentiles
                     RetTimeThresholds(J) = RetTimeOrderedList(I)
 
                     LastPercentile += 100 * CountPercentile / RetTimeOrderedList.Count
@@ -1423,10 +1484,56 @@ Public Class MainWindow
                 RSeries(0).Points.AddXY(RetTimeThresholds(I), RetTimePercentiles(I))
             Next
 
+            RSeries(0).Legend = "Retention Time"
             RSeries(0).LegendText = "Retention Time"
             RSeries(0).Color = Color.Blue
             RSeries(0).BorderWidth = 1
             RSeries(0).ChartType = DataVisualization.Charting.SeriesChartType.Line
+
+
+
+            '---Adds the minimum and maximum lines of retention time for each conveyor---
+            Dim MinRetTimeConv As Double = Double.MaxValue
+            Dim MaxRetTimeConv As Double = Double.MinValue
+            For Each C As InletConveyor In VRTM_SimVariables.InletConveyors
+                If C.MinRetTime < MinRetTimeConv Then MinRetTimeConv = C.MinRetTime
+                If C.MinRetTime > MaxRetTimeConv Then MaxRetTimeConv = C.MinRetTime
+            Next
+
+            If MinRetTimeConv = MaxRetTimeConv Then
+                ReDim Preserve RSeries(1)
+                RSeries(1) = New DataVisualization.Charting.Series 'Ret Time
+                RSeries(1).Points.AddXY(MinRetTimeConv, 0)
+                RSeries(1).Points.AddXY(MinRetTimeConv, 100)
+                RSeries(1).Legend = "Minimum Set Retention Time"
+                RSeries(1).LegendText = "Minimum Set Retention Time"
+                RSeries(1).Color = Color.Black
+                RSeries(1).BorderWidth = 1
+                RSeries(1).ChartType = DataVisualization.Charting.SeriesChartType.Line
+                RSeries(1).BorderDashStyle = DataVisualization.Charting.ChartDashStyle.Dash
+
+            Else
+                ReDim Preserve RSeries(2)
+                RSeries(1) = New DataVisualization.Charting.Series 'Ret Time
+                RSeries(1).Points.AddXY(MinRetTimeConv, 0)
+                RSeries(1).Points.AddXY(MinRetTimeConv, 100)
+                RSeries(1).Legend = "Lowest Min. Retention Time"
+                RSeries(1).LegendText = "Lowest Min. Retention Time"
+                RSeries(1).Color = Color.Black
+                RSeries(1).BorderWidth = 0.75
+                RSeries(1).ChartType = DataVisualization.Charting.SeriesChartType.Line
+                RSeries(1).BorderDashStyle = DataVisualization.Charting.ChartDashStyle.Dash
+
+                RSeries(2) = New DataVisualization.Charting.Series 'Ret Time
+                RSeries(2).Points.AddXY(MaxRetTimeConv, 0)
+                RSeries(2).Points.AddXY(MaxRetTimeConv, 100)
+                RSeries(2).Legend = "Largest Min. Retention Time"
+                RSeries(2).LegendText = "Largest Min. Retention Time"
+                RSeries(2).Color = Color.Red
+                RSeries(2).BorderWidth = 0.75
+                RSeries(2).ChartType = DataVisualization.Charting.SeriesChartType.Line
+                RSeries(2).BorderDashStyle = DataVisualization.Charting.ChartDashStyle.Dash
+            End If
 
 
             UpdateGraph(RetentionTimeGraph, "Statistical Distribution of Retention Times", RSeries, "Time [h]", "Percentile [%]")
@@ -1444,7 +1551,7 @@ Public Class MainWindow
             TSeries(1) = New DataVisualization.Charting.Series 'T last tray
             TSeries(2) = New DataVisualization.Charting.Series 'T evap SP
 
-            For I As Long = 0 To Simulation_Results.VRTMTimePositions.Count - 1 Step Int(Simulation_Results.VRTMTimePositions.Count / 1000) '1000 points
+            For I As Long = 0 To Simulation_Results.VRTMTimePositions.Count - 1 Step Int(Simulation_Results.VRTMTimePositions.Count / 2000) '2000 points
                 TSeries(0).Points.AddXY(Simulation_Results.VRTMTimePositions(I) / (24 * 3600),
                                                    Simulation_Results.AirTemperatures(I, 0))
                 TSeries(1).Points.AddXY(Simulation_Results.VRTMTimePositions(I) / (24 * 3600),
@@ -1454,16 +1561,19 @@ Public Class MainWindow
 
             Next
 
+            TSeries(0).Legend = "T First Tray"
             TSeries(0).LegendText = "T First Tray"
             TSeries(0).Color = Color.Blue
             TSeries(0).BorderWidth = 1
             TSeries(0).ChartType = DataVisualization.Charting.SeriesChartType.Line
 
+            TSeries(1).Legend = "T Last Tray"
             TSeries(1).LegendText = "T Last Tray"
             TSeries(1).Color = Color.Red
             TSeries(1).BorderWidth = 1
             TSeries(1).ChartType = DataVisualization.Charting.SeriesChartType.Line
 
+            TSeries(2).Legend = "T Evaporation"
             TSeries(2).LegendText = "T Evaporation"
             TSeries(2).Color = Color.Black
             TSeries(2).BorderWidth = 1
@@ -1479,40 +1589,63 @@ Public Class MainWindow
         InitializeGraph(HLProfileGraph)
 
         Dim HL As Double
+        Dim I As Long
 
         'The heat load has already been computed:
         If Not IsNothing(Simulation_Results.TotalPower) Then
-            Dim HeatLoadSeries(2) As DataVisualization.Charting.Series
+            Dim HeatLoadSeries(3) As DataVisualization.Charting.Series
             HeatLoadSeries(0) = New DataVisualization.Charting.Series
             HeatLoadSeries(1) = New DataVisualization.Charting.Series
             HeatLoadSeries(2) = New DataVisualization.Charting.Series
+            HeatLoadSeries(3) = New DataVisualization.Charting.Series
 
-            For I As Long = 0 To Simulation_Results.TotalPower.Count - 1 Step Int(Simulation_Results.TotalPower.Count / 1000) '1000 points
+            For I = 0 To Simulation_Results.TotalPower.Count - 1 Step 1 'Int(Simulation_Results.TotalPower.Count / 2000) '2000 points
                 HL = Simulation_Results.TotalPower(I) / 1000
                 If HL < 100000 And HL >= 0 Then
                     'Converts power to kW and Time to Days
                     HeatLoadSeries(0).Points.AddXY(Simulation_Results.VRTMTimePositions(I) / (24 * 3600), HL)
-                    HeatLoadSeries(1).Points.AddXY(Simulation_Results.VRTMTimePositions(I) / (24 * 3600), Val(txtAvgHeatLoad.Text))
-                    HeatLoadSeries(2).Points.AddXY(Simulation_Results.VRTMTimePositions(I) / (24 * 3600), Val(txtWeeklyHeatLoad.Text))
-                Else
-                    'Dim aseh As Double = 0
                 End If
             Next
 
+            I = Simulation_Results.TotalPower.Count - 1
+
+            HeatLoadSeries(1).Points.AddXY(0, Val(txtAvgHeatLoad.Text))
+            HeatLoadSeries(1).Points.AddXY(Simulation_Results.VRTMTimePositions(I) / (24 * 3600), Val(txtAvgHeatLoad.Text))
+            HeatLoadSeries(2).Points.AddXY(0, Val(txtWeeklyHeatLoad.Text))
+            HeatLoadSeries(2).Points.AddXY(Simulation_Results.VRTMTimePositions(I) / (24 * 3600), Val(txtWeeklyHeatLoad.Text))
+            HeatLoadSeries(3).Points.AddXY(0, Val(txtReferenceCapacity.Text))
+            HeatLoadSeries(3).Points.AddXY(Simulation_Results.VRTMTimePositions(I) / (24 * 3600), Val(txtReferenceCapacity.Text))
+
             HeatLoadSeries(0).Legend = "Instantaneous Heat Load"
+            HeatLoadSeries(0).LegendText = "Instantaneous Heat Load"
+            HeatLoadSeries(0).IsVisibleInLegend = True
             HeatLoadSeries(0).Color = Color.Black
             HeatLoadSeries(0).BorderWidth = 1
             HeatLoadSeries(0).ChartType = DataVisualization.Charting.SeriesChartType.Line
 
             HeatLoadSeries(1).Legend = "Average Daily Heat Load"
+            HeatLoadSeries(1).LegendText = "Average Daily Heat Load"
+            HeatLoadSeries(1).IsVisibleInLegend = True
             HeatLoadSeries(1).Color = Color.Red
-            HeatLoadSeries(1).BorderWidth = 1
+            HeatLoadSeries(1).BorderWidth = 0.75
             HeatLoadSeries(1).ChartType = DataVisualization.Charting.SeriesChartType.Line
+            HeatLoadSeries(1).BorderDashStyle = DataVisualization.Charting.ChartDashStyle.Dash
 
             HeatLoadSeries(2).Legend = "Average Weekly Heat Load"
+            HeatLoadSeries(2).LegendText = "Average Weekly Heat Load"
+            HeatLoadSeries(2).IsVisibleInLegend = True
             HeatLoadSeries(2).Color = Color.Blue
-            HeatLoadSeries(2).BorderWidth = 1
+            HeatLoadSeries(2).BorderWidth = 0.75
             HeatLoadSeries(2).ChartType = DataVisualization.Charting.SeriesChartType.Line
+            HeatLoadSeries(2).BorderDashStyle = DataVisualization.Charting.ChartDashStyle.Dash
+
+            HeatLoadSeries(3).Legend = "Compressor Setpoint Capacity"
+            HeatLoadSeries(3).LegendText = "Compressor Setpoint Capacity"
+            HeatLoadSeries(3).IsVisibleInLegend = True
+            HeatLoadSeries(3).Color = Color.Magenta
+            HeatLoadSeries(3).BorderWidth = 0.75
+            HeatLoadSeries(3).ChartType = DataVisualization.Charting.SeriesChartType.Line
+            HeatLoadSeries(3).BorderDashStyle = DataVisualization.Charting.ChartDashStyle.Dash
 
             UpdateGraph(HLProfileGraph, "Instantaneous Heat Load", HeatLoadSeries, "Time [days]", "Heat Load [kW]")
 
@@ -1590,14 +1723,27 @@ Public Class MainWindow
             .AxisY.Maximum = Int(.AxisY.Maximum / .AxisY.Interval) * .AxisY.Interval
         End With
 
-        'Binds axes tooltips
+        'Binds axes tooltips and legends
+        WhicheverGraph.Legends.Clear()
         For Each S As DataVisualization.Charting.Series In WhicheverGraph.Series
             S.ToolTip = "x=#VALX" & vbCrLf & "y=#VALY"
+            Dim L As DataVisualization.Charting.Legend = WhicheverGraph.Legends.Add(S.Legend)
+            L.DockedToChartArea = "ChartArea1"
+            L.IsDockedInsideChartArea = True
+            L.Docking = DataVisualization.Charting.Docking.Bottom
+            L.Alignment = StringAlignment.Far
         Next
 
         'Legends
-        'WhicheverGraph.Legends(0).Position.Auto = False
         'WhicheverGraph.Legends(0).Position = New DataVisualization.Charting.ElementPosition(80, 10, 15, 20)
+
+        'Zooming and panning capability
+        WhicheverGraph.ChartAreas(0).CursorX.IsUserSelectionEnabled = True
+        WhicheverGraph.ChartAreas(0).CursorY.IsUserSelectionEnabled = True
+        WhicheverGraph.ChartAreas(0).AxisX.ScrollBar.Enabled = True
+        WhicheverGraph.ChartAreas(0).AxisX.ScaleView.Zoomable = True
+        WhicheverGraph.ChartAreas(0).AxisY.ScrollBar.Enabled = True
+        WhicheverGraph.ChartAreas(0).AxisY.ScaleView.Zoomable = True
 
     End Sub
 
@@ -1708,8 +1854,6 @@ Public Class MainWindow
 
 
         lstSimTotalsStats.EndUpdate()
-        Tab1.Show()
-
     End Sub
 
 

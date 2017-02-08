@@ -236,13 +236,13 @@ Partial Class MainWindow
         Me.lblCurrentPos = New System.Windows.Forms.Label()
         Me.hsSimPosition = New System.Windows.Forms.HScrollBar()
         Me.VRTMTable = New System.Windows.Forms.DataGridView()
-        Me.SplitContainer3 = New System.Windows.Forms.SplitContainer()
+        Me.RightPanel = New System.Windows.Forms.SplitContainer()
         Me.SplitContainer1 = New System.Windows.Forms.SplitContainer()
         Me.Label70 = New System.Windows.Forms.Label()
-        Me.Tab1 = New System.Windows.Forms.TabControl()
-        Me.TabPage3 = New System.Windows.Forms.TabPage()
+        Me.SimStats = New System.Windows.Forms.TabControl()
+        Me.tabCurrentFrame = New System.Windows.Forms.TabPage()
         Me.lstCurrentFrameStats = New System.Windows.Forms.ListView()
-        Me.TabPage4 = New System.Windows.Forms.TabPage()
+        Me.tabSimTotals = New System.Windows.Forms.TabPage()
         Me.lstSimTotalsStats = New System.Windows.Forms.ListView()
         Me.SplitContainer2 = New System.Windows.Forms.SplitContainer()
         Me.Label72 = New System.Windows.Forms.Label()
@@ -299,17 +299,17 @@ Partial Class MainWindow
         Me.MidPanel.Panel2.SuspendLayout()
         Me.MidPanel.SuspendLayout()
         CType(Me.VRTMTable, System.ComponentModel.ISupportInitialize).BeginInit()
-        CType(Me.SplitContainer3, System.ComponentModel.ISupportInitialize).BeginInit()
-        Me.SplitContainer3.Panel1.SuspendLayout()
-        Me.SplitContainer3.Panel2.SuspendLayout()
-        Me.SplitContainer3.SuspendLayout()
+        CType(Me.RightPanel, System.ComponentModel.ISupportInitialize).BeginInit()
+        Me.RightPanel.Panel1.SuspendLayout()
+        Me.RightPanel.Panel2.SuspendLayout()
+        Me.RightPanel.SuspendLayout()
         CType(Me.SplitContainer1, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SplitContainer1.Panel1.SuspendLayout()
         Me.SplitContainer1.Panel2.SuspendLayout()
         Me.SplitContainer1.SuspendLayout()
-        Me.Tab1.SuspendLayout()
-        Me.TabPage3.SuspendLayout()
-        Me.TabPage4.SuspendLayout()
+        Me.SimStats.SuspendLayout()
+        Me.tabCurrentFrame.SuspendLayout()
+        Me.tabSimTotals.SuspendLayout()
         CType(Me.SplitContainer2, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SplitContainer2.Panel1.SuspendLayout()
         Me.SplitContainer2.Panel2.SuspendLayout()
@@ -2321,7 +2321,7 @@ Partial Class MainWindow
         '
         'Divisor2.Panel2
         '
-        Me.Divisor2.Panel2.Controls.Add(Me.SplitContainer3)
+        Me.Divisor2.Panel2.Controls.Add(Me.RightPanel)
         Me.Divisor2.Size = New System.Drawing.Size(1004, 792)
         Me.Divisor2.SplitterDistance = 601
         Me.Divisor2.TabIndex = 0
@@ -2392,23 +2392,23 @@ Partial Class MainWindow
         Me.VRTMTable.Size = New System.Drawing.Size(601, 734)
         Me.VRTMTable.TabIndex = 0
         '
-        'SplitContainer3
+        'RightPanel
         '
-        Me.SplitContainer3.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.SplitContainer3.Location = New System.Drawing.Point(0, 0)
-        Me.SplitContainer3.Name = "SplitContainer3"
-        Me.SplitContainer3.Orientation = System.Windows.Forms.Orientation.Horizontal
+        Me.RightPanel.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.RightPanel.Location = New System.Drawing.Point(0, 0)
+        Me.RightPanel.Name = "RightPanel"
+        Me.RightPanel.Orientation = System.Windows.Forms.Orientation.Horizontal
         '
-        'SplitContainer3.Panel1
+        'RightPanel.Panel1
         '
-        Me.SplitContainer3.Panel1.Controls.Add(Me.SplitContainer1)
+        Me.RightPanel.Panel1.Controls.Add(Me.SplitContainer1)
         '
-        'SplitContainer3.Panel2
+        'RightPanel.Panel2
         '
-        Me.SplitContainer3.Panel2.Controls.Add(Me.SplitContainer2)
-        Me.SplitContainer3.Size = New System.Drawing.Size(399, 792)
-        Me.SplitContainer3.SplitterDistance = 310
-        Me.SplitContainer3.TabIndex = 6
+        Me.RightPanel.Panel2.Controls.Add(Me.SplitContainer2)
+        Me.RightPanel.Size = New System.Drawing.Size(399, 792)
+        Me.RightPanel.SplitterDistance = 310
+        Me.RightPanel.TabIndex = 6
         '
         'SplitContainer1
         '
@@ -2424,7 +2424,7 @@ Partial Class MainWindow
         '
         'SplitContainer1.Panel2
         '
-        Me.SplitContainer1.Panel2.Controls.Add(Me.Tab1)
+        Me.SplitContainer1.Panel2.Controls.Add(Me.SimStats)
         Me.SplitContainer1.Size = New System.Drawing.Size(399, 310)
         Me.SplitContainer1.SplitterDistance = 28
         Me.SplitContainer1.TabIndex = 4
@@ -2439,27 +2439,27 @@ Partial Class MainWindow
         Me.Label70.TabIndex = 1
         Me.Label70.Text = "Statistics of Current Simulation"
         '
-        'Tab1
+        'SimStats
         '
-        Me.Tab1.Controls.Add(Me.TabPage3)
-        Me.Tab1.Controls.Add(Me.TabPage4)
-        Me.Tab1.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.Tab1.Location = New System.Drawing.Point(0, 0)
-        Me.Tab1.Name = "Tab1"
-        Me.Tab1.SelectedIndex = 0
-        Me.Tab1.Size = New System.Drawing.Size(399, 278)
-        Me.Tab1.TabIndex = 0
+        Me.SimStats.Controls.Add(Me.tabCurrentFrame)
+        Me.SimStats.Controls.Add(Me.tabSimTotals)
+        Me.SimStats.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.SimStats.Location = New System.Drawing.Point(0, 0)
+        Me.SimStats.Name = "SimStats"
+        Me.SimStats.SelectedIndex = 0
+        Me.SimStats.Size = New System.Drawing.Size(399, 278)
+        Me.SimStats.TabIndex = 0
         '
-        'TabPage3
+        'tabCurrentFrame
         '
-        Me.TabPage3.Controls.Add(Me.lstCurrentFrameStats)
-        Me.TabPage3.Location = New System.Drawing.Point(4, 22)
-        Me.TabPage3.Name = "TabPage3"
-        Me.TabPage3.Padding = New System.Windows.Forms.Padding(3)
-        Me.TabPage3.Size = New System.Drawing.Size(391, 252)
-        Me.TabPage3.TabIndex = 0
-        Me.TabPage3.Text = "Current Frame"
-        Me.TabPage3.UseVisualStyleBackColor = True
+        Me.tabCurrentFrame.Controls.Add(Me.lstCurrentFrameStats)
+        Me.tabCurrentFrame.Location = New System.Drawing.Point(4, 22)
+        Me.tabCurrentFrame.Name = "tabCurrentFrame"
+        Me.tabCurrentFrame.Padding = New System.Windows.Forms.Padding(3)
+        Me.tabCurrentFrame.Size = New System.Drawing.Size(391, 252)
+        Me.tabCurrentFrame.TabIndex = 0
+        Me.tabCurrentFrame.Text = "Current Frame"
+        Me.tabCurrentFrame.UseVisualStyleBackColor = True
         '
         'lstCurrentFrameStats
         '
@@ -2470,16 +2470,16 @@ Partial Class MainWindow
         Me.lstCurrentFrameStats.TabIndex = 1
         Me.lstCurrentFrameStats.UseCompatibleStateImageBehavior = False
         '
-        'TabPage4
+        'tabSimTotals
         '
-        Me.TabPage4.Controls.Add(Me.lstSimTotalsStats)
-        Me.TabPage4.Location = New System.Drawing.Point(4, 22)
-        Me.TabPage4.Name = "TabPage4"
-        Me.TabPage4.Padding = New System.Windows.Forms.Padding(3)
-        Me.TabPage4.Size = New System.Drawing.Size(391, 252)
-        Me.TabPage4.TabIndex = 1
-        Me.TabPage4.Text = "Simulation Totals"
-        Me.TabPage4.UseVisualStyleBackColor = True
+        Me.tabSimTotals.Controls.Add(Me.lstSimTotalsStats)
+        Me.tabSimTotals.Location = New System.Drawing.Point(4, 22)
+        Me.tabSimTotals.Name = "tabSimTotals"
+        Me.tabSimTotals.Padding = New System.Windows.Forms.Padding(3)
+        Me.tabSimTotals.Size = New System.Drawing.Size(391, 252)
+        Me.tabSimTotals.TabIndex = 1
+        Me.tabSimTotals.Text = "Simulation Totals"
+        Me.tabSimTotals.UseVisualStyleBackColor = True
         '
         'lstSimTotalsStats
         '
@@ -2702,18 +2702,18 @@ Partial Class MainWindow
         CType(Me.MidPanel, System.ComponentModel.ISupportInitialize).EndInit()
         Me.MidPanel.ResumeLayout(False)
         CType(Me.VRTMTable, System.ComponentModel.ISupportInitialize).EndInit()
-        Me.SplitContainer3.Panel1.ResumeLayout(False)
-        Me.SplitContainer3.Panel2.ResumeLayout(False)
-        CType(Me.SplitContainer3, System.ComponentModel.ISupportInitialize).EndInit()
-        Me.SplitContainer3.ResumeLayout(False)
+        Me.RightPanel.Panel1.ResumeLayout(False)
+        Me.RightPanel.Panel2.ResumeLayout(False)
+        CType(Me.RightPanel, System.ComponentModel.ISupportInitialize).EndInit()
+        Me.RightPanel.ResumeLayout(False)
         Me.SplitContainer1.Panel1.ResumeLayout(False)
         Me.SplitContainer1.Panel1.PerformLayout()
         Me.SplitContainer1.Panel2.ResumeLayout(False)
         CType(Me.SplitContainer1, System.ComponentModel.ISupportInitialize).EndInit()
         Me.SplitContainer1.ResumeLayout(False)
-        Me.Tab1.ResumeLayout(False)
-        Me.TabPage3.ResumeLayout(False)
-        Me.TabPage4.ResumeLayout(False)
+        Me.SimStats.ResumeLayout(False)
+        Me.tabCurrentFrame.ResumeLayout(False)
+        Me.tabSimTotals.ResumeLayout(False)
         Me.SplitContainer2.Panel1.ResumeLayout(False)
         Me.SplitContainer2.Panel1.PerformLayout()
         Me.SplitContainer2.Panel2.ResumeLayout(False)
@@ -2943,9 +2943,9 @@ Partial Class MainWindow
     Friend WithEvents chkRandomPickingBias As CheckBox
     Friend WithEvents ToolTip1 As ToolTip
     Friend WithEvents Label70 As Label
-    Friend WithEvents Tab1 As TabControl
-    Friend WithEvents TabPage3 As TabPage
-    Friend WithEvents TabPage4 As TabPage
+    Friend WithEvents SimStats As TabControl
+    Friend WithEvents tabCurrentFrame As TabPage
+    Friend WithEvents tabSimTotals As TabPage
     Friend WithEvents chkStopOnDemand As CheckBox
     Friend WithEvents lstCurrentFrameStats As ListView
     Friend WithEvents lstSimTotalsStats As ListView
@@ -2957,7 +2957,7 @@ Partial Class MainWindow
     Friend WithEvents tabRetTime As TabPage
     Friend WithEvents tabExitTemp As TabPage
     Friend WithEvents HLProfileGraph As DataVisualization.Charting.Chart
-    Friend WithEvents SplitContainer3 As SplitContainer
+    Friend WithEvents RightPanel As SplitContainer
     Friend WithEvents SplitContainer1 As SplitContainer
     Friend WithEvents SplitContainer2 As SplitContainer
     Friend WithEvents tabTunnelTemperature As TabPage

@@ -18,7 +18,6 @@
         GenerateUniformDistributionWeightList()
         DemandsNotAccomplished.Clear()
 
-        MainWindow.MainForm.ClearAllGraphs()
 
         '################Preruns the box times########################
         With VRTM_SimVariables
@@ -140,7 +139,6 @@
                     boxCountInConveyor += boxCount.Value
                 Next
 
-
                 If boxCountInConveyor >= BoxLimit Then
                     boxCountInConveyor = BoxLimit 'Will delete a box that exceeded the accumulator size
                     lostBoxes += 1
@@ -259,15 +257,15 @@
                     End If
                 End If
 
-                If ((k.Key - prevBoxTime - TimeDelay) > VRTM_SimVariables.MinimumSimDt) AndAlso (prevBoxTime > 0) Then
+                If ((k.Key - Simulation_Results.VRTMTimePositions(currentSimulationTimeStep - 1) - TimeDelay) > VRTM_SimVariables.MinimumSimDt) AndAlso (currentSimulationTimeStep > 1) Then
                     'Fills up the arrays with (currently empty) timesteps for the thermal simulation
                     Dim newT As Double
 
                     '---Necessary because the last box inserted was in the next period---
-                    currentSimulationTimeStep -= 1
+                    'currentSimulationTimeStep -= 1
                     '-----
 
-                    For newT = (prevBoxTime + TimeDelay + VRTM_SimVariables.MinimumSimDt) To k.Key Step VRTM_SimVariables.MinimumSimDt
+                    For newT = (Simulation_Results.VRTMTimePositions(currentSimulationTimeStep - 1) + TimeDelay + VRTM_SimVariables.MinimumSimDt) To k.Key Step VRTM_SimVariables.MinimumSimDt
                         'Rolls through all next time steps
                         If k.Key - newT > (VRTM_SimVariables.MinimumSimDt / 2) Then 'Just so it doesn't create a ridiculously small timestep
 
@@ -320,8 +318,8 @@ PostProcessing:
             'Warns the user if the tunnel hasn't been fast enough to feed all the boxes
             If lostBoxes > 0 Then
                 Dim PercentBoxes As Double = Int((lostBoxes / ArrivalTimes.Count) * 100 * 10) / 10
-                MsgBox("Warning: The TRVM wasn't fast enough to feed all the boxes that arrived." & vbCrLf _
-                       & Trim(Str(lostBoxes)) & " boxes (" & Trim(Str(PercentBoxes)) & "%) were removed from the simulation as ""Production delay"".")
+                MsgBox("Warning: The elevator wasn't fast enough to feed all the boxes that arrived." & vbCrLf _
+                       & Trim(Str(lostBoxes)) & " boxes (" & Trim(Str(PercentBoxes)) & "%) were removed from the simulation.")
             End If
 
             Simulation_Results.SimulationComplete = True

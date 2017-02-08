@@ -1,7 +1,7 @@
 ﻿Public Class ProductMixSetup
     Private IndexOfProductBeingEdited As Integer = -1
     Private AirTemperatureApproach As Double = 7 'Models a constant approach as a first approx. for air temperature (Tair-Tevap)
-    Public Const nx As Long = 20
+    Public Const nx As Long = 40
 
 #Region "Product list handling/saving"
     Private Sub ProductMixSetup_Load(sender As Object, e As EventArgs) Handles MyBase.Load

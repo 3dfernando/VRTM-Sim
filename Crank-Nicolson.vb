@@ -163,6 +163,7 @@
         '----Inner terms of array----
         For i = 1 To (n - 2)
             Alpha = Product.get_alpha(Prev_Timestep(i))
+            'Alpha = Product.get_k(Prev_Timestep(i)) / (Product.get_rho(Prev_Timestep(i)) * Product.get_cp(Prev_Timestep(i)))
             Lambda = Alpha * dt / (dx ^ 2)
 
             'Calculates the dkdx term
@@ -194,6 +195,41 @@
 
     End Function
 
+    Public Function Energy_Balance(Prev_Timestep As Double(), Next_Timestep As Double(), dx As Double, dt As Double,
+                                  Boundary_Type_1 As Boundary, T_Boundary_1 As Double, h_Boundary_1 As Double, q_Boundary_1 As Double,
+                                  Boundary_Type_2 As Boundary, T_Boundary_2 As Double, h_Boundary_2 As Double, q_Boundary_2 As Double,
+                                  Geometry_Exponent As Long, Product As FoodProperties) As Double
+        'Performs the energy balance of the simulation for debug purposes
+        Dim q_conv As Double = 0 'W/m²
+        Dim q_cond As Double = 0 'W/m²
+        Dim I As Long
+        Dim dH As Double
+        Dim Alpha_Diff As Double
+
+        'Conduction energy
+        Dim n As Long
+        n = UBound(Prev_Timestep) + 1
+
+        Dim rho_double_prime As Double = Product.get_rho(12) * dx 'kg/m²
+
+        For I = 0 To n - 1
+            dH = Product.get_H(Prev_Timestep(I)) - Product.get_H(Next_Timestep(I)) 'J/kg
+            q_cond += rho_double_prime * dH 'J/m²
+
+            Alpha_Diff = -1 + (Product.get_alpha(Prev_Timestep(I)) / (Product.get_k(Prev_Timestep(I)) / (Product.get_rho(Prev_Timestep(I)) * Product.get_cp(Prev_Timestep(I))))) 'For getting the alpha diffusivity differences
+        Next
+
+        q_cond = q_cond / dt 'W/m²
+
+        'Convection energy
+        q_conv = h_Boundary_2 * (Prev_Timestep(n - 1) - T_Boundary_2)
+
+        'Energy imbalance
+        Energy_Balance = (q_cond / q_conv) - 1
+
+
+    End Function
+
     Public Function Geometry_Exponent(Geometry As String) As Long
         'Returns the geometry exponent based on the geometry string
         'Defines the geometry exponent
@@ -210,10 +246,13 @@
     End Function
 
 
+
     Public Enum Boundary As Byte
         'Implements an enumeration of boundary types
         Dirichlet = 0
         Neumann = 1
         Robin = 2
     End Enum
+
+
 End Module

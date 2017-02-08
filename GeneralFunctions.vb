@@ -160,6 +160,23 @@
         Return Nothing
     End Function
 
+    Public Function Moving_Average(nAverages As Long, lastTermIndex As Long, Series() As Double) As Double
+        'Performs a moving average filter on the last nAverages terms of the Series() array
+        Dim nTerms As Long
+        Dim Sum As Double = 0
+        If lastTermIndex < nAverages Then
+            nTerms = lastTermIndex + 1
+        Else
+            nTerms = nAverages
+        End If
+
+        For I As Long = 0 To nTerms - 1
+            Sum += Series(lastTermIndex - I)
+        Next
+
+        Moving_Average = Sum / nTerms
+    End Function
+
 #Region "Binary Search"
     Public Delegate Function Y(X As Double)
 
