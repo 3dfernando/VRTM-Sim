@@ -151,8 +151,8 @@ Public Class MainWindow
         lstSimTotalsStats.View = View.Details
 
         '-------DEBUG OF THE A* SEARCH----------
-        Dim Lv As Integer = 70
-        Dim Tr As Integer = 25
+        Dim Lv As Integer = 40
+        Dim Tr As Integer = 12
         Dim S As Integer = 20
 
 
@@ -165,10 +165,16 @@ Public Class MainWindow
         'State.CostBudget = Lv * Tr * 100
         State.CostBudget = 20000
         State.PrevCost_G = 0
-        State.AcceptableReward = 0.9
+        State.AcceptableReward = 1
+        State.SKUCount = S
 
         Dim A As New List(Of Integer)
-        A = Solve_A_Star_Search(State)
+        Try
+            A = Solve_A_Star_Search(State, 300)
+        Catch ex As Exception
+            Dim B As Long = 1
+        End Try
+
 
     End Sub
 

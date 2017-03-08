@@ -74,6 +74,12 @@
     <Import Include="System.Threading.Tasks" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="A_Star_DebugWindow.Designer.vb">
+      <DependentUpon>A_Star_DebugWindow.vb</DependentUpon>
+    </Compile>
+    <Compile Include="A_Star_DebugWindow.vb">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="MonteCarloSearch.vb" />
     <Compile Include="RefrigerantProperties.vb" />
     <Compile Include="A_Star.vb" />
@@ -148,6 +154,9 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="A_Star_DebugWindow.resx">
+      <DependentUpon>A_Star_DebugWindow.vb</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="ConveyorSetup.resx">
       <DependentUpon>ConveyorSetup.vb</DependentUpon>
     </EmbeddedResource>

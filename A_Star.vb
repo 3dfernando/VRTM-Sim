@@ -1,17 +1,26 @@
-﻿Module A_Star
+﻿Imports VRTM_Simulator
+
+Public Module A_Star
     'This module contains the functions needed to solve the "puzzle" of reorganizing the VRTM shelves
     Public Const H_Weight As Double = 1 'Weight Attributed to the heuristics (G weight is always 1)
     Public Const N_Plies As Integer = 1 'Number of plies used in each fringe group iteration
 
-    Public Function Solve_A_Star_Search(CurrentState As FringeItem) As List(Of Integer)
+    Public Function Solve_A_Star_Search(CurrentState As FringeItem, TimeBudget_s As Double) As List(Of Integer)
         'This will solve the A star algorithm for the current VRTM state
         'The goal is to organize the shelves in a fashion that the products with index >1000 go to the side of Elevator2 and the indices <1000 go to the side of Elevator 1
         Dim Fringe As New List(Of FringeItem) 'Fringe of states still being considered
         Dim Count As Long = 0
 
+        '-----------Evolutionary selection config----------
+        Dim Gen As Long = 0 'Generation number
+        Dim GenLoops As Long = 500 'Tree branchings to next generation
+        Dim Decimation As Long = 100 'Total Number of fringes left after a decimation event
+        Dim DeceaseProbability As Double = 0.2 'How many deceased (not within the best choices for decimation) fringes will be chosen randomly
+        Dim GenBestFitness As New List(Of Double) 'List of peak fitness (utility) function results for each generation
+        Dim GenBests As New List(Of FringeItem) 'List of peak fitness (utility) function results for each generation
+
         Dim T1 As Stopwatch = New Stopwatch
         T1.Start()
-
 
         'First layer
         For I As Long = 0 To UBound(CurrentState.VRTMStateConv, 2)
@@ -29,9 +38,60 @@
         Dim BestFringe As New FringeItem
         Do While 1
             'Cleanup after N iterations
-            If Count > 0 And (Count Mod 500 = 0) Then
-                Fringe.Clear()
-                Fringe.Add(BestFringe)
+            If Count > 0 And (Count Mod GenLoops = 0) Then
+                'Tests if the time budget has been exceeded
+                If T1.ElapsedMilliseconds / 1000 > TimeBudget_s Then
+                    'Debug line - Enable to visualize the current results
+                    DebugThisState(CurrentState, GenBests, GenBestFitness)
+
+                    Return BestFringe.PlanOfActions
+                End If
+
+                '--------------------New Generation----------------------
+                Gen += 1
+
+                Fringe.Sort() 'Makes it possible to select the best fitness functions
+
+                Dim ChosenFringes As New List(Of FringeItem)
+                'Chooses the best fit fringes
+                If Fringe.Count > Decimation Then
+                    'Selects within the best ones the non-deceased
+                    For I = 1 To Decimation
+                        If Rnd() > DeceaseProbability Then
+                            'Chooses the unit
+                            ChosenFringes.Add(Fringe(I))
+                        Else
+                            'The unit has deceased and will not be chosen
+                        End If
+                    Next
+
+                    Dim FringesLeftToChoose As Integer = Decimation - ChosenFringes.Count
+                    If FringesLeftToChoose > 0 Then
+                        'Select Bad fringes
+                        Dim DeceaseProbabilityOfBadOnes As Double = 1 - (FringesLeftToChoose / (Fringe.Count - Decimation))
+                        For I = Decimation + 1 To Fringe.Count - 1
+                            If Rnd() > DeceaseProbabilityOfBadOnes Then
+                                'Chooses the unit
+                                ChosenFringes.Add(Fringe(I))
+                            Else
+                                'The unit has deceased and will not be chosen
+                            End If
+                        Next
+                    End If
+
+
+                    Fringe.Clear()
+                    Fringe.AddRange(ChosenFringes)
+                Else
+                    'All fringes will be selected, it makes no sense to perform evolution. 
+                End If
+
+
+                GenBestFitness.Add(BestFringe.Current_Reward_R)
+                GenBests.Add(BestFringe)
+
+                'Debug line - Enable to visualize the current results
+                DebugThisState(CurrentState, GenBests, GenBestFitness)
             End If
 
 
@@ -74,30 +134,46 @@
 
             'Dequeues it
             Fringe.Remove(BestFringe)
-            For Each fr As FringeItem In LocalTreeNode
-                Fringe.Add(fr)
-            Next
+            Fringe.AddRange(LocalTreeNode)
 
             Count += 1
 
+
+            'Debug line - Enable to visualize the current results
+            'DebugThisState(CurrentState, GenBests, GenBestFitness)
+
         Loop
 
-
+        Return Nothing
     End Function
 
 
     Public Class FringeItem
+        Implements IComparable(Of FringeItem)
+
         Public VRTMStateConv(,) As Integer 'VRTM internal state with conveyor indices (Tray no, Level no) ***A conveyor index that is larger than 1000 is the same as (index-1000), but ready to ship and needs to be on the side of elevator 2 in the goal.
         Public Elevator1 As Integer 'Content of the elevator 1 (-1 means an empty tray, -2 means no tray on it)
         Public Elevator2 As Integer 'Content of the elevator 2 (-1 means an empty tray, -2 means no tray on it)
         Public CurrentLevel As Integer 'Current level the elevator is at
         Public PlanOfActions As List(Of Integer)
+        Public SKUCount As Integer 'Number of unique SKUs to treat here
 
         Public AcceptableReward As Double = 1
         Public Current_Utility_U As Double = 0
         Public PrevCost_G As Double = 0
         Public Current_Reward_R As Double = 0
+        Public RewardComputation As String = "Global"
         Public CostBudget As Double = 100000
+
+        Public Function Compare(compareFringe As FringeItem) As Integer _
+            Implements IComparable(Of FringeItem).CompareTo
+            ' A null value means that this object is greater.
+            If compareFringe Is Nothing Then
+                Return 1
+            Else
+                Return Current_Utility_U.CompareTo(compareFringe.Current_Utility_U)
+            End If
+        End Function
 
         Public Function Clone() As FringeItem
             Dim ClonedItem As New FringeItem
@@ -123,6 +199,8 @@
             ClonedItem.Current_Reward_R = Me.Current_Reward_R
             ClonedItem.CostBudget = Me.CostBudget
             ClonedItem.AcceptableReward = Me.AcceptableReward
+            ClonedItem.RewardComputation = Me.RewardComputation
+            ClonedItem.SKUCount = Me.SKUCount
 
             Return ClonedItem
         End Function
@@ -153,7 +231,7 @@
 
                 'Computes costs 
                 Me.PrevCost_G = Me.PrevCost_G + ComputeCost(Operation)
-                Me.Current_Reward_R = CurrentReward()
+                Me.Current_Reward_R = ComputeReward(RewardComputation)
                 Me.Current_Utility_U = Me.Current_Reward_R - Me.PrevCost_G / Me.CostBudget
 
                 Me.CurrentLevel = Operation
@@ -163,18 +241,63 @@
             End If
         End Sub
 
-        Public Function CurrentReward() As Double
+        Public Function ComputeReward(Type As String) As Double
             'Implements the current utility for the current VRTM state
-            Dim AvailableProducts As Integer = 0
-            Dim TotalFrozen As Integer = 0
+            'Reward Type as String
 
-            For J As Integer = 0 To UBound(Me.VRTMStateConv, 2)
-                'Looks at each level
-                AvailableProducts += AvailableProductCount(J)
-                TotalFrozen += FrozenProductCount(J)
-            Next
+            Select Case Type
+                Case "Global"
+                    'Returns the global fraction available/frozen
+                    Dim AvailableProducts As Integer = 0
+                    Dim TotalFrozen As Integer = 0
 
-            Return (AvailableProducts / TotalFrozen)
+                    For J As Integer = 0 To UBound(Me.VRTMStateConv, 2)
+                        'Looks at each level
+                        AvailableProducts += AvailableProductCount(J, -1)
+                        TotalFrozen += FrozenProductCount(J, -1)
+                    Next
+
+                    If TotalFrozen = 0 Then Return 1
+                    Return (AvailableProducts / TotalFrozen)
+                Case "Minimum"
+                    'Computes the fraction available/frozen for each SKU and returns the minimum value
+                    Dim AvailableProducts() As Integer
+                    Dim TotalFrozen() As Integer
+                    ReDim AvailableProducts(SKUCount)
+                    ReDim TotalFrozen(SKUCount)
+
+                    For I As Integer = 1 To SKUCount
+                        AvailableProducts(I) = 0
+                        TotalFrozen(I) = 0
+                        For J As Integer = 0 To UBound(Me.VRTMStateConv, 2)
+                            'Looks at each level
+                            AvailableProducts(I) += AvailableProductCount(J, I)
+                            TotalFrozen(I) += FrozenProductCount(J, I)
+                        Next J
+                    Next I
+
+                    'Now searches for the minimum ratio available/frozen
+                    Dim MinAvFrozenRatio As Double = Double.MaxValue
+                    Dim CurrAvFrozenRatio As Double
+                    Dim AvFrozenRatios() As Double
+                    ReDim AvFrozenRatios(SKUCount)
+
+
+                    For I As Integer = 1 To Me.SKUCount
+                        If TotalFrozen(I) <> 0 Then
+                            CurrAvFrozenRatio = AvailableProducts(I) / TotalFrozen(I)
+                            AvFrozenRatios(I) = CurrAvFrozenRatio
+                            If MinAvFrozenRatio > CurrAvFrozenRatio Then MinAvFrozenRatio = CurrAvFrozenRatio
+                        End If
+                    Next
+
+                    If MinAvFrozenRatio < 0 Then MinAvFrozenRatio = 0
+
+                    Return MinAvFrozenRatio
+                Case Else
+                    Return Nothing
+            End Select
+
         End Function
 
         Public Function ComputeCost(Operation As Long) As Double
@@ -184,7 +307,7 @@
 
         Public Function GoalTest() As Boolean
             'Tests whether the current fringe item is a goal
-            Return CurrentReward() > AcceptableReward
+            Return ComputeReward(RewardComputation) > AcceptableReward
         End Function
 
         Public Function CurrentStatusPoints() As Integer
@@ -257,7 +380,7 @@
             FrozenProduct = Me.VRTMStateConv(Ending, Level)
         End Function
 
-        Public Function AvailableProductCount(Level As Integer) As Integer
+        Public Function AvailableProductCount(Level As Integer, SKU As Integer) As Integer
             'Returns for the current level the number of available frozen product
             Dim AvailableProduct As Integer = 0
             Dim LastProduct As Integer = VRTMStateConv(UBound(Me.VRTMStateConv, 1), Level)
@@ -265,11 +388,16 @@
 
             If LastProduct > 1000 Then
                 'There is at least one frozen product at the end of the line
-                AvailableProduct = 1
+                If (VRTMStateConv(UBound(Me.VRTMStateConv, 1), Level) = SKU + 1000) Or SKU = -1 Then
+                    AvailableProduct = 1
+                End If
+
                 For I As Integer = UBound(Me.VRTMStateConv, 1) - 1 To 0 Step -1
                     If VRTMStateConv(I, Level) = LastProduct Then
-                        'There is a streak of products
-                        AvailableProduct += 1
+                        If (VRTMStateConv(I, Level) = SKU + 1000) Or SKU = -1 Then
+                            'There is a streak of products of this SKU
+                            AvailableProduct += 1
+                        End If
                     Else
                         Exit For
                     End If
@@ -282,14 +410,16 @@
             Return AvailableProduct
         End Function
 
-        Public Function FrozenProductCount(Level As Integer) As Integer
+        Public Function FrozenProductCount(Level As Integer, SKU As Integer) As Integer
             'Returns for the current level the number of frozen product
             Dim FrozenProduct As Integer = 0
 
             For I As Integer = UBound(Me.VRTMStateConv, 1) To 0 Step -1
                 If VRTMStateConv(I, Level) > 1000 Then
-                    'Another frozen product
-                    FrozenProduct += 1
+                    If (VRTMStateConv(I, Level) = SKU + 1000) Or SKU = -1 Then
+                        'Another frozen product
+                        FrozenProduct += 1
+                    End If
                 End If
             Next
 
@@ -333,5 +463,14 @@
     End Function
 
 
+    Public Sub DebugThisState(OriginalState As FringeItem, BestGenerations As List(Of FringeItem), BestFitnesses As List(Of Double))
+        'This sub will show and hide the current form to perform debug in the array
+        Dim DebugForm As New A_Star_DebugWindow
+
+        DebugForm.OriginalState = OriginalState
+        DebugForm.BestGenerations = BestGenerations
+        DebugForm.BestFitnesses = BestFitnesses
+        DebugForm.ShowDialog()
+    End Sub
 
 End Module
