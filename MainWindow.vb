@@ -150,6 +150,26 @@ Public Class MainWindow
         lstSimTotalsStats.Columns.Add("Value", 175)
         lstSimTotalsStats.View = View.Details
 
+        '-------DEBUG OF THE A* SEARCH----------
+        Dim Lv As Integer = 70
+        Dim Tr As Integer = 25
+        Dim S As Integer = 20
+
+
+        Dim State As New FringeItem
+        State.PlanOfActions = New List(Of Integer)
+        State.Elevator1 = 1
+        State.Elevator2 = -2
+        State.CurrentLevel = 1
+        State.VRTMStateConv = GenerateRandomState(Lv, Tr, S, 0.66)
+        'State.CostBudget = Lv * Tr * 100
+        State.CostBudget = 20000
+        State.PrevCost_G = 0
+        State.AcceptableReward = 0.9
+
+        Dim A As New List(Of Integer)
+        A = Solve_A_Star_Search(State)
+
     End Sub
 
     Private Sub MainWindow_Shown(sender As Object, e As EventArgs) Handles Me.Shown

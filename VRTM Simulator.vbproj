@@ -74,6 +74,7 @@
     <Import Include="System.Threading.Tasks" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="MonteCarloSearch.vb" />
     <Compile Include="RefrigerantProperties.vb" />
     <Compile Include="A_Star.vb" />
     <Compile Include="ConveyorSetup.Designer.vb">

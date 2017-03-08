@@ -1,13 +1,16 @@
 ﻿Module A_Star
     'This module contains the functions needed to solve the "puzzle" of reorganizing the VRTM shelves
     Public Const H_Weight As Double = 1 'Weight Attributed to the heuristics (G weight is always 1)
-    Public Const N_Plies As Integer = 3 'Number of plies used in each fringe group iteration
+    Public Const N_Plies As Integer = 1 'Number of plies used in each fringe group iteration
 
     Public Function Solve_A_Star_Search(CurrentState As FringeItem) As List(Of Integer)
         'This will solve the A star algorithm for the current VRTM state
         'The goal is to organize the shelves in a fashion that the products with index >1000 go to the side of Elevator2 and the indices <1000 go to the side of Elevator 1
         Dim Fringe As New List(Of FringeItem) 'Fringe of states still being considered
         Dim Count As Long = 0
+
+        Dim T1 As Stopwatch = New Stopwatch
+        T1.Start()
 
 
         'First layer
@@ -21,36 +24,41 @@
             End If
         Next
 
-        Dim CostWeight As Double = 0
-        Dim RewardWeight As Double = 1
-
+        'Next layers
+        Dim MaxUtility As Double = Double.MinValue
+        Dim BestFringe As New FringeItem
         Do While 1
-            'Locates the minimum cost fringe
-            Dim MinCost As Double = Double.MaxValue
-            Dim MinFringe As New FringeItem
+            'Cleanup after N iterations
+            If Count > 0 And (Count Mod 500 = 0) Then
+                Fringe.Clear()
+                Fringe.Add(BestFringe)
+            End If
+
+
+            'Locates the maximum utility fringe
+            MaxUtility = Double.MinValue
 
             For I As Long = 0 To Fringe.Count - 1
-                If MinCost > Fringe(I).TotalCost_F Then
-                    MinCost = Fringe(I).TotalCost_F * CostWeight - Fringe(I).PointsEarned * RewardWeight
-                    MinFringe = Fringe(I)
+                If MaxUtility < Fringe(I).Current_Utility_U Then
+                    MaxUtility = Fringe(I).Current_Utility_U
+                    BestFringe = Fringe(I)
                 End If
             Next
 
-
             'Expands this fringe
-            If MinFringe.GoalTest() Then
-                Dim A As Integer = 1
-                Return MinFringe.PlanOfActions
+            If BestFringe.GoalTest() Then
+                T1.Stop()
+                Return BestFringe.PlanOfActions
             End If
 
             Dim LocalTreeNode As New List(Of FringeItem)
-            LocalTreeNode.Add(MinFringe)
+            LocalTreeNode.Add(BestFringe)
 
             For K As Long = 1 To N_Plies
                 Dim listOfNodes As New List(Of FringeItem)
                 For Each fr As FringeItem In LocalTreeNode
                     For I As Long = 0 To UBound(CurrentState.VRTMStateConv, 2)
-                        If I <> fr.CurrentLevel Then
+                        If I <> fr.CurrentLevel And Not fr.IsLevelClosed(I) Then
                             Dim tF As New FringeItem
                             tF = fr.Clone
                             tF.Perform_Operation(I)
@@ -65,13 +73,15 @@
             Next
 
             'Dequeues it
-            Fringe.Remove(MinFringe)
+            Fringe.Remove(BestFringe)
             For Each fr As FringeItem In LocalTreeNode
                 Fringe.Add(fr)
             Next
 
             Count += 1
+
         Loop
+
 
     End Function
 
@@ -83,10 +93,11 @@
         Public CurrentLevel As Integer 'Current level the elevator is at
         Public PlanOfActions As List(Of Integer)
 
-        Public TotalCost_F As Double
-        Public PrevCost_G As Double
-        Public HeuristicCost_H As Double
-        Public PointsEarned As Integer
+        Public AcceptableReward As Double = 1
+        Public Current_Utility_U As Double = 0
+        Public PrevCost_G As Double = 0
+        Public Current_Reward_R As Double = 0
+        Public CostBudget As Double = 100000
 
         Public Function Clone() As FringeItem
             Dim ClonedItem As New FringeItem
@@ -107,9 +118,11 @@
             ClonedItem.Elevator2 = Me.Elevator2
             ClonedItem.CurrentLevel = Me.CurrentLevel
 
-            ClonedItem.TotalCost_F = Me.TotalCost_F
+            ClonedItem.Current_Utility_U = Me.Current_Utility_U
             ClonedItem.PrevCost_G = Me.PrevCost_G
-            ClonedItem.HeuristicCost_H = Me.HeuristicCost_H
+            ClonedItem.Current_Reward_R = Me.Current_Reward_R
+            ClonedItem.CostBudget = Me.CostBudget
+            ClonedItem.AcceptableReward = Me.AcceptableReward
 
             Return ClonedItem
         End Function
@@ -138,11 +151,11 @@
                     Me.Elevator1 = -2
                 End If
 
-                'Computes costs and points
+                'Computes costs 
                 Me.PrevCost_G = Me.PrevCost_G + ComputeCost(Operation)
-                Me.HeuristicCost_H = HeuristicCostToGoal()
-                Me.TotalCost_F = Me.PrevCost_G + Me.HeuristicCost_H
-                Me.PointsEarned = Me.CurrentStatusPoints
+                Me.Current_Reward_R = CurrentReward()
+                Me.Current_Utility_U = Me.Current_Reward_R - Me.PrevCost_G / Me.CostBudget
+
                 Me.CurrentLevel = Operation
                 Me.PlanOfActions.Add(Operation)
             Else
@@ -150,85 +163,19 @@
             End If
         End Sub
 
-        Public Function HeuristicCostToGoal() As Double
-            'Computes the heuristic cost to some definite goal state.
-            'Copies the indices to a temporary variable
-            Dim ConvIndices(,) As Integer
-            ReDim ConvIndices(UBound(Me.VRTMStateConv, 1), UBound(Me.VRTMStateConv, 2))
+        Public Function CurrentReward() As Double
+            'Implements the current utility for the current VRTM state
+            Dim AvailableProducts As Integer = 0
+            Dim TotalFrozen As Integer = 0
 
-            For i As Integer = 0 To UBound(Me.VRTMStateConv, 1)
-                For j As Integer = 0 To UBound(Me.VRTMStateConv, 2)
-                    ConvIndices(i, j) = Me.VRTMStateConv(i, j)
-                Next
+            For J As Integer = 0 To UBound(Me.VRTMStateConv, 2)
+                'Looks at each level
+                AvailableProducts += AvailableProductCount(J)
+                TotalFrozen += FrozenProductCount(J)
             Next
 
-            Dim IMax As Long = UBound(Me.VRTMStateConv, 1)
-            Dim JMax As Long = UBound(Me.VRTMStateConv, 2)
-
-
-            Dim NewLevel() As Integer
-            Dim UnfrozenProd As Integer
-            Dim FrozenProd As Integer
-            Dim Beginning As Integer
-            Dim Ending As Integer
-
-            Dim Delta_Levels As Integer
-            Dim Delta_Trays As Integer
-            Dim AcumCost As Integer = 0
-
-            For J As Integer = 0 To JMax
-                'Runs through each level and clears out the largest strings from the conveyor indices
-                NewLevel = ClearLevelButTheLargestString(J, UnfrozenProd, FrozenProd, Beginning, Ending)
-
-                For I As Integer = Beginning To Ending
-                    'These trays are not available
-                    ConvIndices(I, J) = -99
-                Next
-            Next
-
-            For J As Integer = 0 To JMax
-
-                NewLevel = ClearLevelButTheLargestString(J, UnfrozenProd, FrozenProd, Beginning, Ending)
-                'Now runs through each level and tries to move the trays that haven't yet been positioned according to the heuristics
-                For I As Integer = 0 To Beginning - 1
-                    For I1 As Integer = 0 To IMax
-                        For J1 As Integer = 0 To JMax
-                            If ConvIndices(I1, J1) = UnfrozenProd Then
-                                ConvIndices(I1, J1) = -99
-                                Delta_Levels = Math.Abs((I1 - I)) + Math.Abs((J1 - J))
-                                'Tests the current costs according to the heuristics
-                                Delta_Trays = I + I1 + 2
-                                If Delta_Trays > (2 * IMax - I - I1) Then Delta_Trays = (2 * IMax - I - I1)
-                                AcumCost += Delta_Trays * Delta_Levels
-                                GoTo ContinueFor1
-                            End If
-                        Next
-                    Next
-ContinueFor1:
-                Next
-
-                For I As Integer = Ending + 1 To IMax
-                    For I1 As Integer = 0 To IMax
-                        For J1 As Integer = 0 To JMax
-                            If ConvIndices(I1, J1) = UnfrozenProd Then
-                                ConvIndices(I1, J1) = -99
-                                Delta_Levels = Math.Abs((I1 - I)) + Math.Abs((J1 - J))
-                                'Tests the current costs according to the heuristics
-                                Delta_Trays = I + I1
-                                If Delta_Trays > (2 * IMax - I - I1) Then Delta_Trays = (2 * IMax - I - I1)
-                                AcumCost += Delta_Trays * Delta_Levels
-                                GoTo ContinueFor2
-                            End If
-                        Next
-                    Next
-ContinueFor2:
-                Next
-
-            Next
-
-            HeuristicCostToGoal = AcumCost * H_Weight
+            Return (AvailableProducts / TotalFrozen)
         End Function
-
 
         Public Function ComputeCost(Operation As Long) As Double
             'Computes the cost of this action (currently in levels, but can be in time in the future)
@@ -237,17 +184,7 @@ ContinueFor2:
 
         Public Function GoalTest() As Boolean
             'Tests whether the current fringe item is a goal
-            Dim LargestStringSize As Integer
-            Dim StringReady As Boolean
-            Dim ValidLevels As Integer = 0
-
-            For J As Integer = 0 To UBound(Me.VRTMStateConv, 2)
-                'Looks for the largest valid string 
-                LargestValidString(J, StringReady, 0, LargestStringSize)
-                If (LargestStringSize = (UBound(Me.VRTMStateConv, 1) + 1) And StringReady) Then ValidLevels += 1
-            Next
-            If ValidLevels = UBound(Me.VRTMStateConv, 2) + 1 Then Return True
-            Return False
+            Return CurrentReward() > AcceptableReward
         End Function
 
         Public Function CurrentStatusPoints() As Integer
@@ -320,6 +257,81 @@ ContinueFor2:
             FrozenProduct = Me.VRTMStateConv(Ending, Level)
         End Function
 
+        Public Function AvailableProductCount(Level As Integer) As Integer
+            'Returns for the current level the number of available frozen product
+            Dim AvailableProduct As Integer = 0
+            Dim LastProduct As Integer = VRTMStateConv(UBound(Me.VRTMStateConv, 1), Level)
+
+
+            If LastProduct > 1000 Then
+                'There is at least one frozen product at the end of the line
+                AvailableProduct = 1
+                For I As Integer = UBound(Me.VRTMStateConv, 1) - 1 To 0 Step -1
+                    If VRTMStateConv(I, Level) = LastProduct Then
+                        'There is a streak of products
+                        AvailableProduct += 1
+                    Else
+                        Exit For
+                    End If
+                Next
+            Else
+                'No available frozen product.
+                Return 0
+            End If
+
+            Return AvailableProduct
+        End Function
+
+        Public Function FrozenProductCount(Level As Integer) As Integer
+            'Returns for the current level the number of frozen product
+            Dim FrozenProduct As Integer = 0
+
+            For I As Integer = UBound(Me.VRTMStateConv, 1) To 0 Step -1
+                If VRTMStateConv(I, Level) > 1000 Then
+                    'Another frozen product
+                    FrozenProduct += 1
+                End If
+            Next
+
+            Return FrozenProduct
+        End Function
+
+        Public Function IsLevelClosed(Level As Integer) As Boolean
+            'Returns whether the level contains the same frozen product
+            Dim LastProduct As Integer = VRTMStateConv(UBound(Me.VRTMStateConv, 1), Level)
+
+            For I As Integer = UBound(Me.VRTMStateConv, 1) To 0 Step -1
+                If VRTMStateConv(I, Level) < 1000 Then
+                    Return False
+                Else
+                    If VRTMStateConv(I, Level) <> LastProduct Then
+                        Return False
+                    End If
+                End If
+            Next
+
+            Return True
+        End Function
+
     End Class
+
+    Public Function GenerateRandomState(NLevels As Integer, NTrays As Integer, NSKUs As Integer, PercentFrozen As Double) As Integer(,)
+        'This function will generate a random state to test the algorithm
+        Dim ResultState(,) As Integer
+        ReDim ResultState(NTrays - 1, NLevels - 1)
+
+        For I As Integer = 0 To NTrays - 1
+            For J As Integer = 0 To NLevels - 1
+                ResultState(I, J) = Int(Rnd() * NSKUs) + 1
+                If Rnd() <= PercentFrozen Then
+                    ResultState(I, J) += 1000
+                End If
+            Next
+        Next
+
+        GenerateRandomState = ResultState
+    End Function
+
+
 
 End Module

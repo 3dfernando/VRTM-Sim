@@ -149,7 +149,7 @@
             Me.TotalSimTime = 3600 * 24 * 7
             Me.MinimumSimDt = 50
 
-            Me.ElevSpeed = 18.3 'Elevator speed [m/s]
+            Me.ElevSpeed = 18.3 'Elevator speed [m/min]
             Me.ElevAccel = 0.61 'Elevator working acceleration [m/s²]
             Me.LevelCenterDist = 315
             Me.LoadLevel = 6
