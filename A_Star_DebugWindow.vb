@@ -22,11 +22,52 @@
             FillTable(OriginalState)
         End If
 
-
+        GenUpDn.Maximum = BestGenerations.Count
+        GenUpDn.Value = BestGenerations.Count
     End Sub
 
     Private Sub A_Star_DebugWindow_Resize(sender As Object, e As EventArgs) Handles Me.Resize
         SplitContainer1.SplitterDistance = 210
+    End Sub
+
+    Private Sub dgvTableView_CellPainting(sender As Object, e As DataGridViewCellPaintingEventArgs) Handles dgvTableView.CellPainting
+        If e.RowIndex > -1 Then
+            If e.ColumnIndex > -1 Then
+                Dim V As Double = Val(e.Value)
+                If V > 1000 Then V = V - 1000
+
+                If V > 0 Then
+                    Try
+                        e.CellStyle.BackColor = RandomColorSet(V - 1)
+                    Catch ex As Exception
+
+                    End Try
+                End If
+
+            End If
+        End If
+
+
+    End Sub
+
+    Private Sub GenUpDn_ValueChanged(sender As Object, e As EventArgs) Handles GenUpDn.ValueChanged
+        'Updates the table
+        If GenUpDn.Value = 0 Then
+            FillTable(OriginalState)
+            txtMovements.Text = "0"
+            txtLevelsTraversed.Text = "0"
+            txtTimeTaken.Text = "0"
+            txtFitnessValue.Text = "-"
+            txtAccessFraction.Text = "-"
+        Else
+            Dim CurrentGen As FringeItem = BestGenerations(Int(GenUpDn.Value - 1))
+            FillTable(CurrentGen)
+            txtMovements.Text = Str(CurrentGen.PlanOfActions.Count)
+            txtLevelsTraversed.Text = Str(CurrentGen.PrevCost_G)
+            txtTimeTaken.Text = Str(Round(CurrentGen.PrevCost_G * (VRTM_SimVariables.LevelCenterDist / 1000) / (VRTM_SimVariables.ElevSpeed * 60), 1))
+            txtFitnessValue.Text = Str(CurrentGen.Current_Utility_U)
+            txtAccessFraction.Text = Str(Round(CurrentGen.Current_Reward_R * 100, 1))
+        End If
     End Sub
 
     Private Sub FillTable(Content As FringeItem)

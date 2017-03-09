@@ -151,8 +151,8 @@ Public Class MainWindow
         lstSimTotalsStats.View = View.Details
 
         '-------DEBUG OF THE A* SEARCH----------
-        Dim Lv As Integer = 40
-        Dim Tr As Integer = 12
+        Dim Lv As Integer = 70
+        Dim Tr As Integer = 20
         Dim S As Integer = 20
 
 

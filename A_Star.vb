@@ -4,6 +4,7 @@ Public Module A_Star
     'This module contains the functions needed to solve the "puzzle" of reorganizing the VRTM shelves
     Public Const H_Weight As Double = 1 'Weight Attributed to the heuristics (G weight is always 1)
     Public Const N_Plies As Integer = 1 'Number of plies used in each fringe group iteration
+    Public RandomColorSet As New List(Of Color) 'This is for debugging of the VRTM. The random color set needs to be fixed and thus cannot be defined under the A_Star_Debug_Window form
 
     Public Function Solve_A_Star_Search(CurrentState As FringeItem, TimeBudget_s As Double) As List(Of Integer)
         'This will solve the A star algorithm for the current VRTM state
@@ -13,7 +14,7 @@ Public Module A_Star
 
         '-----------Evolutionary selection config----------
         Dim Gen As Long = 0 'Generation number
-        Dim GenLoops As Long = 500 'Tree branchings to next generation
+        Dim GenLoops As Long = 100 'Tree branchings to next generation
         Dim Decimation As Long = 100 'Total Number of fringes left after a decimation event
         Dim DeceaseProbability As Double = 0.2 'How many deceased (not within the best choices for decimation) fringes will be chosen randomly
         Dim GenBestFitness As New List(Of Double) 'List of peak fitness (utility) function results for each generation
@@ -465,6 +466,12 @@ Public Module A_Star
 
     Public Sub DebugThisState(OriginalState As FringeItem, BestGenerations As List(Of FringeItem), BestFitnesses As List(Of Double))
         'This sub will show and hide the current form to perform debug in the array
+        If RandomColorSet.Count = 0 Then
+            For I = 1 To OriginalState.SKUCount
+                RandomColorSet.Add(Color.FromArgb(Rnd() * 255, Rnd() * 255, Rnd() * 255))
+            Next
+        End If
+
         Dim DebugForm As New A_Star_DebugWindow
 
         DebugForm.OriginalState = OriginalState
