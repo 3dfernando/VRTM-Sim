@@ -14,7 +14,7 @@ Public Module A_Star
 
         '-----------Evolutionary selection config----------
         Dim Gen As Long = 0 'Generation number
-        Dim GenLoops As Long = 100 'Tree branchings to next generation
+        Dim GenLoops As Long = 500 'Tree branchings to next generation
         Dim Decimation As Long = 100 'Total Number of fringes left after a decimation event
         Dim DeceaseProbability As Double = 0.2 'How many deceased (not within the best choices for decimation) fringes will be chosen randomly
         Dim GenBestFitness As New List(Of Double) 'List of peak fitness (utility) function results for each generation
@@ -23,11 +23,15 @@ Public Module A_Star
         Dim T1 As Stopwatch = New Stopwatch
         T1.Start()
 
+        'Before everything, flush the current state
+        Dim FlushedCurrentState As FringeItem = CurrentState.Clone
+        FlushedCurrentState.Flush(5)
+
         'First layer
-        For I As Long = 0 To UBound(CurrentState.VRTMStateConv, 2)
-            If I <> CurrentState.CurrentLevel Then
+        For I As Long = 0 To UBound(FlushedCurrentState.VRTMStateConv, 2)
+            If I <> FlushedCurrentState.CurrentLevel Then
                 Dim tF As New FringeItem
-                tF = CurrentState.Clone
+                tF = FlushedCurrentState.Clone
                 tF.Perform_Operation(I)
 
                 Fringe.Add(tF)
@@ -73,6 +77,8 @@ Public Module A_Star
                         For I = Decimation + 1 To Fringe.Count - 1
                             If Rnd() > DeceaseProbabilityOfBadOnes Then
                                 'Chooses the unit
+                                Fringe(I).Flush(5)
+                                'DebugThisState(Fringe(I), GenBests, GenBestFitness)
                                 ChosenFringes.Add(Fringe(I))
                             Else
                                 'The unit has deceased and will not be chosen
@@ -87,11 +93,13 @@ Public Module A_Star
                     'All fringes will be selected, it makes no sense to perform evolution. 
                 End If
 
+                ChosenFringes.Sort()
+                BestFringe = ChosenFringes(0)
 
                 GenBestFitness.Add(BestFringe.Current_Reward_R)
                 GenBests.Add(BestFringe)
 
-                'Debug line - Enable to visualize the current results
+                'Debug line - Enable to visualize the current results <<<<<<<<<<<<<<<================================================================
                 DebugThisState(CurrentState, GenBests, GenBestFitness)
             End If
 
@@ -444,6 +452,63 @@ Public Module A_Star
             Return True
         End Function
 
+        Public Sub Flush(NFlushes As Integer)
+            'Will take any set of incomplete levels (with any streak of frozen product) with the same SKU and merge them together [by performing movements].
+            Dim AvailableProductCountList As New Dictionary(Of Integer, Integer) 'key=Level, value=Count
+            Dim AvProd As Integer
+
+            For N = 1 To NFlushes 'Performs multiple flushes as advancing product can happen to be flushable again
+                For S As Integer = 1 To SKUCount
+                    AvailableProductCountList.Clear()
+                    For L As Integer = 0 To UBound(VRTMStateConv, 2)
+                        AvProd = AvailableProductCount(L, S)
+                        If AvProd > 0 Then
+                            AvailableProductCountList.Add(L, AvProd)
+                        End If
+                    Next
+
+                    Dim FirstLevel As Integer, SecondLevel As Integer
+                    Dim NMovements As Integer
+                    Dim LevelToRemove As Integer
+                    Do While AvailableProductCountList.Count > 1
+                        'Only performs movements if there is at least one pair of levels.
+                        FirstLevel = AvailableProductCountList.Keys(0)
+                        SecondLevel = AvailableProductCountList.Keys(1)
+
+                        'Dumps the content of SecondLevel onto FirstLevel 
+                        NMovements = (UBound(VRTMStateConv, 1) + 1) - AvailableProductCountList(FirstLevel) 'The largest number of movements possible is to fill up the first level
+                        If NMovements > AvailableProductCountList(SecondLevel) Then
+                            NMovements = AvailableProductCountList(SecondLevel) 'But if there isn't enough product in the second level then it will just empty the second level.
+                            LevelToRemove = 2
+                        Else
+                            LevelToRemove = 1
+                        End If
+
+
+                        If Elevator1 = -2 Then
+                            'Elevator 1 is empty - This means the movements will not work - Needs to undo the last movement
+                            Me.Perform_Operation(Me.PlanOfActions.Last)
+
+                            Me.PlanOfActions.RemoveAt(Me.PlanOfActions.Count - 1) 'Removes both the advance and retract actions from the record
+                            Me.PlanOfActions.RemoveAt(Me.PlanOfActions.Count - 1)
+                        End If
+
+                        For I As Integer = 1 To NMovements
+                            'This will actually perform the dump
+                            Me.Perform_Operation(SecondLevel)
+                            Me.Perform_Operation(FirstLevel)
+                        Next
+
+                        'now removes either the first or second level, depending on the choice made previously
+                        If LevelToRemove = 1 Then
+                            AvailableProductCountList.Remove(FirstLevel)
+                        Else
+                            AvailableProductCountList.Remove(SecondLevel)
+                        End If
+                    Loop
+                Next
+            Next
+        End Sub
     End Class
 
     Public Function GenerateRandomState(NLevels As Integer, NTrays As Integer, NSKUs As Integer, PercentFrozen As Double) As Integer(,)

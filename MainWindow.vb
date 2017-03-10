@@ -152,8 +152,8 @@ Public Class MainWindow
 
         '-------DEBUG OF THE A* SEARCH----------
         Dim Lv As Integer = 70
-        Dim Tr As Integer = 20
-        Dim S As Integer = 20
+        Dim Tr As Integer = 12
+        Dim S As Integer = 30
 
 
         Dim State As New FringeItem
