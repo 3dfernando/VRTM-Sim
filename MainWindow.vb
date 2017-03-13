@@ -151,29 +151,29 @@ Public Class MainWindow
         lstSimTotalsStats.View = View.Details
 
         '-------DEBUG OF THE A* SEARCH----------
-        Dim Lv As Integer = 70
-        Dim Tr As Integer = 12
-        Dim S As Integer = 30
+        'Dim Lv As Integer = 70
+        'Dim Tr As Integer = 12
+        'Dim S As Integer = 30
 
 
-        Dim State As New FringeItem
-        State.PlanOfActions = New List(Of Integer)
-        State.Elevator1 = 1
-        State.Elevator2 = -2
-        State.CurrentLevel = 1
-        State.VRTMStateConv = GenerateRandomState(Lv, Tr, S, 0.66)
-        'State.CostBudget = Lv * Tr * 100
-        State.CostBudget = 20000
-        State.PrevCost_G = 0
-        State.AcceptableReward = 1
-        State.SKUCount = S
+        'Dim State As New FringeItem
+        'State.PlanOfActions = New List(Of Integer)
+        'State.Elevator1 = 1
+        'State.Elevator2 = -2
+        'State.CurrentLevel = 1
+        'State.VRTMStateConv = GenerateRandomState(Lv, Tr, S, 0.66)
+        ''State.CostBudget = Lv * Tr * 100
+        'State.CostBudget = 20000
+        'State.PrevCost_G = 0
+        'State.AcceptableReward = 1
+        'State.SKUCount = S
 
-        Dim A As New List(Of Integer)
-        Try
-            A = Solve_A_Star_Search(State, 300)
-        Catch ex As Exception
-            Dim B As Long = 1
-        End Try
+        'Dim A As New List(Of Integer)
+        'Try
+        '    A = Solve_A_Star_Search(State, 300)
+        'Catch ex As Exception
+        '    Dim B As Long = 1
+        'End Try
 
 
     End Sub
