@@ -3,7 +3,7 @@
 Public Module A_Star
     'This module contains the functions needed to solve the "puzzle" of reorganizing the VRTM shelves
     Public Const H_Weight As Double = 1 'Weight Attributed to the heuristics (G weight is always 1)
-    Public Const N_Plies As Integer = 1 'Number of plies used in each fringe group iteration
+    Public Const N_Plies As Integer = 2 'Number of plies used in each fringe group iteration
     Public RandomColorSet As New List(Of Color) 'This is for debugging of the VRTM. The random color set needs to be fixed and thus cannot be defined under the A_Star_Debug_Window form
 
     Public Function Solve_A_Star_Search(CurrentState As FringeItem, TimeBudget_s As Double) As List(Of Integer)
@@ -14,7 +14,7 @@ Public Module A_Star
 
         '-----------Evolutionary selection config----------
         Dim Gen As Long = 0 'Generation number
-        Dim GenLoops As Long = 500 'Tree branchings to next generation
+        Dim GenLoops As Long = 100 'Tree branchings to next generation
         Dim Decimation As Long = 100 'Total Number of fringes left after a decimation event
         Dim DeceaseProbability As Double = 0.2 'How many deceased (not within the best choices for decimation) fringes will be chosen randomly
         Dim GenBestFitness As New List(Of Double) 'List of peak fitness (utility) function results for each generation
@@ -22,6 +22,8 @@ Public Module A_Star
 
         Dim T1 As Stopwatch = New Stopwatch
         T1.Start()
+
+        CurrentState.Current_Reward_R = CurrentState.ComputeReward(CurrentState.RewardComputation) 'Ensures the current state has already a reward function
 
         'Before everything, flush the current state
         Dim FlushedCurrentState As FringeItem = CurrentState.Clone
@@ -93,8 +95,8 @@ Public Module A_Star
                     'All fringes will be selected, it makes no sense to perform evolution. 
                 End If
 
-                ChosenFringes.Sort()
-                BestFringe = ChosenFringes(0)
+                Fringe.Sort()
+                BestFringe = Fringe(0)
 
                 GenBestFitness.Add(BestFringe.Current_Reward_R)
                 GenBests.Add(BestFringe)
@@ -117,6 +119,7 @@ Public Module A_Star
             'Expands this fringe
             If BestFringe.GoalTest() Then
                 T1.Stop()
+                DebugThisState(CurrentState, GenBests, GenBestFitness)
                 Return BestFringe.PlanOfActions
             End If
 
@@ -132,7 +135,11 @@ Public Module A_Star
                             tF = fr.Clone
                             tF.Perform_Operation(I)
 
-                            listOfNodes.Add(tF)
+                            If tF.PrevCost_G <= tF.CostBudget Then
+                                listOfNodes.Add(tF)
+                            Else
+                                Dim X As Long = 0
+                            End If
                         End If
                     Next
                 Next
@@ -142,11 +149,13 @@ Public Module A_Star
             Next
 
             'Dequeues it
-            Fringe.Remove(BestFringe)
-            Fringe.AddRange(LocalTreeNode)
+            If LocalTreeNode.Count >= 1 Then
+                Fringe.Remove(BestFringe)
+                Fringe.AddRange(LocalTreeNode)
+
+            End If
 
             Count += 1
-
 
             'Debug line - Enable to visualize the current results
             'DebugThisState(CurrentState, GenBests, GenBestFitness)
@@ -528,6 +537,66 @@ Public Module A_Star
         GenerateRandomState = ResultState
     End Function
 
+    Public Function ConvertStateForA_Star(currentSimulationTimeStep As Long, CurrentTime As Double, Availability As Double) As FringeItem
+        'Gets a current simulation state and converts it into a FrigeItem object.
+        Dim CurrentState As New FringeItem
+        Dim TunnelConfig(,) As Integer
+        ReDim TunnelConfig(VRTM_SimVariables.nTrays - 1, VRTM_SimVariables.nLevels - 1)
+        Dim StayTime As Double
+
+        'Fills up the current state
+        For J = 0 To VRTM_SimVariables.nLevels - 1
+            For I = 0 To VRTM_SimVariables.nTrays - 1
+                TunnelConfig(I, J) = Simulation_Results.VRTMTrayData(currentSimulationTimeStep - 1, I, J).ConveyorIndex 'Defines the product index
+
+                StayTime = CurrentTime - Simulation_Results.TrayEntryTimes(Simulation_Results.VRTMTrayData(currentSimulationTimeStep - 1, I, J).TrayIndex)
+
+                If TunnelConfig(I, J) <> -1 Then
+                    'Evaluates whether the tray is frozen
+                    If StayTime >= (VRTM_SimVariables.InletConveyors(TunnelConfig(I, J)).MinRetTime * 3600) Then
+                        TunnelConfig(I, J) = TunnelConfig(I, J) + 1000 '100X indicates a frozen tray
+                    End If
+                End If
+
+                TunnelConfig(I, J) = TunnelConfig(I, J) + 1 'Adds one to the 0-based SKU index. Empty trays will show as 0.
+            Next
+        Next
+
+        'Elevators
+        Dim IndexOnElevator As Integer = Simulation_Results.Elevator(currentSimulationTimeStep - 1).ConveyorIndex
+        StayTime = CurrentTime - Simulation_Results.TrayEntryTimes(Simulation_Results.Elevator(currentSimulationTimeStep - 1).TrayIndex)
+
+        If IndexOnElevator <> -1 Then
+            If StayTime >= (VRTM_SimVariables.InletConveyors(IndexOnElevator).MinRetTime * 3600) Then
+                'The tray in the elevator is frozen
+                IndexOnElevator = IndexOnElevator + 1000
+            End If
+        End If
+        IndexOnElevator = IndexOnElevator + 1 'Adds one to the 0-based SKU index. Empty trays will show as 0.
+
+        CurrentState.PlanOfActions = New List(Of Integer)
+        CurrentState.CurrentLevel = Simulation_Results.TrayEntryLevels(currentSimulationTimeStep - 1)
+        If Simulation_Results.EmptyElevatorB(currentSimulationTimeStep - 1) Then
+            'Elevator B is empty
+            CurrentState.Elevator1 = IndexOnElevator
+            CurrentState.Elevator2 = -2
+        Else
+            'Elevator A is empty
+            CurrentState.Elevator1 = -2
+            CurrentState.Elevator2 = IndexOnElevator
+            CurrentState.PlanOfActions.Add(CurrentState.CurrentLevel)
+        End If
+
+
+        'Remaining required variables for the current state
+        CurrentState.VRTMStateConv = TunnelConfig
+        CurrentState.PrevCost_G = 0
+        CurrentState.AcceptableReward = Availability
+        CurrentState.SKUCount = VRTM_SimVariables.InletConveyors.Count
+        CurrentState.RewardComputation = "Global" 'Global or Minimum
+
+        Return CurrentState
+    End Function
 
     Public Sub DebugThisState(OriginalState As FringeItem, BestGenerations As List(Of FringeItem), BestFitnesses As List(Of Double))
         'This sub will show and hide the current form to perform debug in the array

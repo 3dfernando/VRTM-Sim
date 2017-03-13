@@ -161,18 +161,21 @@ Public Class MainWindow
         'State.Elevator1 = 1
         'State.Elevator2 = -2
         'State.CurrentLevel = 1
-        'State.VRTMStateConv = GenerateRandomState(Lv, Tr, S, 0.66)
+        'State.VRTMStateConv = GenerateRandomState(Lv, Tr, S, 0.8)
         ''State.CostBudget = Lv * Tr * 100
         'State.CostBudget = 20000
         'State.PrevCost_G = 0
         'State.AcceptableReward = 1
         'State.SKUCount = S
+        'State.RewardComputation = "Global" 'Global or Minimum
 
         'Dim A As New List(Of Integer)
         'Try
-        '    A = Solve_A_Star_Search(State, 300)
+        '    A = Solve_A_Star_Search(State, 600)
         'Catch ex As Exception
-        '    Dim B As Long = 1
+        '    Dim st As New StackTrace(True)
+        '    st = New StackTrace(ex, True)
+        '    MessageBox.Show("Line: " & st.GetFrame(0).GetFileLineNumber().ToString, "Error")
         'End Try
 
 

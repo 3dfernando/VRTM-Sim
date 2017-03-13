@@ -476,12 +476,12 @@
         End With
     End Sub
 
-    Private Sub UpdateGraph(Title As String, TimeArray() As Double, Time_AxisLabel As String, TemperatureArraySurf() As Double, TemperatureArrayCenter() As Double)
+    Private Sub UpdateGraph(Title As String, GenArray() As Double, Time_AxisLabel As String, GenMax() As Double, TemperatureArrayCenter() As Double)
         'Updates the graph with the three results from the simulation
         Dim I As Integer
 
-        If UBound(TimeArray) <> UBound(TemperatureArraySurf) Then Exit Sub
-        If UBound(TimeArray) <> UBound(TemperatureArrayCenter) Then Exit Sub
+        If UBound(GenArray) <> UBound(GenMax) Then Exit Sub
+        If UBound(GenArray) <> UBound(TemperatureArrayCenter) Then Exit Sub
 
         'Axis title
         ProductFreezingChart.ChartAreas(0).AxisX.Title = Time_AxisLabel
@@ -495,8 +495,8 @@
         Dim Surf As New DataVisualization.Charting.Series
         Surf.Name = "Surface"
         Surf.ChartType = DataVisualization.Charting.SeriesChartType.Line
-        For I = 0 To UBound(TemperatureArraySurf)
-            Surf.Points.AddXY(TimeArray(I), TemperatureArraySurf(I))
+        For I = 0 To UBound(GenMax)
+            Surf.Points.AddXY(GenArray(I), GenMax(I))
         Next
         Surf.Color = Color.Red
         Surf.BorderWidth = 1
@@ -507,18 +507,18 @@
         Center.Name = "Center"
         Center.ChartType = DataVisualization.Charting.SeriesChartType.Line
         For I = 0 To UBound(TemperatureArrayCenter)
-            Center.Points.AddXY(TimeArray(I), TemperatureArrayCenter(I))
+            Center.Points.AddXY(GenArray(I), TemperatureArrayCenter(I))
         Next
         Center.Color = Color.Blue
         Center.BorderWidth = 1
         ProductFreezingChart.Series.Add(Center)
 
         'Chart resizing
-        ProductFreezingChart.ChartAreas(0).AxisX.Minimum = TimeArray(0)
-        ProductFreezingChart.ChartAreas(0).AxisX.Maximum = TimeArray(UBound(TimeArray))
+        ProductFreezingChart.ChartAreas(0).AxisX.Minimum = GenArray(0)
+        ProductFreezingChart.ChartAreas(0).AxisX.Maximum = GenArray(UBound(GenArray))
 
         Dim TInterval, TMin1, TMax1, TMin2, TMax2, padding As Double
-        MinMax(TemperatureArraySurf, TMin1, TMax1)
+        MinMax(GenMax, TMin1, TMax1)
         MinMax(TemperatureArrayCenter, TMin2, TMax2)
 
         Dim TMin As Double = Math.Min(TMin1, TMin2)
@@ -542,13 +542,13 @@
         End With
 
         'Binds axes tooltips
-        Surf.ToolTip = "t=#VALX s" & vbCrLf & "T=#VALY ºC"
-        Center.ToolTip = "t=#VALX s" & vbCrLf & "T=#VALY ºC"
+        Surf.ToolTip = "Gen=#VALX s" & vbCrLf & "y=#VALY %"
+        Center.ToolTip = "Gen=#VALX s" & vbCrLf & "y=#VALY %"
 
         'Legends
         ProductFreezingChart.Legends.Clear()
-        ProductFreezingChart.Legends.Add("Surface")
-        ProductFreezingChart.Legends.Add("Center")
+        ProductFreezingChart.Legends.Add("Best")
+        ProductFreezingChart.Legends.Add("Worst")
         ProductFreezingChart.Legends(0).Position.Auto = False
         ProductFreezingChart.Legends(0).Position = New DataVisualization.Charting.ElementPosition(80, 10, 15, 20)
 

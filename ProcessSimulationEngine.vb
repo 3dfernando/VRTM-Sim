@@ -225,12 +225,13 @@
 
                                 'Checks whether we reached the delay configured. If so, are we in the first reshelving operation after the production-based level choosing?
                                 Dim CurrentDay As Long
-                                Dim Recipe As New List(Of Long)
+                                Dim Recipe As New List(Of Integer)
 
                                 CurrentDay = Int(k.Key / (24 * 3600))
                                 If CurrentDay = VRTM_SimVariables.DelayDemandTime - 1 Then
                                     'Performs a preparation reorganization
                                     Recipe = DefineOrganizationMovementsProdDemandTransition(currentSimulationTimeStep, AvailableTime, k.Key) 'Calls the primer organization routine and gets the recipe for organization
+                                    'Recipe = DefineOrganizationMovements(currentSimulationTimeStep, AvailableTime, k.Key) 'Calls the regular organization routine and gets the recipe for organization
                                 ElseIf CurrentDay > VRTM_SimVariables.DelayDemandTime - 1 Then
                                     Recipe = DefineOrganizationMovements(currentSimulationTimeStep, AvailableTime, k.Key) 'Calls the regular organization routine and gets the recipe for organization
                                 End If

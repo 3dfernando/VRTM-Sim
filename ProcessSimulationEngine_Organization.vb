@@ -45,7 +45,7 @@
 #End Region
 
 #Region "MAIN FUNCTION BLOCKS"
-    Public Function DefineOrganizationMovements(currentSimulationTimeStep As Long, AvailableTime As Double, CurrentTime As Double) As List(Of Long)
+    Public Function DefineOrganizationMovements(currentSimulationTimeStep As Integer, AvailableTime As Double, CurrentTime As Double) As List(Of Integer)
         'This is the main function.
         'It's returning a list of levels (Long) where each level corresponds to a back-and-forth movement [It starts at Elev. B, moves to the first level in the list, Performs a transfer B->A, 
         'moves to the next level in the list, performs a transfer A->B, etc.]
@@ -54,23 +54,34 @@
         WeekendStrategy = (AvailableTime > (24 * 3600)) 'If there is more than 24 hours available, employ the "weekend strategy"
         WeekendStrategy = WeekendStrategy And VRTM_SimVariables.EnableImprovedWeekendStrat 'But only if it's configured to be enabled
 
-        Dim currentState As VRTMStateSimplified = GenerateSimplifiedState(currentSimulationTimeStep, CurrentTime)
+        '-------------NOW THAT THERE ARE MULTIPLE CODES TO SOLVE THIS ISSUE:--------------
 
-        'Designs the shelving strategy
-        Dim Movements As New List(Of Long)
-        Dim StateList As New List(Of VRTMStateSimplified)
+        If False Then
+            'Previous startegy-driven solution
+            Dim currentState As VRTMStateSimplified = GenerateSimplifiedState(currentSimulationTimeStep, CurrentTime)
 
-        StateList.Add(currentState)
+            'Designs the shelving strategy
+            Dim Movements As New List(Of Integer)
+            Dim StateList As New List(Of VRTMStateSimplified)
 
-        Move_GroupAllFrozen(Movements, StateList, 0.1)
-        Move_GroupAllFrozen(Movements, StateList, 0.1)
-        Return Movements
+            StateList.Add(currentState)
 
+            Move_GroupAllFrozen(Movements, StateList, 0.1)
+            Move_GroupAllFrozen(Movements, StateList, 0.1)
+            Return Movements
+        End If
+
+        If True Then
+            'A* search algorithm
+            Dim currentState As FringeItem = ConvertStateForA_Star(currentSimulationTimeStep, CurrentTime, 0.9)
+
+            Return Solve_A_Star_Search(currentState, 300)
+        End If
 
 
     End Function
 
-    Public Function DefineOrganizationMovementsProdDemandTransition(currentSimulationTimeStep As Long, AvailableTime As Double, CurrentTime As Double) As List(Of Long)
+    Public Function DefineOrganizationMovementsProdDemandTransition(currentSimulationTimeStep As Long, AvailableTime As Double, CurrentTime As Double) As List(Of Integer)
         'This is a secondary function that accomplishes the purpose of enabling product to be available when the transition from the period ruled by "production" (startup) passes and the period ruled by "demand != production" begins.
         'It's returning a list of levels (Long) where each level corresponds to a back-and-forth movement [It starts at Elev. B, moves to the first level in the list, Performs a transfer B->A, moves to the next level in the list, 
         'performs a transfer A->B, etc.]
@@ -78,7 +89,7 @@
         Dim currentState As VRTMStateSimplified = GenerateSimplifiedState(currentSimulationTimeStep, CurrentTime)
 
         'Designs the shelving strategy
-        Dim Movements As New List(Of Long)
+        Dim Movements As New List(Of Integer)
         Dim StateList As New List(Of VRTMStateSimplified)
 
         StateList.Add(currentState)
@@ -92,7 +103,7 @@
 
 
 #Region "MOVES"
-    Public Sub Move_TrimToFrontUnavailable(ByRef Movements As List(Of Long), ByRef StateList As List(Of VRTMStateSimplified), AvailabilityThreshold As Double, ProductionRatioThreshold As Double)
+    Public Sub Move_TrimToFrontUnavailable(ByRef Movements As List(Of Integer), ByRef StateList As List(Of VRTMStateSimplified), AvailabilityThreshold As Double, ProductionRatioThreshold As Double)
         'This function is a MOVE and will result in a "Trimming" of all the levels that are currently unavailable. Will select only the products that are actually unavailable (i.e. don't have any
         'other level that is available. The availability will be determined if the total number of products with a given conveyor index is larger than a threshold (AvailabilityThreshold, 0 to 1, although <0.5 doesn't make sense).
         'The trimming operation, if deemed viable, will happen as follows:
@@ -316,7 +327,7 @@ NextTray2:
 
     End Sub
 
-    Public Sub Move_GroupAllFrozen(ByRef Movements As List(Of Long), ByRef StateList As List(Of VRTMStateSimplified), ByVal CostToBenefitThreshold As Double)
+    Public Sub Move_GroupAllFrozen(ByRef Movements As List(Of Integer), ByRef StateList As List(Of VRTMStateSimplified), ByVal CostToBenefitThreshold As Double)
         'This MOVE will group all products that WILL BE frozen by the time the new day dawns again. 
 
         Dim currentState As VRTMStateSimplified = StateList.Last
