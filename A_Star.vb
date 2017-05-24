@@ -102,7 +102,7 @@ Public Module A_Star
                 GenBests.Add(BestFringe)
 
                 'Debug line - Enable to visualize the current results <<<<<<<<<<<<<<<================================================================
-                DebugThisState(CurrentState, GenBests, GenBestFitness)
+                'DebugThisState(CurrentState, GenBests, GenBestFitness)
             End If
 
 

@@ -71,11 +71,18 @@
             Return Movements
         End If
 
-        If True Then
+        If False Then
             'A* search algorithm
             Dim currentState As FringeItem = ConvertStateForA_Star(currentSimulationTimeStep, CurrentTime, 0.9)
 
             Return Solve_A_Star_Search(currentState, 300)
+        End If
+
+        If True Then
+            'Monte Carlo search algorithm
+            Dim currentState As MonteCarloState = ConvertStateForMonteCarlo(currentSimulationTimeStep, CurrentTime)
+
+            Return SolveMonteCarloSearch(currentState, 14400, 300)
         End If
 
 

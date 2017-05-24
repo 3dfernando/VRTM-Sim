@@ -68,7 +68,12 @@
         If Not IsNothing(VRTM_SimVariables.ProductMix) Then
             For Each Prod As ProductData In VRTM_SimVariables.ProductMix
                 lstProductMix.Items.Add(Prod.ProdName)
-                lstProductMix.Items(lstProductMix.Items.Count - 1).SubItems.Add(VRTM_SimVariables.InletConveyors(Prod.ConveyorNumber).ConveyorTag)
+                If Prod.ConveyorNumber < 0 Then
+                    lstProductMix.Items(lstProductMix.Items.Count - 1).SubItems.Add(VRTM_SimVariables.InletConveyors(0).ConveyorTag)
+                Else
+                    lstProductMix.Items(lstProductMix.Items.Count - 1).SubItems.Add(VRTM_SimVariables.InletConveyors(Prod.ConveyorNumber).ConveyorTag)
+                End If
+
                 lstProductMix.Items(lstProductMix.Items.Count - 1).SubItems.Add(Trim(Str(Prod.BoxWeight)))
                 lstProductMix.Items(lstProductMix.Items.Count - 1).SubItems.Add(Trim(Str(Prod.AvgFlowRate)))
                 lstProductMix.Items(lstProductMix.Items.Count - 1).SubItems.Add(Trim(Str(Prod.InletTemperature)))
@@ -143,7 +148,11 @@
 
                         txtInletTemp.Text = Trim(Str(p.InletTemperature))
                         txtOutletTemp.Text = Trim(Str(p.OutletTemperatureDesign))
-                        txtMinStayTime.Text = Trim(Str(VRTM_SimVariables.InletConveyors(p.ConveyorNumber).MinRetTime))
+                        If p.ConveyorNumber < 0 Then
+                            txtMinStayTime.Text = Trim(Str(VRTM_SimVariables.InletConveyors(0).MinRetTime))
+                        Else
+                            txtMinStayTime.Text = Trim(Str(VRTM_SimVariables.InletConveyors(p.ConveyorNumber).MinRetTime))
+                        End If
                         txtAirSpeed.Text = Trim(Str(p.AirSpeed))
                         txtConvectionMultFactor.Text = Trim(Str(p.ConvCoeffMultiplier))
                         txtConvCoeff.Text = Trim(Str(Round(p.ConvCoefficientUsed, 2)))

@@ -80,6 +80,7 @@
     <Compile Include="A_Star_DebugWindow.vb">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="MonteCarlo.vb" />
     <Compile Include="MonteCarloSearch.vb" />
     <Compile Include="RefrigerantProperties.vb" />
     <Compile Include="A_Star.vb" />
