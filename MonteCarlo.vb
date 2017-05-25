@@ -5,36 +5,25 @@
     Public Const NumberOfStartupSimulations As Long = 2 'This will set the simulations performed each expansion
     Public TimeBudgetSimulation_s As Double
     Dim TunnelState As MonteCarloState
+    Dim RootNode As MonteCarloNode
+
 
     Public Function SolveMonteCarloSearch(CurrentState As MonteCarloState, TimeBudgetForTunnel_s As Double, TimeBudgetMonteCarlo_s As Double) As List(Of Integer)
 
         Dim CurrentTimer As New Stopwatch
-        Dim NodesInMemory As New List(Of MonteCarloNode) 'Keeps track of all the nodes in the tree that are currently in expansion
 
         CurrentTimer.Start() 'This will allow the MonteCarlo to keep track of its own execution time and exit accordingly
 
         TimeBudgetSimulation_s = TimeBudgetForTunnel_s 'Makes it public
         TunnelState = CurrentState
-        NodesInMemory.Add(EmptyNode(CurrentState))
+        RootNode = EmptyNode(CurrentState)
 
         Dim Count As Integer = 0
         Dim BestScoreEvolution As New List(Of Double)
 
         Do While CurrentTimer.ElapsedMilliseconds < (TimeBudgetMonteCarlo_s * 1000)
-            Dim Node As Integer = SelectNode(NodesInMemory)
-
-            Dim ExpandedList As List(Of MonteCarloNode)
-            ExpandedList = NodesInMemory(Node).ExpandNode()
-            NodesInMemory.RemoveAt(Node)
-
-            NodesInMemory.AddRange(ExpandedList)
-
-            Count += 1
-
-            If Count Mod 10 = 0 Then
-                Dim N As MonteCarloNode = BestNode(NodesInMemory)
-                BestScoreEvolution.Add(N.BestSimScoreUntilNow)
-            End If
+            Dim CurrNode As MonteCarloNode = RootNode.SelectNode()
+            CurrNode.ExpandNode()
 
         Loop
     End Function
@@ -45,103 +34,144 @@
         'This function will initialize an empty, seed node for the simulation
         Dim Node As New MonteCarloNode
         Node.PastPlanOfActions = New List(Of Integer)
-        Node.BestSimPlanOfActions = New List(Of Integer)
+        'Node.BestSimPlanOfActions = New List(Of Integer)
         Node.NumberOfSimulations = 1
         Node.BestSimScoreUntilNow = State.BatchOperation_AccessibleFraction(Node.PastPlanOfActions)
+        Node.ExpandedChildrenNodes = New List(Of MonteCarloNode)
+        Node.CurrentLevel = TunnelState.CurrentLevel
+        Node.ParentNode = Nothing
+        Node.SumOfSimScores = Node.BestSimScoreUntilNow
+        Node.LastSimScore = Node.BestSimScoreUntilNow
+        Node.TreeLevel = 0
 
         Return Node
     End Function
 
-    Public Function SelectNode(NodeList As List(Of MonteCarloNode)) As Integer
-        'This function will randomly select a node based on its simulation results.
-        'Best nodes will be more likely to be selected
-
-        'Sums all node results (this is the denominator)
-        Dim SumOfAllNodeResults As Double = 0
-        For I As Integer = 0 To NodeList.Count - 1
-            SumOfAllNodeResults += SelectNodeBiasFunction(NodeList(I).BestSimScoreUntilNow)
-        Next
-
-        'Now creates a list of likelihoods based on the list sum
-        Dim RandomBounds As New List(Of Double)
-        Dim LastValue As Double = 0
-        For I As Integer = 0 To NodeList.Count - 1
-            RandomBounds.Add(LastValue + (SelectNodeBiasFunction(NodeList(I).BestSimScoreUntilNow) / SumOfAllNodeResults))
-            LastValue = RandomBounds.Last
-        Next
-
-        'Now selects a random node
-        Dim R As Double = Rnd()
-        For I As Integer = 0 To NodeList.Count - 1
-            If R < RandomBounds(I) Then
-                Return I
-            End If
-        Next
-
-        Return 0
-    End Function
-
-    Public Function SelectNodeBiasFunction(NodeScore As Double) As Double
-        'This function will bias towards better scores to make better nodes more likely to be selected
-        SelectNodeBiasFunction = 100 ^ NodeScore
-    End Function
-
-    Public Function BestNode(NodeList As List(Of MonteCarloNode)) As MonteCarloNode
-        'Returns the best node in the list (the highest simulated score)
-        Dim MaxScore As Double = 0
-        For Each Node As MonteCarloNode In NodeList
-            If Node.BestSimScoreUntilNow > MaxScore Then
-                MaxScore = Node.BestSimScoreUntilNow
-                BestNode = Node
-            End If
-        Next
-    End Function
 
     Public Class MonteCarloNode
+        Implements System.ICloneable
         'This will implement a node in the MonteCarlo tree search.
         Public PastPlanOfActions As List(Of Integer) 'Plan of actions up until this node
+        Public CurrentLevel As Integer 'Current Level the elevator is at
 
-        Public BestSimPlanOfActions As List(Of Integer) 'Plan of actions of the best simulation performed under this node
+        'Public BestSimPlanOfActions As List(Of Integer) 'Plan of actions of the best simulation performed under this node
         Public BestSimScoreUntilNow As Double 'This shows the best utility of all simulations performed
+        Public SumOfSimScores As Double 'Records the sum of all scores simulated until now
+        Public LastSimScore As Double
         Public NumberOfSimulations As Integer 'Simulations performed until now
 
-        Public Function ExpandNode() As List(Of MonteCarloNode)
-            'This will expand this node and return the next nodes in the tree
-            Dim CurrentLevel As Integer
-            If Me.PastPlanOfActions.Count = 0 Then
-                'First empty node
-                CurrentLevel = TunnelState.CurrentLevel
+        Public ExpandedChildrenNodes As List(Of MonteCarloNode)
+        Public ParentNode As MonteCarloNode
+        Public TreeLevel As Integer
+
+        Public Function SelectNode() As MonteCarloNode
+            'This function will return a node selected based on MonteCarlo Search parameters
+            Dim C As Double = 0.1 'Constant for the exploration term
+
+            Dim AllChildren As List(Of MonteCarloNode) = Me.ReturnAllChildren
+            AllChildren.Add(Me)
+
+            'Dim TotalSimCount As Double = RootNode.NumberOfSimulations
+
+            'Dim ExplorationTerm As Double
+            'Dim ExploitationTerm As Double
+
+            'Dim MaxValue As Double = 0
+            'Dim CurrValue As Double = 0
+
+            'Dim MaxValueAt As Integer
+
+            'For I = 0 To AllChildren.Count - 1
+            '    ExploitationTerm = AllChildren(I).BestSimScoreUntilNow
+            '    ExplorationTerm = C * ((Math.Log(TotalSimCount) / AllChildren(I).NumberOfSimulations) ^ 0.5)
+
+            '    CurrValue = ExplorationTerm + ExploitationTerm
+            '    If MaxValue < CurrValue Then
+            '        MaxValue = CurrValue
+            '        MaxValueAt = I
+            '    End If
+            'Next
+
+            Dim CurrTermResult As Double
+            Dim CurrTermTreeLevel As Double
+
+            Dim BestTermResult As Double = 0
+            Dim BestTermTreeLevel As Integer = Integer.MaxValue
+            Dim BestTermAt As Integer
+
+            If Rnd() > 0.5 Then
+                For I = 0 To AllChildren.Count - 1
+                    CurrTermResult = AllChildren(I).BestSimScoreUntilNow
+                    CurrTermTreeLevel = AllChildren(I).TreeLevel
+
+                    If (BestTermResult < CurrTermResult) AndAlso (BestTermTreeLevel > CurrTermTreeLevel) Then
+                        'Selects the highest tree level, best simulation result so far
+                        BestTermResult = CurrTermResult
+                        BestTermTreeLevel = CurrTermTreeLevel
+                        BestTermAt = I
+                    End If
+                Next
+                Return AllChildren(BestTermAt)
             Else
-                'Not an empty node, the current level is the last item in the plan
-                CurrentLevel = Me.PastPlanOfActions.Last
+                Dim R As New System.Random
+                Return AllChildren(R.Next(0, AllChildren.Count - 1))
             End If
 
-            Dim ExpandedList As New List(Of MonteCarloNode)
-            For I = 1 To VRTM_SimVariables.nLevels
-                If I <> CurrentLevel Then
-                    Dim N As New MonteCarloNode
-                    N.PastPlanOfActions = New List(Of Integer)(Me.PastPlanOfActions)
-                    N.PastPlanOfActions.Add(I - 1)
-                    N.NumberOfSimulations = 0
-                    N.BestSimScoreUntilNow = 0
-                    N.BestSimPlanOfActions = New List(Of Integer)
 
-                    For J = 1 To NumberOfStartupSimulations
-                        N.PerformAnotherSimulation()
-                    Next
 
-                    If N.NumberOfSimulations > 0 Then
-                        ExpandedList.Add(N)
-                    End If
+
+
+        End Function
+
+        Public Sub ExpandNode()
+            'This sub will select a random subnode and expand it
+
+            'If there is any other node left:
+            Dim R As Integer = New System.Random().Next(0, VRTM_SimVariables.nLevels - 1)
+
+            'Checks if the node is already expanded
+            Dim ExpandedNode As MonteCarloNode = Nothing
+            For Each Node As MonteCarloNode In Me.ExpandedChildrenNodes
+                If R = Node.CurrentLevel Then
+                    ExpandedNode = Node
+                    Exit For
                 End If
             Next
 
-            Return ExpandedList
-        End Function
 
-        Public Sub PerformAnotherSimulation()
-            'This sub will update the current node to another simulation performed
+            If Not IsNothing(ExpandedNode) Then
+                'Simulates another one in this node
+                ExpandedNode.SimulateNode()
 
+                'Backpropagates the simulation results
+                Me.BackPropagateToParent()
+            Else
+                'Performs the node addition
+                Dim newNode As New MonteCarloNode
+                newNode.BestSimScoreUntilNow = 0
+                newNode.NumberOfSimulations = 0
+                newNode.PastPlanOfActions = New List(Of Integer)(Me.PastPlanOfActions)
+                newNode.PastPlanOfActions.Add(R)
+                newNode.CurrentLevel = R
+                newNode.ExpandedChildrenNodes = New List(Of MonteCarloNode)
+                newNode.ParentNode = Me
+                newNode.TreeLevel = Me.TreeLevel + 1
+
+                ExpandedChildrenNodes.Add(newNode)
+                For I As Integer = 1 To 10
+                    ExpandedChildrenNodes.Last.SimulateNode()
+                Next
+
+                'Backpropagates the simulation results
+                ExpandedChildrenNodes.Last.BackPropagateToParent()
+            End If
+
+
+
+        End Sub
+
+        Public Sub SimulateNode()
+            'Performs another simulation in this node
             Dim TimeConsumed As Double
             TimeConsumed = ComputeTimeForOperations(Me.PastPlanOfActions)
 
@@ -150,18 +180,12 @@
             Dim PastOperation As Integer
             Dim SimPlanOfActions As New List(Of Integer)(Me.PastPlanOfActions)
 
-            If Me.PastPlanOfActions.Count > 0 Then
-                PastOperation = Me.PastPlanOfActions.Last
-            Else
-                PastOperation = TunnelState.CurrentLevel
-            End If
+            PastOperation = Me.CurrentLevel
 
             Dim RandomGen As New System.Random
             Do While True
 
                 NextOperation = RandomGen.Next(0, VRTM_SimVariables.nLevels)
-                'If NextOperation < 0 Then NextOperation = 0
-                'If NextOperation > (VRTM_SimVariables.nLevels - 1) Then NextOperation = (VRTM_SimVariables.nLevels - 1)
 
                 NextOperationTime = Compute_Elevator_Time(PastOperation, NextOperation) + 2 * VRTM_SimVariables.TrayTransferTime
 
@@ -182,12 +206,41 @@
 
             If SimResult > Me.BestSimScoreUntilNow Then
                 Me.BestSimScoreUntilNow = SimResult
-                Me.BestSimPlanOfActions = SimPlanOfActions
             End If
 
+            Me.LastSimScore = SimResult
+            Me.SumOfSimScores += SimResult
             Me.NumberOfSimulations += 1
 
         End Sub
+
+        Public Sub BackPropagateToParent()
+            'Backpropagates the results on Me to my parent and returns the parent
+            If Not IsNothing(Me.ParentNode) Then
+                If Me.BestSimScoreUntilNow > Me.ParentNode.BestSimScoreUntilNow Then Me.ParentNode.BestSimScoreUntilNow = Me.BestSimScoreUntilNow
+                Me.ParentNode.NumberOfSimulations += 1
+                Me.ParentNode.SumOfSimScores += Me.LastSimScore
+                Me.ParentNode.BackPropagateToParent()
+            End If
+        End Sub
+
+        Public Function ReturnAllChildren() As List(Of MonteCarloNode)
+            'Returns a list of the considered children nodes at all levels, recursively.
+            Dim TempList As New List(Of MonteCarloNode)
+            For Each Node As MonteCarloNode In Me.ExpandedChildrenNodes
+                TempList.AddRange(Node.ReturnAllChildren)
+                If Node.ExpandedChildrenNodes.Count < (VRTM_SimVariables.nLevels - 1) Then
+                    TempList.Add(Node) 'Doesnt return the parent node if it's all expanded
+                End If
+            Next
+
+            Return TempList
+        End Function
+
+        Public Function Clone() As Object Implements ICloneable.Clone
+            Return DirectCast(MemberwiseClone(), MonteCarloNode)
+        End Function
+
     End Class
 
     Public Class MonteCarloState

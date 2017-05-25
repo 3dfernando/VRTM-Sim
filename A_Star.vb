@@ -15,7 +15,7 @@ Public Module A_Star
         '-----------Evolutionary selection config----------
         Dim Gen As Long = 0 'Generation number
         Dim GenLoops As Long = 100 'Tree branchings to next generation
-        Dim Decimation As Long = 100 'Total Number of fringes left after a decimation event
+        Dim Decimation As Long = 20 'Total Number of fringes left after a decimation event
         Dim DeceaseProbability As Double = 0.2 'How many deceased (not within the best choices for decimation) fringes will be chosen randomly
         Dim GenBestFitness As New List(Of Double) 'List of peak fitness (utility) function results for each generation
         Dim GenBests As New List(Of FringeItem) 'List of peak fitness (utility) function results for each generation
@@ -102,19 +102,26 @@ Public Module A_Star
                 GenBests.Add(BestFringe)
 
                 'Debug line - Enable to visualize the current results <<<<<<<<<<<<<<<================================================================
-                'DebugThisState(CurrentState, GenBests, GenBestFitness)
+                DebugThisState(CurrentState, GenBests, GenBestFitness)
             End If
 
 
-            'Locates the maximum utility fringe
-            MaxUtility = Double.MinValue
+            If Rnd() > 0.5 Then
+                'Locates the maximum utility fringe
+                MaxUtility = Double.MinValue
 
-            For I As Long = 0 To Fringe.Count - 1
-                If MaxUtility < Fringe(I).Current_Utility_U Then
-                    MaxUtility = Fringe(I).Current_Utility_U
-                    BestFringe = Fringe(I)
-                End If
-            Next
+                For I As Long = 0 To Fringe.Count - 1
+                    If MaxUtility < Fringe(I).Current_Utility_U Then
+                        MaxUtility = Fringe(I).Current_Utility_U
+                        BestFringe = Fringe(I)
+                    End If
+                Next
+            Else
+                'Randomly selects a fringe sometimes
+                Dim R As New System.Random
+                BestFringe = Fringe(R.Next(0, Fringe.Count - 1))
+            End If
+
 
             'Expands this fringe
             If BestFringe.GoalTest() Then
