@@ -18,7 +18,7 @@
         TunnelState = CurrentState
         'Don't erase over here
 
-        Dim nActions As Integer = 200
+        Dim nActions As Integer = 1000
         Dim ListOfActions As New List(Of Integer)
         Dim r As New System.Random
         For I As Integer = 0 To nActions - 1
@@ -26,6 +26,7 @@
             'Begins with a random list of movements
         Next
 
+        Dim AccessibleFractionHistory As New List(Of Double)
         Dim AccessibleFractionList() As Double
         ReDim AccessibleFractionList(VRTM_SimVariables.nLevels - 1)
         Dim BestLevel As Integer
@@ -33,7 +34,15 @@
         Dim CurrentActionIndex As Integer
 
 
-        For Iterations As Integer = 1 To 10000
+        For Iterations As Integer = 1 To 20000
+            If Iterations Mod 1000 = 0 Then
+                'Performs a trimming operation to kill all the repetitive operations.
+                'Does it twice to kill also the leftovers.
+                ListOfActions = TrimListOfOperations(ListOfActions)
+                ListOfActions = TrimListOfOperations(ListOfActions)
+                ComplementListWithZeros(ListOfActions, nActions)
+            End If
+
             BestLevelAccFraction = Double.MinValue
             ReDim AccessibleFractionList(VRTM_SimVariables.nLevels - 1)
             CurrentActionIndex = r.Next(0, nActions - 1)
@@ -55,9 +64,21 @@
 
             ListOfActions(CurrentActionIndex) = BestLevel 'Performs the change for the best action
 
+            AccessibleFractionHistory.Add(BestLevelAccFraction)
+
+            If BestLevelAccFraction = 1 Then Exit For
         Next
 
+        'After all has already been done, trims the list
+        ListOfActions = TrimListOfOperations(ListOfActions)
+        ListOfActions = TrimListOfOperations(ListOfActions)
+
+
         CurrentTimer.Stop()
+
+        Dim OperationTime As Double = ComputeTimeForOperations(ListOfActions)
+
+        Return ListOfActions
 
     End Function
 
@@ -530,5 +551,45 @@
         ComputeTimeForOperations = T
     End Function
 
+    Public Function TrimListOfOperations(OpList As List(Of Integer)) As List(Of Integer)
+        'Trims repetitive actions on the given list.
+        Dim NewListOfActions As New List(Of Integer)
+        Dim LastStreakSize As Integer = 0
+
+        'Commented out so one can test if the lists of actions are actually equivalent
+        'Dim TestState1 As MonteCarloState = TunnelState.Clone
+        'TestState1.PerformBatchOperation(OpList)
+        'Dim AF1 As Double = TestState1.AccessibleFraction
+
+        For I As Integer = 0 To OpList.Count - 2
+            If OpList(I) = OpList(I + 1) Then
+                LastStreakSize += 1
+            Else
+                If LastStreakSize Mod 2 = 0 Then
+                    'Even number of streaks, means either there is no streak (LastStreakSize=0) or the number of streaks is 2,4,6...
+                    'The latter case shows the operation has been performed an ODD number of times (3,5,7...), which is equal to perform the operation only once.
+                    NewListOfActions.Add(OpList(I))
+                End If
+                LastStreakSize = 0
+            End If
+        Next
+        NewListOfActions.Add(OpList.Last)
+
+        'Dim TestState2 As MonteCarloState = TunnelState.Clone
+        'TestState2.PerformBatchOperation(NewListOfActions)
+        'Dim AF2 As Double = TestState2.AccessibleFraction
+
+        Return NewListOfActions
+    End Function
+
+    Public Sub ComplementListWithZeros(OpList As List(Of Integer), TotalSize As Integer)
+        'Creates new zero items in the list so the size of the list becomes TotalSize
+        'Works on the reference object (doesn't clone to save time)
+        If OpList.Count >= TotalSize Then Exit Sub
+
+        For I = 1 To TotalSize - OpList.Count
+            OpList.Add(0)
+        Next
+    End Sub
 
 End Module
