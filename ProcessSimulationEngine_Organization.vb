@@ -82,10 +82,15 @@
             'Monte Carlo search algorithm
             Dim currentState As MonteCarloState = ConvertStateForMonteCarlo(currentSimulationTimeStep, CurrentTime)
 
-            Return SolveMonteCarloSearch(currentState, 14400, 300)
+            Return SolveMonteCarloSearch(currentState, 3600 * 5, 300)
         End If
 
+        If False Then
+            'Monte Carlo search algorithm
+            Dim currentState As MonteCarloState = ConvertStateForMonteCarlo(currentSimulationTimeStep, CurrentTime)
 
+            Return SolveGeneticSearch(currentState, 14400, 300)
+        End If
     End Function
 
     Public Function DefineOrganizationMovementsProdDemandTransition(currentSimulationTimeStep As Long, AvailableTime As Double, CurrentTime As Double) As List(Of Integer)

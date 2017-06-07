@@ -8,7 +8,8 @@
     'Dim RootNode As MonteCarloNode
 
 
-    Public Function SolveMonteCarloSearch(CurrentState As MonteCarloState, TimeBudgetForTunnel_s As Double, TimeBudgetMonteCarlo_s As Double) As List(Of Integer)
+    Public Function SolveGeneticSearch(CurrentState As MonteCarloState, TimeBudgetForTunnel_s As Double, TimeBudgetMonteCarlo_s As Double) As List(Of Integer)
+        'Applies a genetic algorithm to solve the current state
 
         Dim CurrentTimer As New Stopwatch
 
@@ -18,289 +19,230 @@
         TunnelState = CurrentState
         'Don't erase over here
 
+        'Parameterize the genetic search
         Dim nActions As Integer = 1000
+        Dim nGenerations As Integer = 1000
+        Dim maxMutations As Integer = 100 'Max number of genes to be mutated each reproduction step
+        Dim nReproductions As Integer = 5 'Number of Offspring each generation
+        Dim nSelections As Integer = 100 'Number of selected creatures each generation
+
+        Dim PopulationSize As Integer = (nReproductions + 1) * nSelections 'Number of creatures in the population is fixed: (parent + children)*(number of parents)
+
+
+        'Genetic search variables
+        Dim CurrentPopulation As New List(Of List(Of Integer))
         Dim ListOfActions As New List(Of Integer)
+        Dim BestOfGeneration As New List(Of Double)
+
+
+        'Initializes random genes
         Dim r As New System.Random
-        For I As Integer = 0 To nActions - 1
-            ListOfActions.Add(r.Next(0, VRTM_SimVariables.nLevels - 1))
-            'Begins with a random list of movements
+        For I As Integer = 1 To PopulationSize
+            ListOfActions = New List(Of Integer)
+            For A As Integer = 0 To nActions - 1
+                'Begins with a random list of movements
+                ListOfActions.Add(r.Next(0, VRTM_SimVariables.nLevels - 1))
+            Next
+            CurrentPopulation.Add(New List(Of Integer)(ListOfActions))
         Next
 
-        Dim AccessibleFractionHistory As New List(Of Double)
-        Dim AccessibleFractionList() As Double
-        ReDim AccessibleFractionList(VRTM_SimVariables.nLevels - 1)
-        Dim BestLevel As Integer
-        Dim BestLevelAccFraction As Double
-        Dim CurrentActionIndex As Integer
 
+        'Adds the generation 0 to the best score list
+        BestOfGeneration.Add(TunnelState.AccessibleFraction)
 
-        For Iterations As Integer = 1 To 20000
-            If Iterations Mod 1000 = 0 Then
-                'Performs a trimming operation to kill all the repetitive operations.
-                'Does it twice to kill also the leftovers.
-                ListOfActions = TrimListOfOperations(ListOfActions)
-                ListOfActions = TrimListOfOperations(ListOfActions)
-                ComplementListWithZeros(ListOfActions, nActions)
-            End If
+        'Performs the evolution (Selection -> Mutation)
+        For Gen As Integer = 1 To nGenerations
+            '==============================SELECTION STEP==============================
 
-            BestLevelAccFraction = Double.MinValue
-            ReDim AccessibleFractionList(VRTM_SimVariables.nLevels - 1)
-            CurrentActionIndex = r.Next(0, nActions - 1)
-
-            For X As Integer = 0 To VRTM_SimVariables.nLevels - 1
-                'This maps for the current action index what are the other options (1D max finder)
-                Dim R_Copy As New List(Of Integer)(ListOfActions)
-                R_Copy(CurrentActionIndex) = X 'Changes the current action index to a new one based on the current value of X
-
-                Dim TestState As MonteCarloState = CurrentState.Clone
-                TestState.PerformBatchOperation(R_Copy)
-
-                AccessibleFractionList(X) = TestState.AccessibleFraction
-                If BestLevelAccFraction < AccessibleFractionList(X) Then
-                    BestLevelAccFraction = AccessibleFractionList(X)
-                    BestLevel = X
-                End If
+            Dim D As New List(Of KeyValuePair(Of Integer, Double)) 'Implements a dictionary of AvailableFractions. Key=Index in the population list, Value=Available Fraction
+            For I As Integer = 0 To CurrentPopulation.Count - 1
+                Dim State As MonteCarloState = TunnelState.Clone
+                State.PerformBatchOperation(CurrentPopulation(I))
+                D.Add(New KeyValuePair(Of Integer, Double)(I, State.AvailableFraction))
             Next
 
-            ListOfActions(CurrentActionIndex) = BestLevel 'Performs the change for the best action
+            D.Sort(Function(x, y) y.Value.CompareTo(x.Value))
+            BestOfGeneration.Add(D.First.Value)
 
-            AccessibleFractionHistory.Add(BestLevelAccFraction)
+            Dim SelectedPopulation As New List(Of List(Of Integer))
 
-            If BestLevelAccFraction = 1 Then Exit For
+            'If that's the last generation, doesn't perform the next step
+            If Gen = nGenerations Then
+                ListOfActions = CurrentPopulation(D(0).Key)
+
+                'After all has already been done, trims the list
+                ListOfActions = TrimListOfOperations(ListOfActions)
+                ListOfActions = TrimListOfOperations(ListOfActions)
+                Exit For
+            End If
+
+            For I As Integer = 0 To nSelections - 1
+                'Selects the ones to keep
+                SelectedPopulation.Add(CurrentPopulation(D(I).Key))
+            Next
+            CurrentPopulation = New List(Of List(Of Integer))(SelectedPopulation)
+
+
+            '==============================REPRODUCTION/MUTATION STEP==============================
+            For I As Integer = 0 To nSelections - 1
+                'Gets each parent and reproduces it with at most nMutations random mutations
+
+                For J As Integer = 1 To nReproductions
+                    Dim ChildCreature As New List(Of Integer)(CurrentPopulation(I))
+                    'Mutates this creature
+                    Dim rn As New System.Random()
+                    Dim N As Integer = rn.Next(1, maxMutations)
+                    Dim G As Integer
+                    For M As Integer = 1 To N
+                        G = rn.Next(0, nActions - 1) 'Selects a new gen to change
+                        ChildCreature(G) = rn.Next(0, VRTM_SimVariables.nLevels - 1)
+                    Next
+
+                    CurrentPopulation.Add(ChildCreature) 'Now this creature is part of the new generation's population
+                Next
+            Next
+
         Next
-
-        'After all has already been done, trims the list
-        ListOfActions = TrimListOfOperations(ListOfActions)
-        ListOfActions = TrimListOfOperations(ListOfActions)
 
 
         CurrentTimer.Stop()
 
-        Dim OperationTime As Double = ComputeTimeForOperations(ListOfActions)
+        Dim TestState As MonteCarloState = CurrentState.Clone
+        TestState.PerformBatchOperation(ListOfActions)
+        If TestState.AccessibleFraction > BestOfGeneration.First Then
+            'It's a better solution
+            Dim OperationTime As Double = ComputeTimeForOperations(ListOfActions)
+            Return ListOfActions
+        Else
+            'It's not a better solution than doing nothing
+            Return New List(Of Integer)
+        End If
 
-        Return ListOfActions
+        Return CurrentPopulation(0)
+
+
 
     End Function
 
 
+    Public Function SolveMonteCarloSearch(CurrentState As MonteCarloState, TimeBudgetForTunnel_s As Double, TimeBudgetMonteCarlo_s As Double) As List(Of Integer)
 
-    'Public Function EmptyNode(State As MonteCarloState) As MonteCarloNode
-    '    'This function will initialize an empty, seed node for the simulation
-    '    Dim Node As New MonteCarloNode
-    '    Node.PastPlanOfActions = New List(Of Integer)
-    '    'Node.BestSimPlanOfActions = New List(Of Integer)
-    '    Node.NumberOfSimulations = 1
-    '    Node.ExpandedChildrenNodes = New List(Of MonteCarloNode)
-    '    Node.CurrentLevel = TunnelState.CurrentLevel
-    '    Node.ParentNode = Nothing
-    '    Node.SumOfSimScores = Node.BestSimScoreUntilNow
-    '    Node.LastSimScore = Node.BestSimScoreUntilNow
-    '    Node.TreeLevel = 0
+        Dim CurrentTimer As New Stopwatch
+        Dim r As New System.Random
+        Dim CompleteListOfMovements As New List(Of Integer)
 
-    '    Return Node
-    'End Function
+        CurrentTimer.Start() 'This will allow the MonteCarlo to keep track of its own execution time and exit accordingly
 
+        TimeBudgetSimulation_s = TimeBudgetForTunnel_s 'Makes it public
+        TunnelState = CurrentState.Clone
+        Dim TunnelArrayCSV As String = ArrayToCSVString(TunnelState.VRTMStateConv)
 
-    'Public Class MonteCarloNode
-    '    Implements System.ICloneable
-    '    'This will implement a node in the MonteCarlo tree search.
-    '    Public PastPlanOfActions As List(Of Integer) 'Plan of actions up until this node
-    '    Public CurrentLevel As Integer 'Current Level the elevator is at
+        If CurrentState.Elevator1 = -2 Then
+            'Transfer it back just to make sure. Also, this product is probably unfrozen, which increases the freedom of the solver
+            CurrentState.Perform_Operation(CurrentState.CurrentLevel)
+            CompleteListOfMovements.Add(CurrentState.CurrentLevel)
+        End If
 
-    '    'Public BestSimPlanOfActions As List(Of Integer) 'Plan of actions of the best simulation performed under this node
-    '    Public BestSimScoreUntilNow As Double 'This shows the best utility of all simulations performed
-    '    Public SumOfSimScores As Double 'Records the sum of all scores simulated until now
-    '    Public LastSimScore As Double
-    '    Public NumberOfSimulations As Integer 'Simulations performed until now
+        Dim LastLevelPair As PossibleLevelPair 'To prevent looping back and forth between the same level pair
+        For Iterations As Integer = 1 To 1000
+            'Iterates through random level pairs and performs the merging operations as it goes.
 
-    '    Public ExpandedChildrenNodes As List(Of MonteCarloNode)
-    '    Public ParentNode As MonteCarloNode
-    '    Public TreeLevel As Integer
-
-    '    Public Function SelectNode() As MonteCarloNode
-    '        'This function will return a node selected based on MonteCarlo Search parameters
-    '        Dim C As Double = 0.1 'Constant for the exploration term
-
-    '        Dim AllChildren As List(Of MonteCarloNode) = Me.ReturnAllChildren
-    '        AllChildren.Add(Me)
-
-    '        'Dim TotalSimCount As Double = RootNode.NumberOfSimulations
-
-    '        'Dim ExplorationTerm As Double
-    '        'Dim ExploitationTerm As Double
-
-    '        'Dim MaxValue As Double = 0
-    '        'Dim CurrValue As Double = 0
-
-    '        'Dim MaxValueAt As Integer
-
-    '        'For I = 0 To AllChildren.Count - 1
-    '        '    ExploitationTerm = AllChildren(I).BestSimScoreUntilNow
-    '        '    ExplorationTerm = C * ((Math.Log(TotalSimCount) / AllChildren(I).NumberOfSimulations) ^ 0.5)
-
-    '        '    CurrValue = ExplorationTerm + ExploitationTerm
-    '        '    If MaxValue < CurrValue Then
-    '        '        MaxValue = CurrValue
-    '        '        MaxValueAt = I
-    '        '    End If
-    '        'Next
-
-    '        Dim CurrTermResult As Double
-    '        Dim CurrTermTreeLevel As Double
-
-    '        Dim BestTermResult As Double = 0
-    '        Dim BestTermTreeLevel As Integer = Integer.MaxValue
-    '        Dim BestTermAt As Integer
-
-    '        If Rnd() > 0.5 Then
-    '            For I = 0 To AllChildren.Count - 1
-    '                CurrTermResult = AllChildren(I).BestSimScoreUntilNow
-    '                CurrTermTreeLevel = AllChildren(I).TreeLevel
-
-    '                If (BestTermResult < CurrTermResult) AndAlso (BestTermTreeLevel > CurrTermTreeLevel) Then
-    '                    'Selects the highest tree level, best simulation result so far
-    '                    BestTermResult = CurrTermResult
-    '                    BestTermTreeLevel = CurrTermTreeLevel
-    '                    BestTermAt = I
-    '                End If
-    '            Next
-    '            Return AllChildren(BestTermAt)
-    '        Else
-    '            Dim R As New System.Random
-    '            Return AllChildren(R.Next(0, AllChildren.Count - 1))
-    '        End If
+            'First updates the list of available levels
+            CurrentState.ComputeSimplifiedState()
+            Dim UnlockedLevels As New List(Of Integer)(CurrentState.ListOfUnlockedLevels)
 
 
+            'Evaluates all the possible level pair combinations from here
+            Dim PossibleCombinations As New List(Of PossibleLevelPair)
+
+            For F As Integer = 0 To UnlockedLevels.Count - 1
+                Dim FirstLevel As Integer = UnlockedLevels(F)
+                For L As Integer = 0 To UnlockedLevels.Count - 1
+                    Dim LastLevel As Integer = UnlockedLevels(L)
+
+                    If Not FirstLevel = LastLevel Then
+                        If Not ((CurrentState.SimplifiedState(FirstLevel).Count = 1 AndAlso CurrentState.SimplifiedState(FirstLevel).First.ItemCode = 0) AndAlso
+                                (CurrentState.SimplifiedState(LastLevel).Count = 1 AndAlso CurrentState.SimplifiedState(LastLevel).First.ItemCode = 0)) Then 'Checks for empty level pair (won't select an empty level pair)
+                            If CurrentState.IsLevelPairMergeable(FirstLevel, LastLevel) Then
+                                'This level pair is actually mergeable, so proceeds
+                                Dim AvailableFractionResult As Double
+                                If CurrentState.DoesItMakeSenseToPerformThisOperation(FirstLevel, LastLevel, AvailableFractionResult) Then
+                                    'It's an operation that will actually change the state of the tunnel
+
+                                    Dim PLP As New PossibleLevelPair
+                                    PLP.Level1 = FirstLevel
+                                    PLP.Level2 = LastLevel
+                                    PLP.AvailableFraction = AvailableFractionResult
+                                    PLP.TimeCost = Compute_Elevator_Time(FirstLevel, LastLevel)
+                                    PLP.MovementPairs = CurrentState.ComputeNumberOfMovementPairs(FirstLevel, LastLevel)
+
+                                    PossibleCombinations.Add(PLP)
+                                End If
+                            End If
+                        End If
+                    End If
+                Next
+            Next
+
+            'Picks the best availablefraction from the possible combinations and performs it
+            If PossibleCombinations.Count <> 0 Then
+                PossibleCombinations.Sort()
+                PossibleCombinations.Reverse() 'Just for debug - can be suppressed and changed for .last in the code below
+
+                If (Not IsNothing(LastLevelPair)) AndAlso LastLevelPair.Level1 = PossibleCombinations.First.Level2 AndAlso LastLevelPair.Level2 = PossibleCombinations.First.Level1 Then
+                    'It's going to loop through the same pair of levels, abort and use the next best one
+                    PossibleCombinations.RemoveAt(0)
+                End If
+
+                Dim MovList As New List(Of Integer)
+
+                For I As Integer = 1 To PossibleCombinations.First.MovementPairs
+                    MovList.Add(PossibleCombinations.First.Level1)
+                    MovList.Add(PossibleCombinations.First.Level2)
+                Next
+                CurrentState.PerformBatchOperation(MovList)
+
+                CompleteListOfMovements.AddRange(MovList)
+                LastLevelPair = PossibleCombinations.First
+            Else
+                Exit For
+            End If
+
+            Dim T As Double = ComputeTimeForOperations(CompleteListOfMovements)
+            If T > TimeBudgetForTunnel_s Then
+                Exit For
+            End If
+        Next
+
+        CurrentTimer.Stop()
+        Dim OperationTime As Double = ComputeTimeForOperations(CompleteListOfMovements) / 3600
 
 
-
-    '    End Function
-
-    '    Public Sub ExpandNode()
-    '        'This sub will select a random subnode and expand it
-
-    '        'If there is any other node left:
-    '        Dim R As Integer = New System.Random().Next(0, VRTM_SimVariables.nLevels - 1)
-
-    '        'Checks if the node is already expanded
-    '        Dim ExpandedNode As MonteCarloNode = Nothing
-    '        For Each Node As MonteCarloNode In Me.ExpandedChildrenNodes
-    '            If R = Node.CurrentLevel Then
-    '                ExpandedNode = Node
-    '                Exit For
-    '            End If
-    '        Next
+        Return CompleteListOfMovements
 
 
-    '        If Not IsNothing(ExpandedNode) Then
-    '            'Simulates another one in this node
-    '            ExpandedNode.SimulateNode()
+    End Function
 
-    '            'Backpropagates the simulation results
-    '            Me.BackPropagateToParent()
-    '        Else
-    '            'Performs the node addition
-    '            Dim newNode As New MonteCarloNode
-    '            newNode.BestSimScoreUntilNow = 0
-    '            newNode.NumberOfSimulations = 0
-    '            newNode.PastPlanOfActions = New List(Of Integer)(Me.PastPlanOfActions)
-    '            newNode.PastPlanOfActions.Add(R)
-    '            newNode.CurrentLevel = R
-    '            newNode.ExpandedChildrenNodes = New List(Of MonteCarloNode)
-    '            newNode.ParentNode = Me
-    '            newNode.TreeLevel = Me.TreeLevel + 1
-
-    '            ExpandedChildrenNodes.Add(newNode)
-    '            For I As Integer = 1 To 10
-    '                ExpandedChildrenNodes.Last.SimulateNode()
-    '            Next
-
-    '            'Backpropagates the simulation results
-    '            ExpandedChildrenNodes.Last.BackPropagateToParent()
-    '        End If
-
-
-
-    '    End Sub
-
-    '    Public Sub SimulateNode()
-    '        'Performs another simulation in this node
-    '        Dim TimeConsumed As Double
-    '        TimeConsumed = ComputeTimeForOperations(Me.PastPlanOfActions)
-
-    '        Dim NextOperationTime As Double
-    '        Dim NextOperation As Integer
-    '        Dim PastOperation As Integer
-    '        Dim SimPlanOfActions As New List(Of Integer)(Me.PastPlanOfActions)
-
-    '        PastOperation = Me.CurrentLevel
-
-    '        Dim RandomGen As New System.Random
-    '        Do While True
-
-    '            NextOperation = RandomGen.Next(0, VRTM_SimVariables.nLevels)
-
-    '            NextOperationTime = Compute_Elevator_Time(PastOperation, NextOperation) + 2 * VRTM_SimVariables.TrayTransferTime
-
-    '            If NextOperationTime + TimeConsumed > TimeBudgetSimulation_s Then
-    '                'Exceeded the budget, done with simulation
-    '                Exit Do
-    '            Else
-    '                'Just adds the next operation into the list
-    '                SimPlanOfActions.Add(NextOperation)
-    '                TimeConsumed += NextOperationTime
-    '            End If
-
-    '            PastOperation = NextOperation
-    '        Loop
-
-    '        Dim SimResult As Double
-
-    '        If SimResult > Me.BestSimScoreUntilNow Then
-    '            Me.BestSimScoreUntilNow = SimResult
-    '        End If
-
-    '        Me.LastSimScore = SimResult
-    '        Me.SumOfSimScores += SimResult
-    '        Me.NumberOfSimulations += 1
-
-    '    End Sub
-
-    '    Public Sub BackPropagateToParent()
-    '        'Backpropagates the results on Me to my parent and returns the parent
-    '        If Not IsNothing(Me.ParentNode) Then
-    '            If Me.BestSimScoreUntilNow > Me.ParentNode.BestSimScoreUntilNow Then Me.ParentNode.BestSimScoreUntilNow = Me.BestSimScoreUntilNow
-    '            Me.ParentNode.NumberOfSimulations += 1
-    '            Me.ParentNode.SumOfSimScores += Me.LastSimScore
-    '            Me.ParentNode.BackPropagateToParent()
-    '        End If
-    '    End Sub
-
-    '    Public Function ReturnAllChildren() As List(Of MonteCarloNode)
-    '        'Returns a list of the considered children nodes at all levels, recursively.
-    '        Dim TempList As New List(Of MonteCarloNode)
-    '        For Each Node As MonteCarloNode In Me.ExpandedChildrenNodes
-    '            TempList.AddRange(Node.ReturnAllChildren)
-    '            If Node.ExpandedChildrenNodes.Count < (VRTM_SimVariables.nLevels - 1) Then
-    '                TempList.Add(Node) 'Doesnt return the parent node if it's all expanded
-    '            End If
-    '        Next
-
-    '        Return TempList
-    '    End Function
-
-    '    Public Function Clone() As Object Implements ICloneable.Clone
-    '        Return DirectCast(MemberwiseClone(), MonteCarloNode)
-    '    End Function
-
-    'End Class
 
     Public Class MonteCarloState
+        Implements IComparable(Of MonteCarloState)
         Public VRTMStateConv(,) As Integer 'VRTM internal state with conveyor indices (Tray no, Level no) ***A conveyor index that is larger than 1000 is the same as (index-1000), but ready to ship and needs to be on the side of elevator 2 in the goal.
         Public Elevator1 As Integer 'Content of the elevator 1 (-1 means an empty tray, -2 means no tray on it)
         Public Elevator2 As Integer 'Content of the elevator 2 (-1 means an empty tray, -2 means no tray on it)
         Public CurrentLevel As Integer 'Current level the elevator is at
         Public SKUCount As Integer 'Number of unique SKUs to treat here
+        Public AvailableFraction As Double 'Number of available frozen products/total frozen products 
+        Public SimplifiedState As List(Of List(Of SimplifiedLevelInfo))
+
+        Public Function Compare(compareState As MonteCarloState) As Integer _
+            Implements IComparable(Of MonteCarloState).CompareTo
+            ' A null value means that this object is greater.
+            If compareState Is Nothing Then
+                Return 1
+            Else
+                Return AvailableFraction.CompareTo(compareState.AvailableFraction)
+            End If
+        End Function
 
         Public Function Clone() As MonteCarloState
             'Clones myself
@@ -310,9 +252,11 @@
             NewMe.Elevator2 = Me.Elevator2
             NewMe.CurrentLevel = Me.CurrentLevel
             NewMe.SKUCount = Me.SKUCount
+            NewMe.SimplifiedState = New List(Of List(Of SimplifiedLevelInfo))(Me.SimplifiedState)
 
             Return NewMe
         End Function
+
         Public Sub Perform_Operation(Operation As Integer)
             'Performs an operation of moving and swapping according to the operation. 
             'The operation is the number of the level that the elevator will move to and perform the swap
@@ -471,10 +415,287 @@
                 Me.Elevator2 = FloatingProduct
             End If
 
+            Me.AvailableFraction = Me.AccessibleFraction 'Updates the available fraction
         End Sub
 
+        Public Sub ComputeSimplifiedState()
+            'Transforms the current VRTMStateConf into a list of lists.
+            'Parent list represents the levels of the tunnel
+            'Internal list represents the level simplified view (just a collection of items chunks)
+            Me.SimplifiedState = New List(Of List(Of SimplifiedLevelInfo))
+            For L = 0 To VRTM_SimVariables.nLevels - 1
+                Me.SimplifiedState.Add(SimplifyLevel(L))
+            Next
+        End Sub
+
+        Public Function SimplifyLevel(Level As Integer) As List(Of SimplifiedLevelInfo)
+            'Transforms the current VRTMStateConf into a list of lists.
+            'First list represents the levels of the tunnel
+            'Second list represents the level simplified view (just a collection of items chunks)
+            'ItemCode=0 represents an unfrozen product (regardless of code)
+            Dim NewLevel As New List(Of SimplifiedLevelInfo)
+            Dim LastProduct As Integer
+
+            LastProduct = VRTMStateConv(0, Level)
+            Dim nProducts As Integer = 1
+
+            For I = 1 To VRTM_SimVariables.nTrays - 1
+
+                If LastProduct = VRTMStateConv(I, Level) Then
+                    nProducts += 1
+                ElseIf (LastProduct < 1000 AndAlso LastProduct > -1) AndAlso (VRTMStateConv(I, Level) < 1000 AndAlso VRTMStateConv(I, Level) > -1) Then
+                    nProducts += 1
+                Else
+                    'Streak ended
+                    Dim Info As New SimplifiedLevelInfo
+                    If (LastProduct < 1000 AndAlso LastProduct > -1) Then
+                        Info.ItemCode = 0
+                    Else
+                        Info.ItemCode = LastProduct
+                    End If
+                    Info.NumberOfItems = nProducts
+                    NewLevel.Add(Info)
+                    nProducts = 1
+                    LastProduct = VRTMStateConv(I, Level)
+                End If
+            Next
+
+            Dim Info2 As New SimplifiedLevelInfo
+            If (LastProduct < 1000 AndAlso LastProduct > -1) Then
+                Info2.ItemCode = 0
+            Else
+                Info2.ItemCode = LastProduct
+            End If
+            Info2.NumberOfItems = nProducts
+            NewLevel.Add(Info2)
+
+            SimplifyLevel = NewLevel
+
+        End Function
+
+        Public Function IsLevelPairMergeable(Level1 As Integer, Level2 As Integer) As Boolean
+            'Validates whether this pair of levels (Level 1 and 2) is mergeable using the rules below.
+            Dim F1 As Integer = Me.SimplifiedState(Level1).First.ItemCode
+            Dim F2 As Integer = Me.SimplifiedState(Level2).First.ItemCode
+            Dim L1 As Integer = Me.SimplifiedState(Level1).Last.ItemCode
+            Dim L2 As Integer = Me.SimplifiedState(Level2).Last.ItemCode
+
+            Dim Merge_Elevator_Side As Boolean
+            Dim Merge_Elevator_Opp_Side As Boolean
+
+            Dim E1 As Integer
+            Dim E2 As Integer
+            SimplifyElevator(E1, E2)
+
+            If E1 = -2 Then
+                'Empty elevator 1. Elevator with product on the right side. 
+                Merge_Elevator_Opp_Side = (F1 = F2) 'Only merges the opposite side if either are unfrozen or either are the same product (doesn't allow for mixing in the left side)
+                If L2 = 0 And Me.SimplifiedState(Level1).Count = 1 And Me.SimplifiedState(Level1).First.ItemCode = 0 Then
+                    'One exception is if there is this combination (XYZ=frozen, U=unfrozen):
+                    'Level2=XYZUUUUUUUU
+                    'Level1=UUUUUUUUUUU
+                    'or Level2=UUUUXYZUU
+                    Merge_Elevator_Opp_Side = True
+                End If
+
+                If L1 = 0 Then
+                    'Receiving level from elevator is unfrozen, so it can receive anything given the elevator contains the same product as the giving level
+                    Merge_Elevator_Side = (E2 = L2)
+                Else
+                    'Receiving level from elevator is frozen
+                    Merge_Elevator_Side = (E2 = L2) And (E2 = L1) 'If it is frozen will only merge when all products are the same.
+                End If
+            ElseIf E2 = -2 Then
+                'Empty elevator 2. Elevator with product on the left side. 
+
+                'Merge_Elevator_Side = (F1 = F2) And (E1 = F1) 'Left hand side cannot be mixed, so will only perform an operation if all levels contain either unfrozen product or the same frozen product
+                'If L1 = 0 And Me.SimplifiedState(Level2).Count = 1 And Me.SimplifiedState(Level2).First.ItemCode = 0 Then
+                '    'One exception is if there is this combination (XYZ=frozen, U=unfrozen):
+                '    'Level1=XYZUUUUUUUU
+                '    'Level2=UUUUUUUUUUU
+                '    'or Level1=UUUUXYZUU
+                '    Merge_Elevator_Side = True
+                'End If
+
+                Merge_Elevator_Side = True 'remove me (or maybe not, because this actually works!)
+
+                If L2 = 0 Then
+                    'Receiving level from the opposite side is unfrozen, so it can receive anything given the elevator contains the same product as the giving level
+                    Merge_Elevator_Opp_Side = True
+                Else
+                    'Receiving level from elevator is frozen
+                    Merge_Elevator_Opp_Side = (L1 = L2) 'If it is frozen will only merge when both products are the same.
+                End If
+            End If
 
 
+
+            IsLevelPairMergeable = Merge_Elevator_Side And Merge_Elevator_Opp_Side
+
+            If IsLevelPairMergeable = False Then 'For debug
+                Dim A As Boolean = False
+            End If
+        End Function
+
+        Public Function DoesItMakeSenseToPerformThisOperation(Level1 As Integer, Level2 As Integer, ByRef AvailableFractionResult As Double) As Boolean
+            'Checks whether this operations is something inocuous that accomplishes nothing
+
+            'First pretends to perform this operation as a mock:
+
+            Dim E1 As Integer
+            Dim E2 As Integer
+            SimplifyElevator(E1, E2)
+
+            Dim MovPairs As Integer = ComputeNumberOfMovementPairs(Level1, Level2)
+            Dim MockTunnel As MonteCarloState = Me.Clone
+            Dim MovList As New List(Of Integer)
+
+            For I As Integer = 1 To MovPairs
+                MovList.Add(Level1)
+                MovList.Add(Level2)
+            Next
+            MockTunnel.PerformBatchOperation(MovList)
+            MockTunnel.ComputeSimplifiedState()
+
+            Dim ME1 As Integer
+            Dim ME2 As Integer
+            SimplifyElevator(ME1, ME2)
+
+            'Compares the mocktunnel state with the current tunnel state
+            Dim DoesItMakeSense As Boolean
+            If MockTunnel.SimplifiedState(Level1).Count = Me.SimplifiedState(Level2).Count Then
+                If MockTunnel.SimplifiedState(Level2).Count = Me.SimplifiedState(Level1).Count Then 'Compares the tunnels simplified states at the current levels
+                    For I = 0 To MockTunnel.SimplifiedState(Level1).Count - 1
+                        If Not MockTunnel.SimplifiedState(Level1)(I) = Me.SimplifiedState(Level2)(I) Then
+                            DoesItMakeSense = True 'Maybe something has changed!
+                        End If
+                    Next
+                    For I = 0 To MockTunnel.SimplifiedState(Level2).Count - 1
+                        If Not MockTunnel.SimplifiedState(Level2)(I) = Me.SimplifiedState(Level1)(I) Then
+                            DoesItMakeSense = True 'Maybe something has changed!
+                        End If
+                    Next
+                    If E1 = ME1 AndAlso E2 = ME2 Then
+                        DoesItMakeSense = False 'PASSES ALL TESTS - RETURN FALSE MEANS THE OPERATION JUST SWAPPED THE LEVELS
+                    Else
+                        DoesItMakeSense = True
+                    End If
+                Else
+                    DoesItMakeSense = True 'If they're not equal, then something has changed (enough proof to say it might be worth it)
+                End If
+            Else
+                DoesItMakeSense = True 'If they're not equal, then something has changed (enough proof to say it might be worth it)
+            End If
+
+            If DoesItMakeSense Then
+                AvailableFractionResult = MockTunnel.AccessibleFraction
+                Return True
+            End If
+
+
+        End Function
+
+        Public Function ComputeNumberOfMovementPairs(Level1 As Integer, Level2 As Integer) As Integer
+            'Outputs the number of movement pairs needed to perform a cleanup on the last streak in the level
+            Dim MinMovements As Integer
+            If Elevator1 = -2 Then
+                'right-to-left
+                MinMovements = Me.SimplifiedState(Level1).First.NumberOfItems
+                If MinMovements > Me.SimplifiedState(Level2).Last.NumberOfItems Then MinMovements = Me.SimplifiedState(Level2).Last.NumberOfItems
+            ElseIf Elevator2 = -2 Then
+                'left-to-right
+                MinMovements = Me.SimplifiedState(Level1).Last.NumberOfItems
+                If MinMovements > Me.SimplifiedState(Level2).First.NumberOfItems Then MinMovements = Me.SimplifiedState(Level2).First.NumberOfItems
+            End If
+            ComputeNumberOfMovementPairs = MinMovements 'Movement pairs - needs to multiply by 2 to compute the number of movements
+        End Function
+
+        Private Sub SimplifyElevator(ByRef E1 As Integer, ByRef E2 As Integer)
+            'Returns in E1 and E2 the simplified elevator values (between 0 and 1000, returns 0)
+
+            E1 = Me.Elevator1
+            E2 = Me.Elevator2
+            If Not (E1 = -2) Then
+                If E1 < 1000 AndAlso E1 > -1 Then
+                    E1 = 0
+                End If
+            End If
+            If Not (E2 = -2) Then
+                If E2 < 1000 AndAlso E2 > -1 Then
+                    E2 = 0
+                End If
+            End If
+        End Sub
+
+        Public Function ListOfUnlockedLevels() As List(Of Integer)
+            'returns, based on the current SIMPLIFIEDSTATE, the list of levels that aren't full of the same frozen product or of empty trays.
+            Dim UnlockedLevelList As New List(Of Integer)
+
+            For I = 0 To VRTM_SimVariables.nLevels - 1
+                If SimplifiedState(I).Count = 1 Then
+                    If Not (SimplifiedState(I).First.ItemCode >= 1000 Or SimplifiedState(I).First.ItemCode = -1) Then
+                        UnlockedLevelList.Add(I) 'This level is full of unfrozen product!
+                    End If
+                Else
+                    UnlockedLevelList.Add(I) 'This level is not full!
+                End If
+            Next
+
+            Return UnlockedLevelList
+
+        End Function
+
+
+    End Class
+
+    Public Class SimplifiedLevelInfo
+        'Simplifies the level into a pair of two info:
+        Public ItemCode As Integer
+        Public NumberOfItems As Integer
+
+        Public Shared Operator =(A As SimplifiedLevelInfo, B As SimplifiedLevelInfo) As Boolean
+            If A.ItemCode = B.ItemCode AndAlso A.NumberOfItems = B.NumberOfItems Then
+                Return True
+            Else
+                Return False
+            End If
+        End Operator
+
+        Public Shared Operator <>(A As SimplifiedLevelInfo, B As SimplifiedLevelInfo) As Boolean
+            If A.ItemCode = B.ItemCode AndAlso A.NumberOfItems = B.NumberOfItems Then
+                Return False
+            Else
+                Return True
+            End If
+        End Operator
+
+    End Class
+
+    Public Class PossibleLevelPair
+        Implements IComparable(Of PossibleLevelPair)
+        'Implements a level pair that is a possible combination.
+        'Carries the results and the data of the levels
+        Public Level1 As Integer
+        Public Level2 As Integer
+        Public AvailableFraction As Double
+        Public TimeCost As Double
+        Public MovementPairs As Integer
+
+        Public Function Compare(compareState As PossibleLevelPair) As Integer _
+            Implements IComparable(Of PossibleLevelPair).CompareTo
+            ' A null value means that this object is greater.
+            If compareState Is Nothing Then
+                Return 1
+            Else
+                Dim C As Integer
+                C = AvailableFraction.CompareTo(compareState.AvailableFraction)
+
+                If C = 0 Then C = TimeCost.CompareTo(compareState.TimeCost)
+
+                Return C
+
+            End If
+        End Function
     End Class
 
     Public Function ConvertStateForMonteCarlo(currentSimulationTimeStep As Long, CurrentTime As Double) As MonteCarloState
@@ -529,6 +750,8 @@
         'Remaining required variables for the current state
         CurrentState.VRTMStateConv = TunnelConfig
         CurrentState.SKUCount = VRTM_SimVariables.InletConveyors.Count
+
+        CurrentState.ComputeSimplifiedState()
 
         Return CurrentState
     End Function
@@ -591,5 +814,24 @@
             OpList.Add(0)
         Next
     End Sub
+
+
+
+    Public Function ArrayToCSVString(SomeArray(,) As Integer) As String
+        'Returns a CSV-able string from this array
+        Dim S As String = ""
+
+        For I As Integer = 0 To UBound(SomeArray, 2)
+            For J As Integer = 0 To UBound(SomeArray, 1) - 1
+                S = S & SomeArray(J, I) & ","
+            Next
+            S = S & SomeArray(UBound(SomeArray, 1), I) & vbNewLine
+        Next
+
+        Return S
+    End Function
+
+
+
 
 End Module
