@@ -690,7 +690,7 @@
                 Dim C As Integer
                 C = AvailableFraction.CompareTo(compareState.AvailableFraction)
 
-                If C = 0 Then C = TimeCost.CompareTo(compareState.TimeCost)
+                If C = 0 Then C = -TimeCost.CompareTo(compareState.TimeCost)
 
                 Return C
 
