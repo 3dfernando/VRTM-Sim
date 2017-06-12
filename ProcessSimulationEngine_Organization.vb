@@ -80,19 +80,14 @@
 
         If True Then
             'Monte Carlo search algorithm
-            Dim currentState As MonteCarloState = ConvertStateForMonteCarlo(currentSimulationTimeStep, CurrentTime)
+            Dim currentState As GreedyTreeSearchState = ConvertStateForGreedyTreeSearch(currentSimulationTimeStep, CurrentTime)
 
-            Return SolveMonteCarloSearch(currentState, 3600 * 5, 300)
+            Return SolveGreedyTreeSearchSearch(currentState, AvailableTime, 300)
         End If
 
-        If False Then
-            'Monte Carlo search algorithm
-            Dim currentState As MonteCarloState = ConvertStateForMonteCarlo(currentSimulationTimeStep, CurrentTime)
-
-            Return SolveGeneticSearch(currentState, 14400, 300)
-        End If
     End Function
 
+    'Delete this function
     Public Function DefineOrganizationMovementsProdDemandTransition(currentSimulationTimeStep As Long, AvailableTime As Double, CurrentTime As Double) As List(Of Integer)
         'This is a secondary function that accomplishes the purpose of enabling product to be available when the transition from the period ruled by "production" (startup) passes and the period ruled by "demand != production" begins.
         'It's returning a list of levels (Long) where each level corresponds to a back-and-forth movement [It starts at Elev. B, moves to the first level in the list, Performs a transfer B->A, moves to the next level in the list, 

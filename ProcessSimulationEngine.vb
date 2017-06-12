@@ -173,7 +173,7 @@
                     End If
 
 
-                ElseIf ((k.Key - prevBoxTime) > (3 * 3600)) AndAlso (prevBoxTime > 0) Then
+                ElseIf ((k.Key - prevBoxTime) > (VRTM_SimVariables.MinimumReshelvingWindow * 3600)) AndAlso (prevBoxTime > 0) Then
                     '### This will happen when the day turns over. Remaining boxes in all conveyors must be emptied 
                     'for the night, so creates more loading steps for each box ###
 
@@ -228,11 +228,7 @@
                                 Dim Recipe As New List(Of Integer)
 
                                 CurrentDay = Int(k.Key / (24 * 3600))
-                                If CurrentDay = VRTM_SimVariables.DelayDemandTime - 1 Then
-                                    'Performs a preparation reorganization
-                                    Recipe = DefineOrganizationMovementsProdDemandTransition(currentSimulationTimeStep, AvailableTime, k.Key) 'Calls the primer organization routine and gets the recipe for organization
-                                    'Recipe = DefineOrganizationMovements(currentSimulationTimeStep, AvailableTime, k.Key) 'Calls the regular organization routine and gets the recipe for organization
-                                ElseIf CurrentDay > VRTM_SimVariables.DelayDemandTime - 1 Then
+                                If CurrentDay >= VRTM_SimVariables.DelayDemandTime - 1 Then
                                     Recipe = DefineOrganizationMovements(currentSimulationTimeStep, AvailableTime, k.Key) 'Calls the regular organization routine and gets the recipe for organization
                                 End If
 
@@ -657,11 +653,24 @@ PostProcessing:
         With VRTM_SimVariables
             Dim availableLevels As New List(Of Long)
             Dim stayTime, exitEntryTime As Double
+            Dim maxReqStayTime As Double
 
             For I As Long = 0 To .nLevels - 1
                 exitEntryTime = Simulation_Results.TrayEntryTimes(Simulation_Results.VRTMTrayData(currentSimulationTimeStep - 1, .nTrays - 1, I).TrayIndex)
                 stayTime = Simulation_Results.TrayEntryTimes(t) - exitEntryTime
-                If (stayTime > (.ProductMix(prodIndex).MinimumStayTime * 3600)) Or
+
+                'Gets the current exit tray maximum required stay time
+                maxReqStayTime = 0
+                If Not IsNothing(Simulation_Results.VRTMTrayData(currentSimulationTimeStep - 1, .nTrays - 1, I).ProductIndices) Then
+                    For Each Prod As KeyValuePair(Of Long, Long) In Simulation_Results.VRTMTrayData(currentSimulationTimeStep - 1, .nTrays - 1, I).ProductIndices
+                        If maxReqStayTime < .InletConveyors(.ProductMix(Prod.Key).ConveyorNumber).MinRetTime Then
+                            maxReqStayTime = .InletConveyors(.ProductMix(Prod.Key).ConveyorNumber).MinRetTime
+                        End If
+                    Next
+                End If
+                maxReqStayTime = maxReqStayTime * 3600
+
+                If (stayTime > maxReqStayTime) Or
                     (exitEntryTime = 0) Then
                     If I <> VRTM_SimVariables.ReturnLevel - 1 Then availableLevels.Add(I) 'Don't use the return level to do this
                 Else

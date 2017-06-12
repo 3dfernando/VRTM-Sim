@@ -975,23 +975,81 @@ Public Class MainWindow
         '----Generates the data----
         Dim I, J As Integer
 
-        'Frozen trays
+
+        'Total Available Fraction and Frozen Trays
+
         Dim RTime As Double
         Dim Frozen As Boolean
         Dim Conv As Long
         Dim TotalFrozen As Long = 0
         Dim TotalTrays As Long = 0
-        For I = 0 To VRTM_SimVariables.nTrays - 1
-            For J = 0 To VRTM_SimVariables.nLevels - 1
+        Dim TotalAvailable As Long = 0
+        Dim AvailablePerConveyorIndex(,) As Long '2D array with Array(ConveyorIndex,0)=Available Qty and  Array(ConveyorIndex,1)=Total Qty
+        ReDim AvailablePerConveyorIndex(VRTM_SimVariables.InletConveyors.Count - 1, 1)
+        Dim AvailablelInThisLevel As Long = 0
+        Dim FirstStreak As Boolean
+        For J = 0 To VRTM_SimVariables.nLevels - 1
+            FirstStreak = True
+            AvailablelInThisLevel = 0
+            For I = VRTM_SimVariables.nTrays - 1 To 0 Step -1
                 RTime = hsSimPosition.Value - Simulation_Results.TrayEntryTimes(Simulation_Results.VRTMTrayData(thisT_index, I, J).TrayIndex)
                 Conv = Simulation_Results.VRTMTrayData(thisT_index, I, J).ConveyorIndex
 
                 If Conv > -1 Then
                     Frozen = RTime > (VRTM_SimVariables.InletConveyors(Conv).MinRetTime * 3600)
-                    TotalFrozen -= Frozen
+
+                    If Frozen Then
+                        TotalFrozen += 1
+                        AvailablePerConveyorIndex(Conv, 1) += 1
+                    End If
+
+                    If FirstStreak Then
+                        'First streak is available
+                        If Frozen Then
+                            If I = VRTM_SimVariables.nTrays - 1 Then
+                                AvailablelInThisLevel += 1 'First item
+                                AvailablePerConveyorIndex(Conv, 0) += 1
+                            Else
+                                If Simulation_Results.VRTMTrayData(thisT_index, I + 1, J).ConveyorIndex = Conv Then
+                                    AvailablelInThisLevel += 1 'Streak continues
+                                    AvailablePerConveyorIndex(Conv, 0) += 1
+                                Else
+                                    FirstStreak = False 'Streak has been interrupted ***UPDATE BELOW TOO
+
+                                End If
+                            End If
+                        Else
+                            'That was the last item of the first streak ***UPDATE ABOVE TOO
+                            FirstStreak = False
+                        End If
+                    End If
+
                     TotalTrays += 1
                 End If
             Next
+            TotalAvailable += AvailablelInThisLevel
+        Next
+
+        'Least available fraction
+        Dim ConveyorsThatHaveNoneFrozen As New List(Of Integer) 'Will store the conveyors that have no product frozen now
+        Dim ConveyorsThatHaveNoneAvailable As New List(Of Integer) 'Will store the conveyors that have frozen products but none are available
+        Dim ThisAvailableFraction As Double
+        Dim LeastAvailableFraction As Double = Double.MaxValue
+        Dim LeastAvailableFractionConveyor As Integer
+
+        For I = 0 To VRTM_SimVariables.InletConveyors.Count - 1
+            If AvailablePerConveyorIndex(I, 1) = 0 Then
+                ConveyorsThatHaveNoneFrozen.Add(I) 'None frozen!
+            Else
+                ThisAvailableFraction = AvailablePerConveyorIndex(I, 0) / AvailablePerConveyorIndex(I, 1)
+                If ThisAvailableFraction = 0 Then
+                    ConveyorsThatHaveNoneAvailable.Add(I) 'None available!
+                End If
+                If LeastAvailableFraction > ThisAvailableFraction Then
+                    LeastAvailableFraction = ThisAvailableFraction
+                    LeastAvailableFractionConveyor = I
+                End If
+            End If
         Next
 
         'Demands not accomplished
@@ -1013,12 +1071,14 @@ Public Class MainWindow
         Next
 
 
+
         '----Displays the data----
         Dim CurrentItem As ListViewItem
 
         lstCurrentFrameStats.BeginUpdate()
         lstCurrentFrameStats.Items.Clear()
 
+        'FROZEN TRAYS
         If TotalTrays > 0 Then
             CurrentItem = lstCurrentFrameStats.Items.Add("Frozen Trays")
             CurrentItem.SubItems.Add(Trim(Str(TotalFrozen)) & "/" & Trim(Str(TotalTrays)) & " (" & Trim(Str(Int(10 * 100 * TotalFrozen / TotalTrays) / 10)) & "%)")
@@ -1027,6 +1087,52 @@ Public Class MainWindow
             CurrentItem.SubItems.Add("0/0")
         End If
 
+        'AVAILABLE FRACTION
+        If TotalFrozen > 0 Then
+            CurrentItem = lstCurrentFrameStats.Items.Add("Available Fraction of the Frozen Trays")
+            CurrentItem.SubItems.Add(Trim(Str(TotalAvailable)) & "/" & Trim(Str(TotalFrozen)) & " (" & Trim(Str(Int(10 * 100 * TotalAvailable / TotalFrozen) / 10)) & "%)")
+        Else
+            CurrentItem = lstCurrentFrameStats.Items.Add("Available Fraction of the Frozen Trays")
+            CurrentItem.SubItems.Add("0/0")
+        End If
+
+        'LEAST AVAILABLE FRACTION
+        If TotalFrozen > 0 Then
+            CurrentItem = lstCurrentFrameStats.Items.Add("Lowest Available Fraction")
+            Dim T As String
+            If LeastAvailableFraction = Double.MaxValue Then
+                T = "-"
+            ElseIf LeastAvailableFraction = 0 Then
+                T = "0% at Conveyors "
+                For Each A As Integer In ConveyorsThatHaveNoneAvailable
+                    T = T & Trim(Str(A)) & ", "
+                Next
+            Else
+                T = Trim(Str(AvailablePerConveyorIndex(LeastAvailableFractionConveyor, 0))) & "/" & Trim(Str(AvailablePerConveyorIndex(LeastAvailableFractionConveyor, 1))) & " (" & Trim(Str(Int(10 * 100 * LeastAvailableFraction) / 10)) & "%)"
+                T = T & " at Conveyor " & Trim(Str(LeastAvailableFractionConveyor))
+            End If
+
+            CurrentItem.SubItems.Add(T)
+
+        Else
+            CurrentItem = lstCurrentFrameStats.Items.Add("Lowest Available Fraction")
+            CurrentItem.SubItems.Add("No Frozen Product")
+        End If
+
+        'UNFROZEN CONVEYOR
+        If ConveyorsThatHaveNoneFrozen.Count > 0 Then
+            CurrentItem = lstCurrentFrameStats.Items.Add("Conveyor indices with no frozen product now")
+            Dim S As String = ""
+            For Each C As Integer In ConveyorsThatHaveNoneFrozen
+                S = S & Trim(Str(C)) & ", "
+            Next
+            CurrentItem.SubItems.Add(S)
+        Else
+            CurrentItem = lstCurrentFrameStats.Items.Add("Conveyor indices with no frozen product now")
+            CurrentItem.SubItems.Add("None")
+        End If
+
+        'DEMANDS UNAVAILABLE
         CurrentItem = lstCurrentFrameStats.Items.Add("Demands unavailable so far")
         CurrentItem.SubItems.Add(Trim(Str(DemandCount)) & " trays")
 
