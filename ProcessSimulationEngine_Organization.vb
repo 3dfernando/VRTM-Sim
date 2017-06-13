@@ -21,6 +21,7 @@
         Public ElevatorState As TrayDataSimplified 'Will hold the tray in the elevator
         Public EmptyElevatorB As Boolean 'Will hold whether the elevator B is empty
         Public StateHash As String 'Holds a "probably" unique hash for the state, to compare between states.
+        Public currentLevel As Long 'Holds the current level of the elevator
 
         Public Function Clone() As VRTMStateSimplified
             'Clones the state 
@@ -40,8 +41,100 @@
 
             Return ClonedState
         End Function
+
+        Public Function toCSV() As String
+            'Returns a CSV to represent this state for debug purposes
+            Dim S As String = ""
+            Dim Code As Integer
+            For L As Integer = 0 To VRTM_SimVariables.nLevels - 1
+                For T As Integer = 0 To VRTM_SimVariables.nTrays - 1
+                    Code = Me.TrayState(T, L).ConveyorIndex
+                    If Me.TrayState(T, L).Frozen Then Code += 1000
+                    S = S & Code.ToString & ","
+                Next
+                S = S & vbCrLf
+            Next
+            Return S
+        End Function
+
+
+        Public Function SimplifyLevel(Level As Integer) As List(Of SimplifiedLevelInfo)
+            'Will return a list with product indices -1 (empty), 0 (unfrozen) or 100X (frozen where X is the convIndex)
+            'Also the info contained in the SimplifiedLevelInfo class will return the number of items in a streak there are for the particular entry
+            Dim NewLevel As New List(Of SimplifiedLevelInfo)
+            Dim LastProduct As Integer
+            Dim CurrentProduct As Integer
+
+            If TrayState(0, Level).Frozen Then
+                LastProduct = TrayState(0, Level).ConveyorIndex + 1000
+            Else
+                If TrayState(0, Level).ConveyorIndex = -1 Then
+                    LastProduct = -1
+                Else
+                    LastProduct = 0
+                End If
+            End If
+
+
+            Dim nProducts As Integer = 1
+
+            For I = 1 To VRTM_SimVariables.nTrays - 1
+                If TrayState(I, Level).Frozen Then
+                    CurrentProduct = TrayState(I, Level).ConveyorIndex + 1000
+                Else
+                    If TrayState(I, Level).ConveyorIndex = -1 Then
+                        CurrentProduct = -1
+                    Else
+                        CurrentProduct = 0
+                    End If
+                End If
+
+                If LastProduct = CurrentProduct Then
+                    nProducts += 1
+                Else
+                    'Streak ended
+                    Dim Info As New SimplifiedLevelInfo
+                    Info.ItemCode = LastProduct
+                    Info.NumberOfItems = nProducts
+                    NewLevel.Add(Info)
+                    nProducts = 1
+
+                    LastProduct = CurrentProduct
+                End If
+            Next
+
+            Dim Info2 As New SimplifiedLevelInfo
+            Info2.ItemCode = LastProduct
+            Info2.NumberOfItems = nProducts
+            NewLevel.Add(Info2)
+
+            SimplifyLevel = NewLevel
+
+        End Function
     End Class
 
+    Public Class SimplifiedLevelInfo
+        'Simplifies the level into a pair of two info:
+        Public ItemCode As Integer
+        Public NumberOfItems As Integer
+
+        Public Shared Operator =(A As SimplifiedLevelInfo, B As SimplifiedLevelInfo) As Boolean
+            If A.ItemCode = B.ItemCode AndAlso A.NumberOfItems = B.NumberOfItems Then
+                Return True
+            Else
+                Return False
+            End If
+        End Operator
+
+        Public Shared Operator <>(A As SimplifiedLevelInfo, B As SimplifiedLevelInfo) As Boolean
+            If A.ItemCode = B.ItemCode AndAlso A.NumberOfItems = B.NumberOfItems Then
+                Return False
+            Else
+                Return True
+            End If
+        End Operator
+
+    End Class
 #End Region
 
 #Region "MAIN FUNCTION BLOCKS"
@@ -56,20 +149,6 @@
 
         '-------------NOW THAT THERE ARE MULTIPLE CODES TO SOLVE THIS ISSUE:--------------
 
-        If False Then
-            'Previous startegy-driven solution
-            Dim currentState As VRTMStateSimplified = GenerateSimplifiedState(currentSimulationTimeStep, CurrentTime)
-
-            'Designs the shelving strategy
-            Dim Movements As New List(Of Integer)
-            Dim StateList As New List(Of VRTMStateSimplified)
-
-            StateList.Add(currentState)
-
-            Move_GroupAllFrozen(Movements, StateList, 0.1)
-            Move_GroupAllFrozen(Movements, StateList, 0.1)
-            Return Movements
-        End If
 
         If False Then
             'A* search algorithm
@@ -78,12 +157,19 @@
             Return Solve_A_Star_Search(currentState, 300)
         End If
 
-        If True Then
+        If False Then
             'Monte Carlo search algorithm
             Dim currentState As GreedyTreeSearchState = ConvertStateForGreedyTreeSearch(currentSimulationTimeStep, CurrentTime)
 
             Return SolveGreedyTreeSearchSearch(currentState, AvailableTime, 300)
         End If
+
+        If True Then
+            'Uses just logic and the assumption that there are at least two levels full of either unfrozen product or empty
+            Dim currentState As VRTMStateSimplified = GenerateSimplifiedState(currentSimulationTimeStep, CurrentTime)
+            Return OrderThisTunnelWithTwoEmptyLevels(currentState)
+        End If
+        Return New List(Of Integer)
 
     End Function
 
@@ -95,13 +181,67 @@
 
         Dim currentState As VRTMStateSimplified = GenerateSimplifiedState(currentSimulationTimeStep, CurrentTime)
 
-        'Designs the shelving strategy
+        'Shelving strategy: Flip all levels that contain product
         Dim Movements As New List(Of Integer)
-        Dim StateList As New List(Of VRTMStateSimplified)
+        Dim FlipRecipients As New List(Of Integer)
+        Dim FlipContainers As New List(Of Integer)
+        Dim IsLevelFullOfEmptyTrays As Boolean
 
-        StateList.Add(currentState)
+        For L As Integer = 0 To VRTM_SimVariables.nLevels - 1
+            IsLevelFullOfEmptyTrays = True
+            For T As Integer = 0 To VRTM_SimVariables.nTrays - 1
+                'Verifies each tray
+                If currentState.TrayState(T, L).ConveyorIndex <> -1 Then
+                    IsLevelFullOfEmptyTrays = False
+                    Exit For
+                End If
+            Next
 
-        Move_TrimToFrontUnavailable(Movements, StateList, 0.5, 0.05)
+            If IsLevelFullOfEmptyTrays Then
+                FlipRecipients.Add(L) 'Empty level is a flip recipient
+            Else
+                FlipContainers.Add(L) 'Non-empty level is a flip container (must be flipped)
+            End If
+        Next
+
+        If currentState.EmptyElevatorB Then
+            'Brings back the product to elevator b
+            Movements.Add(currentState.currentLevel)
+        End If
+
+        Dim Distance As Integer
+        Dim MinDistance As Integer
+        Dim MinDistanceAt As Integer = -1
+        Dim FlipTimes As Integer
+        For Each L As Integer In FlipContainers
+            'Level to flip=L
+            'Finds the closest flip recipient
+            MinDistance = Integer.MaxValue
+            MinDistanceAt = -1
+            For Each L2 As Integer In FlipRecipients
+                Distance = Math.Abs(L2 - L)
+                If MinDistance > Distance Then
+                    MinDistance = Distance
+                    MinDistanceAt = L2
+                End If
+            Next
+
+            'Counts how many times to perform the flip
+            For FlipTimes = 0 To VRTM_SimVariables.nTrays - 1
+                If currentState.TrayState(FlipTimes, L).ConveyorIndex = -1 Then Exit For
+            Next
+
+            'Performs the flip nTrays Times
+            For A As Integer = 1 To FlipTimes
+                Movements.Add(L)
+                Movements.Add(MinDistanceAt)
+            Next
+
+            'Updates the list
+            FlipRecipients.Remove(MinDistanceAt)
+            FlipRecipients.Add(L)
+        Next
+
         Return Movements
 
     End Function
@@ -110,456 +250,311 @@
 
 
 #Region "MOVES"
-    Public Sub Move_TrimToFrontUnavailable(ByRef Movements As List(Of Integer), ByRef StateList As List(Of VRTMStateSimplified), AvailabilityThreshold As Double, ProductionRatioThreshold As Double)
-        'This function is a MOVE and will result in a "Trimming" of all the levels that are currently unavailable. Will select only the products that are actually unavailable (i.e. don't have any
-        'other level that is available. The availability will be determined if the total number of products with a given conveyor index is larger than a threshold (AvailabilityThreshold, 0 to 1, although <0.5 doesn't make sense).
-        'The trimming operation, if deemed viable, will happen as follows:
-        'Old state: PPPPPPP000000000000 (P=product, 0=Empty tray)
-        'New state: XXXXXXXXXXXXPPPPPPP (X=new product)
-        'X will be, by order of priority/availability:
-        '1. The closest set of a product that has the same index and is a full level
-        '2. The closest set of a different product that has enough of it to push the given product forwards 
-        '3. A set of empty trays. These will come from a level full of empty trays, and any product can fill this level up (the closest will be selected)
+    Public Function OrderThisTunnelWithTwoEmptyLevels(currentState As VRTMStateSimplified) As List(Of Integer)
+        'Uses just logic and the assumption that there are at least two levels full of either unfrozen product or empty
 
+        'Classifies all levels:
+        Dim ClosedLevelList As New List(Of Integer) 'Non modifiable
 
-        'NOTE: THIS FUNCTION ---EXPECTS--- A VRTM STATE THAT HAS ONLY LEVELS SIMILAR TO THE "Old State" shown above and WILL NOT WORK on other conditions!!
+        Dim GrowingLevelList As New List(Of Integer) 'Priority Recipient when product is frozen and there is a match
+        Dim UnfrozenLevelList As New List(Of Integer) 'Priority 1 Recipient
+        Dim EmptyLevelList As New List(Of Integer) 'Priority 2 Recipient
+        Dim UnfrozenEmptyLevelList As New List(Of Integer) 'Priority 3 Recipient
 
-        'First lists the availability of each level. Defines availability as the ratio between the "available products" (string of products 
-        'right at the end of the tunnel) And the total quantity of this given product in the tunnel 
-        Dim I, J, K As Long
-        Dim currentState As VRTMStateSimplified = StateList.Last
+        Dim ScrambledLevelList As New List(Of Integer) 'Source of products
 
-        Dim AvailableProducts() As Long
-        Dim ProductCount() As Long
-        Dim AvailableProductRatio() As Double
-        ReDim AvailableProducts(VRTM_SimVariables.InletConveyors.Count - 1) 'Index per conveyor
-        ReDim ProductCount(VRTM_SimVariables.InletConveyors.Count - 1)
-        ReDim AvailableProductRatio(VRTM_SimVariables.InletConveyors.Count - 1)
-        Dim SizeOfStreak As Long
-        Dim ProductIndex As Long
-        Dim TotalProducts As Long
+        For L As Integer = 0 To VRTM_SimVariables.nLevels - 1
+            Select Case ClassifyThisLevel(currentState, L)
+                Case "ClosedLevel"
+                    ClosedLevelList.Add(L)
+                Case "GrowingLevel"
+                    GrowingLevelList.Add(L)
+                Case "UnfrozenLevel"
+                    UnfrozenLevelList.Add(L)
+                Case "EmptyLevel"
+                    EmptyLevelList.Add(L)
+                Case "UnfrozenEmptyLevel"
+                    UnfrozenEmptyLevelList.Add(L)
+                Case "ScrambledLevel"
+                    ScrambledLevelList.Add(L)
+            End Select
+        Next
 
-        For J = 0 To VRTM_SimVariables.nLevels - 1 'This for loop will determine how much of each product index is available (as a ratio in relation to the total product)
-            ProductIndex = currentState.TrayState(VRTM_SimVariables.nTrays - 1, J).ConveyorIndex
-            SizeOfStreak = StreakSize(currentState, J)
-
-            If ProductIndex <> -1 Then
-                AvailableProducts(ProductIndex) += SizeOfStreak
+        Dim ListOfActions As New List(Of Integer)
+        Dim SimplifiedLevel As New List(Of SimplifiedLevelInfo)
+        'The only levels that need fixing are the scrambled levels.
+        'Checks if there are any
+        If ScrambledLevelList.Count > 0 Then
+            'OK. Makes sure the elevator is in B side. If not, returns an error
+            If currentState.EmptyElevatorB Then
+                ListOfActions.Add(-1)
+                Return ListOfActions
             End If
 
-            For I = 0 To VRTM_SimVariables.InletConveyors.Count - 1
-                TotalProducts = CountThisIndexInThisLevel(currentState, J, I)
-                ProductCount(I) += TotalProducts
-            Next
-        Next
+            'Orders the scrambled levels so the ones that have the least variance of product codes are the first to be taken
+            ScrambledLevelList.Sort(Function(X As Integer, Y As Integer)
+                                        Dim UniqueItemsInX As New List(Of Integer)
+                                        Dim UniqueItemsInY As New List(Of Integer)
+                                        Dim SimplifiedX As New List(Of SimplifiedLevelInfo)(currentState.SimplifyLevel(X))
+                                        Dim SimplifiedY As New List(Of SimplifiedLevelInfo)(currentState.SimplifyLevel(Y))
+                                        Dim ThisOneIsNotUnique As Boolean
 
-        For I = 0 To VRTM_SimVariables.InletConveyors.Count - 1
-            If ProductCount(I) = 0 Then
-                AvailableProductRatio(I) = 0
-            Else
-                AvailableProductRatio(I) = AvailableProducts(I) / ProductCount(I)
-            End If
-        Next
-
-        'Identifies the empty levels that are workable
-        Dim EmptyLevelList As New List(Of Long)
-        For I = 0 To VRTM_SimVariables.nLevels - 1
-            If IsLevelEmpty(currentState, I) Then EmptyLevelList.Add(I)
-        Next
-
-        'For each product that has an AvailableProductRatio < AvailabilityThreshold, it performs the movements according to the logic stated in the function description
-        Dim ProductLocatedAtLevels() As Dictionary(Of Long, Long) 'Key=Level, Value=Left Streak Count
-        Dim LevelsFullOfThisProduct() As List(Of Long)
-        Dim UnavProductConveyorIndices() As Long
-        Dim UnavailableProdCount As Long = 0
-
-        Dim MinDistance As Long
-        Dim MinDistanceAt As Long
-        Dim LeftStreakCount As Long
-        Dim Dist As Long
-        Dim MaxDist As Long
-        Dim Success As Boolean
-        For K = 0 To VRTM_SimVariables.InletConveyors.Count - 1
-            If AvailableProductRatio(K) < AvailabilityThreshold Then 'Product has been deemed unavailable
-                ReDim Preserve ProductLocatedAtLevels(UnavailableProdCount) 'Resizes the arrays
-                ReDim Preserve LevelsFullOfThisProduct(UnavailableProdCount)
-                ReDim Preserve UnavProductConveyorIndices(UnavailableProdCount)
-
-                UnavProductConveyorIndices(UnavailableProdCount) = K
-                'Determines where the product is and how much product is needed to push it forwards
-                ProductLocatedAtLevels(UnavailableProdCount) = New Dictionary(Of Long, Long) 'Key=Level, Value=Left Streak Count
-                LevelsFullOfThisProduct(UnavailableProdCount) = New List(Of Long)
-                For J = 0 To VRTM_SimVariables.nLevels - 1
-                    LeftStreakCount = 0
-                    For I = 0 To VRTM_SimVariables.nTrays - 1
-                        If currentState.TrayState(I, J).ConveyorIndex = K Then
-                            'Matched the conveyor, proceeds counting
-                            LeftStreakCount += 1
-                        Else
-                            Exit For
-                        End If
-                    Next
-
-                    If (LeftStreakCount > 0) And (LeftStreakCount < VRTM_SimVariables.nTrays - 1) Then
-                        ProductLocatedAtLevels(UnavailableProdCount).Add(J, LeftStreakCount)
-                    ElseIf LeftStreakCount = VRTM_SimVariables.nTrays - 1 Then
-                        LevelsFullOfThisProduct(UnavailableProdCount).Add(J)
-                    End If
-                Next
-
-                UnavailableProdCount += 1
-            End If
-        Next
+                                        For Each XProduct As SimplifiedLevelInfo In SimplifiedX
+                                            ThisOneIsNotUnique = False
+                                            For Each LX As Integer In UniqueItemsInX
+                                                If LX = XProduct.ItemCode Then
+                                                    ThisOneIsNotUnique = True
+                                                    Exit For
+                                                End If
+                                            Next
+                                            If Not ThisOneIsNotUnique Then
+                                                UniqueItemsInX.Add(XProduct.ItemCode)
+                                            End If
+                                        Next
+                                        For Each YProduct As SimplifiedLevelInfo In SimplifiedY
+                                            ThisOneIsNotUnique = False
+                                            For Each LY As Integer In UniqueItemsInY
+                                                If LY = YProduct.ItemCode Then
+                                                    ThisOneIsNotUnique = True
+                                                    Exit For
+                                                End If
+                                            Next
+                                            If Not ThisOneIsNotUnique Then
+                                                UniqueItemsInY.Add(YProduct.ItemCode)
+                                            End If
+                                        Next
 
 
-        Dim Idx, Idx2 As Long
-        Dim ConveyorIndex As Long
+                                        Return UniqueItemsInX.Count.CompareTo(UniqueItemsInY.Count)
+                                    End Function)
 
 
-        For Idx = 0 To UnavProductConveyorIndices.Count - 1
-            Dim A As Dictionary(Of Long, Long) = ProductLocatedAtLevels(Idx)
+            'Begins cleaning the scrambled levels
+            For Each SL As Integer In ScrambledLevelList
+                'Defines the list of products to go through
+                Dim LevelComposition As New List(Of SimplifiedLevelInfo)(currentState.SimplifyLevel(SL))
+                Dim nMovementPairs As Integer
+                Dim ClosestLevel As Integer
 
-            For Each ProdLevelCount As KeyValuePair(Of Long, Long) In ProductLocatedAtLevels(Idx) 'Key=Level, Value=Left Streak Count
-                'Now for each level the product is not organized, determines the methodology to push it forwards.
+                Dim Prod As SimplifiedLevelInfo
+                For P = 0 To LevelComposition.Count - 1
+                    Prod = LevelComposition(P)
 
-                'Secondly, uses an empty tray if the previous try didnt work
-                If EmptyLevelList.Count > 0 Then
-                    MinDistance = Long.MaxValue
-                    For Each L As Long In EmptyLevelList
-                        If (L - ProdLevelCount.Key) < MinDistance Then
-                            MinDistance = (L - ProdLevelCount.Key)
-                            MinDistanceAt = L
-                        End If
-                    Next
+                    If Not Prod.ItemCode <= 0 Then 'it's not an unfrozen/empty product
+                        'Now adds movements according to this simplified level version
+                        'We need to find a target level
+                        'Priorty list: GrowingLevel>UnfrozenLevel>EmptyLevel>UnfrozenEmptyLevel
 
-                    For I = 1 To (VRTM_SimVariables.nTrays - ProdLevelCount.Value)
-                        Movements.Add(MinDistanceAt)
-                        Movements.Add(ProdLevelCount.Key)
-                        StateList.Add(PerformMovement(StateList.Last, MinDistanceAt))
-                        StateList.Add(PerformMovement(StateList.Last, ProdLevelCount.Key))
-                    Next
-                    Continue For
-                End If
+                        'Tries a growing level first
+                        Dim TargetGrowingLevels As New List(Of KeyValuePair(Of Integer, Integer)) 'Keyvaluepair: Key=Level, Value=AvailableSpace
+                        Dim AvailableSpace As Integer
+                        Dim MinAvailableSpace As Integer = Integer.MaxValue
+                        For Each GrowingLevel As Integer In GrowingLevelList
+                            If currentState.TrayState(0, GrowingLevel).ConveyorIndex = Prod.ItemCode - 1000 Then
+                                'Here we assume the item is frozen as it is already classified as a growing level
+                                'Verifies the available space and selects the level if the available space is the least possible
+                                AvailableSpace = VRTM_SimVariables.nTrays - currentState.SimplifyLevel(GrowingLevel).First.NumberOfItems 'Defines the available space as the total tray number minus the current item count in the growing level
+                                TargetGrowingLevels.Add(New KeyValuePair(Of Integer, Integer)(GrowingLevel, AvailableSpace))
+                            End If
+                        Next
 
+                        Dim RemainingItemsToPass As Integer = Prod.NumberOfItems 'Number of items to pass to the other side (counter decreases as items are passed)
 
-                'First tries the closest level that has more product than needed to push this product forwards
-                Success = False
-                MaxDist = (VRTM_SimVariables.nLevels - ProdLevelCount.Key - 2)
-                If ProdLevelCount.Key > MaxDist Then MaxDist = ProdLevelCount.Key
-                For Dist = 1 To MaxDist
-                    'Tries the level up
-                    If (ProdLevelCount.Key + Dist < VRTM_SimVariables.nLevels - 1) Then 'Prevents it from trying a level out of bounds 
-                        ConveyorIndex = currentState.TrayState(0, ProdLevelCount.Key + Dist).ConveyorIndex
-                        If ConveyorIndex > -1 AndAlso (ConveyorProductionRatios(ConveyorIndex) > ProductionRatioThreshold) Then 'Prevents it to move a conveyor that has an index that is not produced much
-                            For Idx2 = 0 To UnavProductConveyorIndices.Count - 1
-                                'Prevents it from using a tray that has already a scheduled product for modification
-                                If currentState.TrayState(0, ProdLevelCount.Key + Dist).ConveyorIndex = UnavProductConveyorIndices(Idx2) Then
-                                    GoTo NextTray
-                                End If
-                            Next
+                        'We could either exit this loop with a target level or not:
+                        If TargetGrowingLevels.Count > 0 Then
+                            'At least one target level has been found!
+                            'Sorts them - This will ensure the most levels are closed before using a new one
+                            TargetGrowingLevels.Sort(Function(X As KeyValuePair(Of Integer, Integer), Y As KeyValuePair(Of Integer, Integer))
+                                                         Return X.Value.CompareTo(Y.Value)
+                                                     End Function)
 
-                            LeftStreakCount = 0
-                            For I = 0 To VRTM_SimVariables.nTrays - 1
-                                If currentState.TrayState(I, ProdLevelCount.Key + Dist).ConveyorIndex = currentState.TrayState(0, ProdLevelCount.Key + Dist).ConveyorIndex Then
-                                    'Matched the conveyor, proceeds counting
-                                    LeftStreakCount += 1
+                            For Each GLevel As KeyValuePair(Of Integer, Integer) In TargetGrowingLevels
+                                'Examines each growing level and figures whether there is available space to deposit all the units of this product index
+                                If GLevel.Value >= RemainingItemsToPass Then
+                                    'There is plenty of space in the target level
+                                    nMovementPairs = RemainingItemsToPass
+                                    RemainingItemsToPass = 0
                                 Else
-                                    Exit For
-                                End If
-                            Next
-
-                            If LeftStreakCount >= (VRTM_SimVariables.nTrays - ProdLevelCount.Value) And LeftStreakCount < VRTM_SimVariables.nTrays Then
-                                If LeftStreakCount = ProdLevelCount.Value Then
-                                    EmptyLevelList.Add(ProdLevelCount.Key + Dist)
+                                    nMovementPairs = GLevel.Value 'Not enough space, just move the available products
+                                    RemainingItemsToPass = RemainingItemsToPass - GLevel.Value
+                                    GrowingLevelList.Remove(GLevel.Key) 'Removes it for future queries
+                                    ClosedLevelList.Add(GLevel.Key) 'Includes it on the list of closed levels
                                 End If
 
-                                For I = 1 To (VRTM_SimVariables.nTrays - ProdLevelCount.Value)
-                                    Movements.Add(ProdLevelCount.Key + Dist)
-                                    Movements.Add(ProdLevelCount.Key)
-                                    StateList.Add(PerformMovement(StateList.Last, ProdLevelCount.Key + Dist))
-                                    StateList.Add(PerformMovement(StateList.Last, ProdLevelCount.Key))
+                                'Performs the movement pairs
+                                For I As Integer = 1 To nMovementPairs
+                                    ListOfActions.Add(SL)
+                                    ListOfActions.Add(GLevel.Key)
                                 Next
-                                Success = True
-                                Exit For
-                            End If
-                        End If
-                    End If
-
-NextTray:
-                    'Tries the level down
-                    If ProdLevelCount.Key - Dist > 0 Then 'Prevents it from trying a level out of bounds 
-                        ConveyorIndex = currentState.TrayState(0, ProdLevelCount.Key - Dist).ConveyorIndex
-                        If ConveyorIndex > -1 AndAlso (ConveyorProductionRatios(ConveyorIndex) > ProductionRatioThreshold) Then 'Prevents it to move a conveyor that has an index that is not produced much
-
-                            For Idx2 = 0 To UnavProductConveyorIndices.Count - 1
-                                'Prevents it from using a tray that has already a scheduled product for modification
-                                If currentState.TrayState(0, ProdLevelCount.Key - Dist).ConveyorIndex = UnavProductConveyorIndices(Idx2) Then
-                                    GoTo NextTray2
-                                End If
                             Next
+                        End If
 
-                            LeftStreakCount = 0
-                            For I = 0 To VRTM_SimVariables.nTrays - 1
-                                If currentState.TrayState(I, ProdLevelCount.Key - Dist).ConveyorIndex = currentState.TrayState(0, ProdLevelCount.Key - Dist).ConveyorIndex Then
-                                    'Matched the conveyor, proceeds counting
-                                    LeftStreakCount += 1
-                                Else
-                                    Exit For
-                                End If
+                        nMovementPairs = RemainingItemsToPass
+                        If RemainingItemsToPass > 0 Or TargetGrowingLevels.Count = 0 Then
+                            'That wasn't possible or there wasn't enough space on the growing levels - try according to the priority list:
+                            If UnfrozenLevelList.Count > 0 Then
+                                'Finds the closest level and then performs the movements (super simple)
+                                ClosestLevel = FindClosestLevel(SL, UnfrozenLevelList)
+                                UnfrozenLevelList.Remove(ClosestLevel)  'Removes it from the list
+                            ElseIf EmptyLevelList.Count > 0 Then
+                                ClosestLevel = FindClosestLevel(SL, EmptyLevelList)
+                                EmptyLevelList.Remove(ClosestLevel) 'Removes it from the list
+                            ElseIf UnfrozenEmptyLevelList.Count > 0 Then
+                                ClosestLevel = FindClosestLevel(SL, UnfrozenEmptyLevelList)
+                                UnfrozenEmptyLevelList.Remove(ClosestLevel) 'Removes it from the list
+                            Else
+                                'No success with any of the possible candidates. Time to give up from this level!
+                                Continue For
+                            End If
+
+                            'Performs the movement pairs
+                            For I As Integer = 1 To nMovementPairs
+                                ListOfActions.Add(SL)
+                                ListOfActions.Add(ClosestLevel)
                             Next
-                            If LeftStreakCount >= (VRTM_SimVariables.nTrays - ProdLevelCount.Value) And LeftStreakCount < VRTM_SimVariables.nTrays Then
-                                If LeftStreakCount = ProdLevelCount.Value Then
-                                    EmptyLevelList.Add(ProdLevelCount.Key - Dist)
-                                End If
+                            'Adds the closest level here to the growing level list
+                            GrowingLevelList.Add(ClosestLevel)
 
-                                For I = 1 To (VRTM_SimVariables.nTrays - ProdLevelCount.Value)
-                                    Movements.Add(ProdLevelCount.Key - Dist)
-                                    Movements.Add(ProdLevelCount.Key)
-                                    StateList.Add(PerformMovement(StateList.Last, ProdLevelCount.Key - Dist))
-                                    StateList.Add(PerformMovement(StateList.Last, ProdLevelCount.Key))
-                                Next
-                                Success = True
-                                Exit For
-                            End If
-                        End If
-                    End If
-NextTray2:
-                Next
-                If Success Then Continue For
-
-                'If nothing worked, then this level will be left untouched.
-            Next
-        Next
-
-
-    End Sub
-
-    Public Sub Move_GroupAllFrozen(ByRef Movements As List(Of Integer), ByRef StateList As List(Of VRTMStateSimplified), ByVal CostToBenefitThreshold As Double)
-        'This MOVE will group all products that WILL BE frozen by the time the new day dawns again. 
-
-        Dim currentState As VRTMStateSimplified = StateList.Last
-        Dim I, J, K As Long
-
-        'Counts the open levels
-        Dim OpenLevelCount As Long
-        Dim OpenLevels() As Long
-        ReDim OpenLevels(0)
-        Dim OpenLevelAssignments() As Long
-        ReDim OpenLevelAssignments(0)
-        OpenLevelCount = 0
-        For I = 0 To VRTM_SimVariables.nLevels - 1
-            If I <> VRTM_SimVariables.EmptyLevel - 1 Then
-                If Not IsLevelFullOfTheSameProduct(currentState, I) AndAlso (Not I = VRTM_SimVariables.ReturnLevel - 1) Then
-                    ReDim Preserve OpenLevels(OpenLevelCount)
-                    ReDim Preserve OpenLevelAssignments(OpenLevelCount)
-                    OpenLevels(OpenLevelCount) = I
-                    OpenLevelAssignments(OpenLevelCount) = -2 'Empty variable
-                    OpenLevelCount = OpenLevelCount + 1
-                End If
-            End If
-        Next I
-        OpenLevelCount -= 1 'Corrects to the right number of levels
-
-        If OpenLevelCount < VRTM_SimVariables.InletConveyors.Count + 1 Then 'We need at least as many levels as there are conveyor indices PLUS one level for the movements.
-            Exit Sub 'Insufficient open levels
-        End If
-
-
-        'Now assigns levels according to the streak size (prefers the longest streak)
-        Dim LongestStreak As Long
-        Dim LongestStreakPosition As Long
-        Dim SCount As Long
-        Dim OrphanProducts() As Long 'An orphan product is one that has only one at the end of the streak (it's available but there is only one, like in this example: XXXXXXXXXXP)
-        ReDim OrphanProducts(0)
-        Dim OrphanProdCount As Long
-
-        OrphanProdCount = 0
-        For K = 0 To VRTM_SimVariables.InletConveyors.Count - 1
-            LongestStreak = 0
-            For I = 0 To OpenLevelCount - 1
-                If currentState.TrayState(VRTM_SimVariables.nTrays - 1, OpenLevels(I)).Frozen And currentState.TrayState(VRTM_SimVariables.nTrays - 1, OpenLevels(I)).ConveyorIndex = K Then
-                    SCount = StreakSize(currentState, OpenLevels(I))
-                    If LongestStreak < SCount Then
-                        LongestStreak = SCount
-                        LongestStreakPosition = I
-                    End If
-                End If
-            Next I
-
-            If LongestStreak <= 1 Then
-                ReDim Preserve OrphanProducts(OrphanProdCount)
-                OrphanProducts(OrphanProdCount) = K
-                OrphanProdCount = OrphanProdCount + 1
-            Else
-                OpenLevelAssignments(LongestStreakPosition) = K
-            End If
-        Next K
-
-        'Includes also an empty tray level assignment
-        ReDim Preserve OpenLevels(OpenLevelCount)
-        ReDim Preserve OpenLevelAssignments(OpenLevelCount)
-        OpenLevels(OpenLevelCount) = VRTM_SimVariables.EmptyLevel - 1
-        OpenLevelAssignments(OpenLevelCount) = -1 'Empty tray
-        OpenLevelCount = OpenLevelCount + 1
-
-        'The orphan products (They don't appear in the last tray in the current config) need to be assigned, and that will happen in the order of remaining open levels.
-        For J = 0 To OrphanProdCount - 1
-            For I = 0 To OpenLevelCount - 1
-                If OpenLevelAssignments(I) = -2 Then
-                    OpenLevelAssignments(I) = OrphanProducts(J)
-                    Exit For
-                End If
-            Next I
-        Next J
-
-
-        'Now all the assignments have been made, loops through all the Temporary Levels until it needs to shut it down
-        Dim TemporaryLevels() As Long
-        Dim TemporaryLevelCostToBenefit() As Double
-        ReDim TemporaryLevels(0)
-        ReDim TemporaryLevelCostToBenefit(0)
-        Dim TemporaryLevelCount As Long
-        Dim Frozen As Long
-        TemporaryLevelCount = -1
-
-        For I = 0 To OpenLevelCount - 1 'Selects which levels will be deemed as temporary
-            If OpenLevelAssignments(I) = -2 Then
-                TemporaryLevelCount = TemporaryLevelCount + 1
-                ReDim Preserve TemporaryLevels(TemporaryLevelCount)
-                ReDim Preserve TemporaryLevelCostToBenefit(TemporaryLevelCount)
-                TemporaryLevels(TemporaryLevelCount) = OpenLevels(I)
-
-                For J = 0 To VRTM_SimVariables.nTrays - 1
-                    If currentState.TrayState(J, OpenLevels(I)).Frozen Then
-                        Exit For
-                    End If
-                Next J
-                TemporaryLevelCostToBenefit(TemporaryLevelCount) = (VRTM_SimVariables.nTrays - J + 1)
-
-                Frozen = 0
-                For J = 0 To VRTM_SimVariables.nTrays - 1
-                    If currentState.TrayState(J, OpenLevels(I)).Frozen Then
-                        Frozen += 1
-                    End If
-                Next J
-                If Not TemporaryLevelCostToBenefit(TemporaryLevelCount) = 0 Then TemporaryLevelCostToBenefit(TemporaryLevelCount) = Frozen / TemporaryLevelCostToBenefit(TemporaryLevelCount)
-            End If
-        Next I
-        TemporaryLevelCount += 1 'Corrects to the current count
-
-        'Orders the temporary levels according to cost to benefit
-        Dim OrderedCost() As Double
-        ReDim OrderedCost(TemporaryLevelCount)
-        For J = 0 To TemporaryLevelCount - 1
-            OrderedCost(J) = TemporaryLevelCostToBenefit(J)
-        Next J
-
-        'Bubble sort
-        Dim Tmp As Double
-        For J = 0 To TemporaryLevelCount - 2
-            For I = 0 To TemporaryLevelCount - 2
-                If TemporaryLevelCostToBenefit(I + 1) > TemporaryLevelCostToBenefit(I) Then 'Descending order
-                    Tmp = TemporaryLevels(I + 1)
-                    TemporaryLevels(I + 1) = TemporaryLevels(I)
-                    TemporaryLevels(I) = Tmp
-
-                    Tmp = OrderedCost(I + 1)
-                    OrderedCost(I + 1) = OrderedCost(I)
-                    OrderedCost(I) = Tmp
-                End If
-            Next I
-            For I = 0 To TemporaryLevelCount - 1
-                TemporaryLevelCostToBenefit(I) = OrderedCost(I)
-            Next I
-        Next J
-
-        'Do the actual shelving
-
-        Dim CurrentProduct As TrayDataSimplified
-        Dim LevelFullOfUnfrozenProd As Boolean
-        Dim LoopCount As Long
-
-        'Before anything makes sure that the elevator B is empty
-        If StateList.Last.EmptyElevatorB = False Then
-            Movements.Add(VRTM_SimVariables.ReturnLevel - 1)
-            StateList.Add(PerformMovement(StateList.Last, VRTM_SimVariables.ReturnLevel - 1))
-        End If
-
-        For K = 0 To TemporaryLevelCount - 1
-            If OrderedCost(K) > CostToBenefitThreshold Then
-                LoopCount = 0
-                Do While 1
-                    'Empties this level as much as it is possible while organizing the other levels
-                    'This loop will have to stop when some of the levels fills up, then we'll have to commit the current "temporary level" with the new product.
-
-                    'Select the next level
-                    CurrentProduct = StateList.Last.TrayState(VRTM_SimVariables.nTrays - 1, TemporaryLevels(K))
-
-                    If CurrentProduct.ConveyorIndex = -1 Then
-                        Dim ostragildo As String = ""
-
-                    End If
-                    For I = 0 To OpenLevelCount - 1
-                        If Not CurrentProduct.Frozen Then
-                            If CurrentProduct.ConveyorIndex = -1 And OpenLevelAssignments(I) = -1 Then
-                                'Performs the transfer
-                                Movements.Add(TemporaryLevels(K))
-                                Movements.Add(OpenLevels(I))
-                                StateList.Add(PerformMovement(StateList.Last, TemporaryLevels(K)))
-                                StateList.Add(PerformMovement(StateList.Last, OpenLevels(I)))
-                                Exit For
-                            ElseIf OpenLevelAssignments(I) = -2 Then
-                                'Performs the transfer
-                                Movements.Add(TemporaryLevels(K))
-                                Movements.Add(OpenLevels(I))
-                                StateList.Add(PerformMovement(StateList.Last, TemporaryLevels(K)))
-                                StateList.Add(PerformMovement(StateList.Last, OpenLevels(I)))
-                                Exit For
-                            End If
-                        Else
-                            If OpenLevelAssignments(I) = CurrentProduct.ConveyorIndex Then
-                                'Performs the transfer
-                                Movements.Add(TemporaryLevels(K))
-                                Movements.Add(OpenLevels(I))
-                                StateList.Add(PerformMovement(StateList.Last, TemporaryLevels(K)))
-                                StateList.Add(PerformMovement(StateList.Last, OpenLevels(I)))
-                                Exit For
-                            End If
-                        End If
-                    Next I
-                    'If the target level fills up, it's time to go to the next temporary level...
-                    If CurrentProduct.Frozen = False Then
-                        'For unfrozen products the isLevelFull function won't work, so customizes it here:
-                        LevelFullOfUnfrozenProd = True
-                        For J = 0 To VRTM_SimVariables.nTrays - 1
-                            If StateList.Last.TrayState(J, OpenLevels(I)).Frozen Then
-                                LevelFullOfUnfrozenProd = False
-                                Exit For
-                            End If
-                        Next J
-
-                        If LevelFullOfUnfrozenProd Then
-                            OpenLevels(I) = TemporaryLevels(K)
-                            Exit Do
                         End If
                     Else
-                        If IsLevelFullOfTheSameProduct(StateList.Last, OpenLevels(I)) Then
-                            OpenLevels(I) = TemporaryLevels(K)
-                            Exit Do
+                        'Verify whether this is the trailing unfrozen group
+                        If P = LevelComposition.Count - 1 Then
+                            Continue For 'Skips the trailing unfrozen streak
+                        End If
+
+                        ' If we're here it's either an unfrozen or an empty product that needs to be organized. Differs them here:
+                        If Prod.ItemCode = 0 Then
+                            ' For unfrozen products, prioritizes sending them to an unfrozen level:
+                            nMovementPairs = Prod.NumberOfItems
+                            If UnfrozenLevelList.Count > 0 Then
+                                'Finds the closest level and then performs the movements (super simple)
+                                ClosestLevel = FindClosestLevel(SL, UnfrozenLevelList)
+                            ElseIf UnfrozenEmptyLevelList.Count > 0 Then
+                                ClosestLevel = FindClosestLevel(SL, UnfrozenEmptyLevelList)
+                            ElseIf EmptyLevelList.Count > 0 Then
+                                ClosestLevel = FindClosestLevel(SL, EmptyLevelList)
+                                EmptyLevelList.Remove(ClosestLevel) 'Removes it from the list as it's not clean anymore
+                                UnfrozenEmptyLevelList.Add(ClosestLevel) 'Adds it to the contaminated list
+                            Else
+                                'No success with any of the possible candidates. Time to give up from this level!
+                                Continue For
+                            End If
+                        ElseIf Prod.ItemCode = -1 Then
+                            ' For frozen products, prioritizes sending them to an empty level:
+                            nMovementPairs = Prod.NumberOfItems
+                            If EmptyLevelList.Count > 0 Then
+                                ClosestLevel = FindClosestLevel(SL, EmptyLevelList)
+                            ElseIf UnfrozenEmptyLevelList.Count > 0 Then
+                                ClosestLevel = FindClosestLevel(SL, UnfrozenEmptyLevelList)
+                            ElseIf UnfrozenLevelList.Count > 0 Then
+                                'Finds the closest level and then performs the movements (super simple)
+                                ClosestLevel = FindClosestLevel(SL, UnfrozenLevelList)
+                                UnfrozenLevelList.Remove(ClosestLevel)  'Removes it from the list
+                                UnfrozenEmptyLevelList.Add(ClosestLevel)  'Adds it to the contaminated list
+                            Else
+                                'No success with any of the possible candidates. Time to give up from this level!
+                                Continue For
+                            End If
+
+                            'Now that we know the closest level, Performs the movement pairs
+                            For I As Integer = 1 To nMovementPairs
+                                ListOfActions.Add(SL)
+                                ListOfActions.Add(ClosestLevel)
+                            Next
                         End If
                     End If
 
-                    If LoopCount > 100 Then
-                        Exit Do
-                    End If
-                    LoopCount += 1
-                Loop
+
+                Next
+                'ScrambledLevelList.Remove(SL) 'Removes it for future queries
+                UnfrozenEmptyLevelList.Add(SL) 'Includes it on the list of unfrozen/empty contaminated levels (we don't know the content through the operations performed here)
+            Next
+
+        Else
+            'No action needed!
+        End If
+
+        Return ListOfActions
+
+    End Function
+
+    Public Function ClassifyThisLevel(currentState As VRTMStateSimplified, Level As Integer) As String
+        'Classifies the level into the following classes:
+
+        '-Levels that are full of the same frozen product (ClosedLevel)
+        '-Levels that are full of unfrozen product (UnfrozenLevel)
+        '-Levels that have only unfrozen and empty trays (UnfrozenEmptyLevel)
+        '-Levels that have only empty trays (EmptyLevel)
+        '-Levels that have a sequence of the same frozen product with a trail of either unfrozen or empty products (GrowingLevel)
+        '-Levels that don't follow the rules stated before (ScrambledLevel)
+
+        If currentState.TrayState(0, Level).Frozen Then
+            Dim isClosed As Boolean = True
+            Dim isGrowing As Boolean = True
+            Dim isFrozen, isTheSame, isEmpty As Boolean
+
+            For T As Integer = 1 To VRTM_SimVariables.nTrays - 1
+                isTheSame = (currentState.TrayState(T, Level).ConveyorIndex = currentState.TrayState(T - 1, Level).ConveyorIndex)
+                isFrozen = currentState.TrayState(T, Level).Frozen
+                'isEmpty = (currentState.TrayState(T, Level).ConveyorIndex = -1)
+
+                'If isEmpty Then
+                '    Dim A As String = ""
+                'End If
+                If isFrozen Then
+                    isGrowing = isGrowing And isTheSame
+                    isClosed = isClosed And isTheSame
+                Else
+                    isClosed = False
+                End If
+            Next
+            If isClosed Then Return "ClosedLevel"
+            If isGrowing Then Return "GrowingLevel"
+            Return "ScrambledLevel"
+        Else
+            Dim isFullOfUnfrozen As Boolean = True
+            Dim isUnfrozenEmpty As Boolean = True
+            Dim isFullOfEmpty As Boolean = True
+            Dim isEmpty, isUnfrozen As Boolean
+
+            isFullOfUnfrozen = Not (currentState.TrayState(0, Level).ConveyorIndex = -1)
+            isFullOfEmpty = (currentState.TrayState(0, Level).ConveyorIndex = -1)
+
+            For T As Integer = 1 To VRTM_SimVariables.nTrays - 1
+                isEmpty = (currentState.TrayState(T, Level).ConveyorIndex = -1)
+                isUnfrozen = Not (currentState.TrayState(T, Level).Frozen)
+
+                If isUnfrozen Then
+                    isFullOfUnfrozen = isFullOfUnfrozen And isUnfrozen And (Not isEmpty)
+                    isFullOfEmpty = isFullOfEmpty And isEmpty
+                Else
+                    isFullOfUnfrozen = False
+                    isFullOfEmpty = False
+                    isUnfrozenEmpty = False
+                End If
+            Next
+            If isFullOfUnfrozen Then Return "UnfrozenLevel"
+            If isFullOfEmpty Then Return "EmptyLevel"
+            If isUnfrozenEmpty Then Return "UnfrozenEmptyLevel"
+            Return "ScrambledLevel"
+        End If
+
+    End Function
+
+    Public Function FindClosestLevel(Level As Integer, LevelList As List(Of Integer)) As Integer
+        'Finds the closes number in the list to the variable Level shown here
+        Dim D As Integer
+        Dim minD As Integer = Integer.MaxValue
+        Dim minDat As Integer = -1
+        For Each L As Integer In LevelList
+            D = Math.Abs(L - Level)
+            If minD > D Then
+                minD = D
+                minDat = L
             End If
-        Next K
-
-
-
-    End Sub
+        Next
+        Return minDat
+    End Function
 
 #End Region
 
@@ -690,8 +685,9 @@ NextTray2:
             CurrentState.ElevatorState.Frozen = StayTime >= (VRTM_SimVariables.InletConveyors(CurrentState.ElevatorState.ConveyorIndex).MinRetTime * 3600)
         End If
 
-
         CurrentState.EmptyElevatorB = Simulation_Results.EmptyElevatorB(currentSimulationTimeStep - 1)
+
+        CurrentState.currentLevel = Simulation_Results.TrayEntryLevels(currentSimulationTimeStep - 1)
 
         Return CurrentState
     End Function

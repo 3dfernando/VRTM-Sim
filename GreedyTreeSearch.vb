@@ -122,7 +122,6 @@
 
     End Function
 
-
     Public Class GreedyTreeSearchState
         Implements IComparable(Of GreedyTreeSearchState)
         Public VRTMStateConv(,) As Integer 'VRTM internal state with conveyor indices (Tray no, Level no) ***A conveyor index that is larger than 1000 is the same as (index-1000), but ready to ship and needs to be on the side of elevator 2 in the goal.
@@ -131,7 +130,7 @@
         Public CurrentLevel As Integer 'Current level the elevator is at
         Public SKUCount As Integer 'Number of unique SKUs to treat here
         Public AvailableFraction As Double 'Number of available frozen products/total frozen products 
-        Public SimplifiedState As List(Of List(Of SimplifiedLevelInfo))
+        Public SimplifiedState As List(Of List(Of SimplifiedLevelInfoGTS))
 
         Public Function Compare(compareState As GreedyTreeSearchState) As Integer _
             Implements IComparable(Of GreedyTreeSearchState).CompareTo
@@ -151,7 +150,7 @@
             NewMe.Elevator2 = Me.Elevator2
             NewMe.CurrentLevel = Me.CurrentLevel
             NewMe.SKUCount = Me.SKUCount
-            NewMe.SimplifiedState = New List(Of List(Of SimplifiedLevelInfo))(Me.SimplifiedState)
+            NewMe.SimplifiedState = New List(Of List(Of SimplifiedLevelInfoGTS))(Me.SimplifiedState)
 
             Return NewMe
         End Function
@@ -322,18 +321,18 @@
             'Transforms the current VRTMStateConf into a list of lists.
             'Parent list represents the levels of the tunnel
             'Internal list represents the level simplified view (just a collection of items chunks)
-            Me.SimplifiedState = New List(Of List(Of SimplifiedLevelInfo))
+            Me.SimplifiedState = New List(Of List(Of SimplifiedLevelInfoGTS))
             For L = 0 To VRTM_SimVariables.nLevels - 1
                 Me.SimplifiedState.Add(SimplifyLevel(L))
             Next
         End Sub
 
-        Public Function SimplifyLevel(Level As Integer) As List(Of SimplifiedLevelInfo)
+        Public Function SimplifyLevel(Level As Integer) As List(Of SimplifiedLevelInfoGTS)
             'Transforms the current VRTMStateConf into a list of lists.
             'First list represents the levels of the tunnel
             'Second list represents the level simplified view (just a collection of items chunks)
             'ItemCode=0 represents an unfrozen product (regardless of code)
-            Dim NewLevel As New List(Of SimplifiedLevelInfo)
+            Dim NewLevel As New List(Of SimplifiedLevelInfoGTS)
             Dim LastProduct As Integer
 
             LastProduct = VRTMStateConv(0, Level)
@@ -347,7 +346,7 @@
                     nProducts += 1
                 Else
                     'Streak ended
-                    Dim Info As New SimplifiedLevelInfo
+                    Dim Info As New SimplifiedLevelInfoGTS
                     If (LastProduct < 1000 AndAlso LastProduct > -1) Then
                         Info.ItemCode = 0
                     Else
@@ -360,7 +359,7 @@
                 End If
             Next
 
-            Dim Info2 As New SimplifiedLevelInfo
+            Dim Info2 As New SimplifiedLevelInfoGTS
             If (LastProduct < 1000 AndAlso LastProduct > -1) Then
                 Info2.ItemCode = 0
             Else
@@ -460,8 +459,8 @@
                 PrevScore += ScoreThisLevel(PrevLevel2)
 
                 'Computes the number of movements to be done
-                Dim S1 As List(Of SimplifiedLevelInfo) = SimplifyLevel(Level1)
-                Dim S2 As List(Of SimplifiedLevelInfo) = SimplifyLevel(Level2)
+                Dim S1 As List(Of SimplifiedLevelInfoGTS) = SimplifyLevel(Level1)
+                Dim S2 As List(Of SimplifiedLevelInfoGTS) = SimplifyLevel(Level2)
                 '
                 Dim MinMovements As Integer = S2.First.NumberOfItems
                 If MinMovements > S1.Last.NumberOfItems Then MinMovements = S1.Last.NumberOfItems
@@ -679,13 +678,13 @@
 
 
             'Compares the mocktunnel state at either of the levels and sees whether any of them is closed
-            Dim Simpl1 As List(Of SimplifiedLevelInfo) = MockTunnel.SimplifiedState(Level1)
+            Dim Simpl1 As List(Of SimplifiedLevelInfoGTS) = MockTunnel.SimplifiedState(Level1)
             If Simpl1.Count = 1 AndAlso (Simpl1.First.ItemCode < 0 Or Simpl1.First.ItemCode >= 1000) Then
                 'Level has been closed!
                 Return True
             End If
 
-            Dim Simpl2 As List(Of SimplifiedLevelInfo) = MockTunnel.SimplifiedState(Level2)
+            Dim Simpl2 As List(Of SimplifiedLevelInfoGTS) = MockTunnel.SimplifiedState(Level2)
             If Simpl2.Count = 1 AndAlso (Simpl2.First.ItemCode < 0 Or Simpl2.First.ItemCode >= 1000) Then
                 'Level has been closed!
                 Return True
@@ -713,8 +712,8 @@
         Public Function ComputeTargetStreak(Level1 As Integer, Level2 As Integer) As Integer
             'Returns the size of the target streak after the swap
             Dim S As Integer
-            Dim S1 As SimplifiedLevelInfo = Me.SimplifiedState(Level1).Last
-            Dim S2 As SimplifiedLevelInfo = Me.SimplifiedState(Level2).Last
+            Dim S1 As SimplifiedLevelInfoGTS = Me.SimplifiedState(Level1).Last
+            Dim S2 As SimplifiedLevelInfoGTS = Me.SimplifiedState(Level2).Last
 
 
             If S1.ItemCode = S2.ItemCode Then
@@ -769,12 +768,12 @@
 
     End Class
 
-    Public Class SimplifiedLevelInfo
+    Public Class SimplifiedLevelInfoGTS
         'Simplifies the level into a pair of two info:
         Public ItemCode As Integer
         Public NumberOfItems As Integer
 
-        Public Shared Operator =(A As SimplifiedLevelInfo, B As SimplifiedLevelInfo) As Boolean
+        Public Shared Operator =(A As SimplifiedLevelInfoGTS, B As SimplifiedLevelInfoGTS) As Boolean
             If A.ItemCode = B.ItemCode AndAlso A.NumberOfItems = B.NumberOfItems Then
                 Return True
             Else
@@ -782,7 +781,7 @@
             End If
         End Operator
 
-        Public Shared Operator <>(A As SimplifiedLevelInfo, B As SimplifiedLevelInfo) As Boolean
+        Public Shared Operator <>(A As SimplifiedLevelInfoGTS, B As SimplifiedLevelInfoGTS) As Boolean
             If A.ItemCode = B.ItemCode AndAlso A.NumberOfItems = B.NumberOfItems Then
                 Return False
             Else
