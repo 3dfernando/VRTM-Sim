@@ -57,7 +57,6 @@
             Return S
         End Function
 
-
         Public Function SimplifyLevel(Level As Integer) As List(Of SimplifiedLevelInfo)
             'Will return a list with product indices -1 (empty), 0 (unfrozen) or 100X (frozen where X is the convIndex)
             'Also the info contained in the SimplifiedLevelInfo class will return the number of items in a streak there are for the particular entry
@@ -111,6 +110,38 @@
             SimplifyLevel = NewLevel
 
         End Function
+
+        Public Function FrozenFraction() As Double
+            'Returns how many frozen products there are in relation to the total positions in the tunnel
+            Dim FrozenQty As Integer = 0
+            For L As Integer = 0 To VRTM_SimVariables.nLevels - 1
+                For T As Integer = 0 To VRTM_SimVariables.nTrays - 1
+                    If Me.TrayState(T, L).Frozen Then FrozenQty += 1
+                Next
+            Next
+            Return (FrozenQty / (VRTM_SimVariables.nLevels * VRTM_SimVariables.nTrays))
+        End Function
+
+        Public Sub PerformOperation(Level As Integer)
+            If Me.EmptyElevatorB Then
+                'Forwards movement
+                Dim TempTray As TrayDataSimplified = Me.TrayState(VRTM_SimVariables.nTrays - 1, Level).Clone
+                For I = VRTM_SimVariables.nTrays - 1 To 1 Step -1
+                    Me.TrayState(I, Level) = Me.TrayState(I - 1, Level).Clone
+                Next
+                Me.TrayState(0, Level) = Me.ElevatorState.Clone
+                Me.ElevatorState = TempTray.Clone
+            Else
+                'Backwards movement
+                Dim TempTray As TrayDataSimplified = Me.TrayState(0, Level).Clone
+                For I = 0 To VRTM_SimVariables.nTrays - 2
+                    Me.TrayState(I, Level) = Me.TrayState(I + 1, Level).Clone
+                Next
+                Me.TrayState(VRTM_SimVariables.nTrays - 1, Level) = Me.ElevatorState.Clone
+                Me.ElevatorState = TempTray.Clone
+            End If
+            Me.EmptyElevatorB = Not Me.EmptyElevatorB 'Flips the elevator
+        End Sub
     End Class
 
     Public Class SimplifiedLevelInfo
@@ -167,7 +198,14 @@
         If True Then
             'Uses just logic and the assumption that there are at least two levels full of either unfrozen product or empty
             Dim currentState As VRTMStateSimplified = GenerateSimplifiedState(currentSimulationTimeStep, CurrentTime)
-            Return OrderThisTunnelWithTwoEmptyLevels(currentState)
+
+            If currentState.FrozenFraction < 0.4 Then
+                Return OrderTunnelLowFrozenFraction(currentState)
+            Else
+                Return OrderTunnelHighFrozenFraction(currentState)
+            End If
+
+
         End If
         Return New List(Of Integer)
 
@@ -250,8 +288,8 @@
 
 
 #Region "MOVES"
-    Public Function OrderThisTunnelWithTwoEmptyLevels(currentState As VRTMStateSimplified) As List(Of Integer)
-        'Uses just logic and the assumption that there are at least two levels full of either unfrozen product or empty
+    Public Function OrderTunnelLowFrozenFraction(currentState As VRTMStateSimplified) As List(Of Integer)
+        'Uses just logic and it needs to assume that there is at least ~50% of the tunnel free for reorganization (It's supposedly a faster one - we'll see!)
 
         'Classifies all levels:
         Dim ClosedLevelList As New List(Of Integer) 'Non modifiable
@@ -464,7 +502,6 @@
                         End If
                     End If
 
-
                 Next
                 'ScrambledLevelList.Remove(SL) 'Removes it for future queries
                 UnfrozenEmptyLevelList.Add(SL) 'Includes it on the list of unfrozen/empty contaminated levels (we don't know the content through the operations performed here)
@@ -475,6 +512,369 @@
         End If
 
         Return ListOfActions
+
+    End Function
+
+    Public Function OrderTunnelHighFrozenFraction(currentState As VRTMStateSimplified) As List(Of Integer)
+        'When frozen fraction (=frozen qty/total positions) is too high, there is nowhere for the product to go when reordering.
+        'Needs a different strategy!
+
+        If currentState.EmptyElevatorB Then Return New List(Of Integer)
+
+        'Discovers how many full levels it can fill completely with each product code. These will be worked upon first.
+        Dim ProductTotalQtyInTunnel As New Dictionary(Of Integer, Integer) 'Key=Product code (0=unfrozen), Value=Total qty in tunnel
+        Dim CurrentLevel As List(Of SimplifiedLevelInfo)
+        Dim I, J, K, T, L As Integer
+        For I = 0 To VRTM_SimVariables.nLevels - 1 'Enumerates the amount of products per code
+            CurrentLevel = currentState.SimplifyLevel(I)
+            For Each Product As SimplifiedLevelInfo In CurrentLevel
+                If ProductTotalQtyInTunnel.ContainsKey(Product.ItemCode) Then
+                    ProductTotalQtyInTunnel(Product.ItemCode) += Product.NumberOfItems
+                Else
+                    ProductTotalQtyInTunnel.Add(Product.ItemCode, Product.NumberOfItems)
+                End If
+            Next
+        Next
+
+        'Now chooses the products that can actually have a full level filled up
+        Dim PriorityProducts As New SortedDictionary(Of Integer, Integer) 'Key=Product code (0=unfrozen), Value=Total levels in tunnel we can fill with this one
+        Dim nLevels As Integer
+        For Each Product As KeyValuePair(Of Integer, Integer) In ProductTotalQtyInTunnel
+            If Product.Key <> 0 Then
+                'Won't consider the unfrozen products
+                nLevels = Int(Product.Value / VRTM_SimVariables.nTrays)
+                If nLevels > 0 Then
+                    PriorityProducts.Add(Product.Key, nLevels)
+                End If
+            End If
+        Next
+
+        '============================FIRST REORDERING TASK: ALL LEVEL-FILLING SKUS (there is at least nTrays of this SKU frozen)============================
+        'Begins by assigning to each of the "priority levels" a level
+        Dim LevelAssignments As New SortedDictionary(Of Integer, Integer) 'Key=Product code, Value=AssignedLevels
+        L = 0
+        Dim PriorityProductsCopy As New SortedDictionary(Of Integer, Integer)(PriorityProducts)
+        For Each Product As KeyValuePair(Of Integer, Integer) In PriorityProductsCopy
+            LevelAssignments.Add(Product.Key, L)
+            PriorityProducts(Product.Key) -= 1 'This will decrease the amount of available levels to fill up. As the levels fill up, the assignments will change. If this amount goes to zero, no more new assignments are possible
+            L += 1
+        Next
+        Dim ProductMixAssignment As Integer = L  'Assigns the next level to dump products that aren't priority (mix)
+        L += 1
+        Dim CurrentRecirculationLevel As Integer = L  'The next level is gonna be the recirculation level
+        L += 1
+        Dim itIsPossible As Boolean = True
+        Dim CurrentProduct As Integer
+
+        Dim ListOfActions As New List(Of Integer)
+        Dim IncreaseL As Boolean = False
+
+        Do While itIsPossible 'It is possible = While there are products to assign 
+            'If L needs to be increased, does it
+            If IncreaseL Then
+                L += 1
+                IncreaseL = False
+                If L >= VRTM_SimVariables.nLevels Then
+                    'Increased past the last level of the tunnel, exits
+                    Exit Do
+                End If
+            End If
+
+            'Gets the next product normalized code
+            CurrentProduct = currentState.TrayState(0, CurrentRecirculationLevel).ConveyorIndex
+            If currentState.TrayState(0, CurrentRecirculationLevel).Frozen Then
+                CurrentProduct += 1000
+            Else
+                If Not CurrentProduct = -1 Then CurrentProduct = 0
+            End If
+
+            Dim ProductHasBeenMoved As Boolean = False
+            Dim ExcludeProduct As Integer = Integer.MinValue
+
+            For Each LevelAssignment As KeyValuePair(Of Integer, Integer) In LevelAssignments
+                If LevelAssignment.Key = CurrentProduct Then
+                    'Product goes to this level
+                    ListOfActions.Add(CurrentRecirculationLevel)
+                    ListOfActions.Add(LevelAssignment.Value)
+                    'Updates the current state 
+                    currentState.PerformOperation(CurrentRecirculationLevel)
+                    currentState.PerformOperation(LevelAssignment.Value)
+                    'Verifies whether the target level has been filled up
+                    Dim S As New List(Of SimplifiedLevelInfo)(currentState.SimplifyLevel(LevelAssignment.Value))
+                    If S.First.NumberOfItems = 25 And S.First.ItemCode = CurrentProduct Then
+                        'Yes, it actually has been filled up.
+                        'Verifies whether there is another level to be filled up (if not, excludes this product from the level assignments list)
+                        If PriorityProducts(CurrentProduct) = 0 Then
+                            'No, there isn't, so marks for exclusion this product (from the assignment list)
+                            ExcludeProduct = CurrentProduct
+                        Else
+                            'Yes, there's another level, so assigns a new level for it now!
+                            PriorityProducts(CurrentProduct) -= 1
+                            LevelAssignments(LevelAssignment.Key) = L
+                            IncreaseL = True
+
+                        End If
+                    End If
+
+                    ProductHasBeenMoved = True
+                    Exit For
+                End If
+            Next
+
+            If Not ExcludeProduct = Integer.MinValue Then
+                'There is a level waiting to be excluded from the list (that cannot be done inside the for-each loop)
+                LevelAssignments.Remove(ExcludeProduct)
+                If LevelAssignments.Count = 0 Then 'No more product that fills up a level is available in the tunnel! 
+                    Exit Do
+                End If
+            End If
+
+            If Not ProductHasBeenMoved Then
+                'Product goes to the dump
+                ListOfActions.Add(CurrentRecirculationLevel)
+                ListOfActions.Add(ProductMixAssignment)
+                'Updates the current state 
+                currentState.PerformOperation(CurrentRecirculationLevel)
+                currentState.PerformOperation(ProductMixAssignment)
+                'Verifies whether the target level has been filled up with this mix
+                Dim ThereIsAmatch As Boolean = False
+                Dim S As New List(Of SimplifiedLevelInfo)(currentState.SimplifyLevel(ProductMixAssignment))
+                For Each Item As SimplifiedLevelInfo In S
+                    For Each X As KeyValuePair(Of Integer, Integer) In LevelAssignments
+                        If Item.ItemCode = X.Key Then
+                            'There is at least one match still in the product mix level. (It means it's still not completely full)
+                            ThereIsAmatch = True
+                            Exit For
+                        End If
+                    Next
+                    If ThereIsAmatch Then Exit For
+                Next
+                If Not ThereIsAmatch Then
+                    'The level is full of dumped-out products - Selects another level for the dump
+                    ProductMixAssignment = L
+                    IncreaseL = True
+                End If
+            End If
+
+        Loop
+
+
+        'The two ways of exiting this function are:
+        '1. To have run out of levels in the tunnel to accomodate all the levels that have repetitions (very probable, as they are likely to be the majority and this includes unfrozen skus too)
+        '2. To have classified all the level-filling products successfully.
+
+        'In both cases the next part possibly can be executed, as most of the product has already been classified:
+
+        '==========================SECOND REORDERING TASK: PUT ALL REMAINING PRODUCT IN FRONT OF THE -1 AND 0 LEVELS(Unfrozen and empty ones)==============================
+
+        'Level classes from here:
+        Dim ClosedLevels As New List(Of Integer)
+        Dim EmptyLevels As New List(Of Integer)
+        Dim UnfrozenLevels As New List(Of Integer)
+        Dim ScrambledLevels As New List(Of Integer)
+        Dim GrowingLevels As New List(Of Integer)
+
+        'Classifies the levels once more
+        For I = 0 To VRTM_SimVariables.nLevels - 1 'Enumerates the amount of products per code
+            CurrentLevel = currentState.SimplifyLevel(I)
+            If CurrentLevel.Count = 1 Then
+                'There is only one product
+                If CurrentLevel.First.ItemCode = -1 Then
+                    'Empty level
+                    EmptyLevels.Add(I)
+                ElseIf CurrentLevel.First.ItemCode = 0 Then
+                    'Unfrozen level
+                    UnfrozenLevels.Add(I)
+                Else
+                    'Closed level, as it's already full of the same SKU
+                    ClosedLevels.Add(I)
+                End If
+            Else
+                'There are at least two product types here, therefore it's a mix
+                ScrambledLevels.Add(I)
+            End If
+        Next
+
+        'We need that at least there be as many empty/unfrozen levels as there are product SKUs still unclassified:
+        'Counts the remaining unclassified SKUs and their qty in the scrambled levels:
+        Dim UnclassifiedSKUList As New SortedDictionary(Of Integer, Integer) 'Key=Item code, Value=Total quantity of items
+        For Each L In ScrambledLevels
+            CurrentLevel = currentState.SimplifyLevel(L)
+            For Each Item As SimplifiedLevelInfo In CurrentLevel
+                If UnclassifiedSKUList.ContainsKey(Item.ItemCode) Then
+                    'Increases the amount of product only
+                    UnclassifiedSKUList(Item.ItemCode) += Item.NumberOfItems
+                Else
+                    'Adds it again
+                    UnclassifiedSKUList.Add(Item.ItemCode, Item.NumberOfItems)
+                End If
+            Next
+        Next
+
+        'If there are still products that will fill more than one level in this UnclassifiedSKUList, then counts them as many times as levels they'll fill:
+        'The exceptions are empty and unfrozen levels, which we don't care as much and can recirculate.
+        Dim TotalLevelsNeeded As Integer = 0
+        For Each Item As KeyValuePair(Of Integer, Integer) In UnclassifiedSKUList
+            If Item.Key <= 0 Then
+                TotalLevelsNeeded += 1 'unfrozen or empty levels can be recirculated no problem
+            Else
+                TotalLevelsNeeded += Math.Ceiling(Item.Value / VRTM_SimVariables.nTrays) 'This rounds it up to consider as many levels as will be needed
+            End If
+        Next
+
+        'Decides whether it will need to open some of the closed levels:
+        Dim SKUOverflowLevels As New SortedDictionary(Of Integer, Integer) 'Stores the overflow levels - Key=SKU that will overflow there, Value=Level to overflow there
+        Dim HowManyLevelsWeNeedToFreeUp As Integer = TotalLevelsNeeded - (EmptyLevels.Count + UnfrozenLevels.Count) 'The variable name is self-explanatory =)
+
+        If HowManyLevelsWeNeedToFreeUp > 0 Then
+            'There are too few levels available for the operation. We need to select some of these levels that have already been closed and open them.
+            'Will try to generate the least pollution possible by selecting the SKUs that have the smallest amount of products first
+            'Also, we need to make sure that these will not overflow in the end by not considering these extra products in the newer levels
+            If HowManyLevelsWeNeedToFreeUp <= ClosedLevels.Count Then
+                'At least there are enough levels to overflow to. 
+                Dim OrderedUnclassifiedSKUList As IOrderedEnumerable(Of KeyValuePair(Of Integer, Integer)) 'Key=Item code, Value=Total quantity of items, as the original
+                OrderedUnclassifiedSKUList = UnclassifiedSKUList.OrderBy(Function(X As KeyValuePair(Of Integer, Integer))
+                                                                             Return X.Value
+                                                                         End Function)
+
+                'Since we're gonna overflow to somewhere, it would be good to overflow to the levels that have the most product available. Begins by creating a ordered list classified 
+                'by number of levels that product occupies. The list is going to be as follows:
+                'List(0)=SKU, List(1)=Qty, List(2)=Level to be occupied
+                Dim ClosedLevelsClassifiedList As New List(Of List(Of Integer))
+                Dim ContainsSKU As Integer
+
+
+                For Each Level As Integer In ClosedLevels
+                    Dim SLI As New List(Of SimplifiedLevelInfo)(currentState.SimplifyLevel(Level))
+                    Dim SKU As Integer = SLI.First.ItemCode
+                    ContainsSKU = Integer.MinValue
+                    For L = 0 To ClosedLevelsClassifiedList.Count - 1
+                        Dim Lst As List(Of Integer) = ClosedLevelsClassifiedList(L)
+                        If Lst(0) = SKU Then
+                            ContainsSKU = L
+                            Exit For
+                        End If
+                    Next
+                    If ContainsSKU = Integer.MinValue Then
+                        'This current level doesn't contain this SKU, adds to the list
+                        Dim MiniList As New List(Of Integer)
+                        MiniList.Add(SKU)
+                        MiniList.Add(1)
+                        MiniList.Add(Level)
+                        ClosedLevelsClassifiedList.Add(MiniList)
+                    Else
+                        'Already contains the SKU, uses the index to add another level at it
+                        ClosedLevelsClassifiedList(ContainsSKU)(1) += 1
+                    End If
+                Next
+
+                ClosedLevelsClassifiedList.Sort(Function(X As List(Of Integer), Y As List(Of Integer))
+                                                    Return -X(1).CompareTo(Y(1))
+                                                End Function)
+
+                Dim Delta As Integer = 0 'This will store how many levels we skipped in the ClosedLevelsClassifiedList to avoid the product that comes from this level to generate another full level
+                Dim SKUtoOverflow As Integer
+                For I = 0 To HowManyLevelsWeNeedToFreeUp - 1
+                    'Creates the SKU overflow level targets
+                    Dim nProdsAdded As Integer = OrderedUnclassifiedSKUList(I).Value
+                    'We need to find a place to where we can send these products. Gets the ClosedLevelsClassifiedList and gets the levels that we can afford to kill with unused product.
+                    Do While 1
+                        'Searches in the ClosedLevelsClassifiedList for a level that can be used without generating a side-effect of outputting so much product that we'll generate a new level with it
+                        If I + Delta >= ClosedLevelsClassifiedList.Count Then
+                            'Well, we have a problem here, because we ran out of levels before we could assign the free-up levels... Now what? I don't know...
+                            Dim UNHANDLED_EXCEPTION As Boolean = True
+                            Throw New Exception("We ran out of levels before we could assign the free-up levels!!")
+                        End If
+                        SKUtoOverflow = ClosedLevelsClassifiedList(I + Delta)(0)
+                        'Counts this SKU that will overflow in the current UnclassifiedSKUList
+                        If UnclassifiedSKUList.ContainsKey(SKUtoOverflow) Then
+                            If UnclassifiedSKUList(SKUtoOverflow) + nProdsAdded > VRTM_SimVariables.nTrays Then
+                                'This means the operation will generate a need for a new level - skip
+                                Delta += 1
+                            Else
+                                'WE'RE FINE, no extra level generated! Adds it and exits the loop
+                                SKUOverflowLevels.Add(OrderedUnclassifiedSKUList(I).Key, ClosedLevelsClassifiedList(I + Delta)(2)) 'Remembering, Key=SKU, Value=Level
+                                Exit Do
+                            End If
+                        Else
+                            'This means a new level will surely be generated!!
+                            'Skip!
+                            Delta += 1
+                        End If
+                    Loop
+                Next
+
+
+            Else
+                'Well, now we don't have enough closed levels to overflow to... 
+                'I don't know exactly what should be done in this case =P
+                Dim UNHANDLED_EXCEPTION As Boolean = True
+                Throw New Exception("We don't have enough closed levels to overflow to!!")
+            End If
+        End If
+
+        'Now that we have the SKUOverflowLevels list in hand, we can just assign the other levels and perform the task:
+        LevelAssignments = New SortedDictionary(Of Integer, Integer)(SKUOverflowLevels) 'Begins the level assignments with the already-selected SKUOVerflowLevels
+        'Tries first to assign to emptylevels:
+        L = 0
+        For Each Entry As KeyValuePair(Of Integer, Integer) In UnclassifiedSKUList
+            If Not LevelAssignments.ContainsKey(Entry.Key) Then
+                Dim TargetLevel As Integer
+                If L > EmptyLevels.Count - 1 Then
+                    'Overflowed the empty level list, goes to the unfrozen level list
+                    TargetLevel = UnfrozenLevels(L - EmptyLevels.Count)
+                Else
+                    TargetLevel = EmptyLevels(L)
+                End If
+
+                LevelAssignments.Add(Entry.Key, TargetLevel)
+                L += 1 'Only advances the counter if the key wasn't skipped here
+            End If
+        Next
+
+        'Goes through all the scrambled levels and performs the reordering task
+        For Each SL As Integer In ScrambledLevels
+            Do While True
+                'Performs this loop as long as there is any frozen product in the current level.
+                Dim SimplifiedL As New List(Of SimplifiedLevelInfo)(currentState.SimplifyLevel(SL))
+                Dim HasAnyFrozenProduct As Boolean = False
+                For Each Entry As SimplifiedLevelInfo In SimplifiedL
+                    If Entry.ItemCode > 0 Then
+                        'There is at least one item here that is not an empty or unfrozen tray - exits flagging true
+                        HasAnyFrozenProduct = True
+                        Exit For
+                    End If
+                Next
+                If Not HasAnyFrozenProduct Then Exit Do 'No frozen product left in this level - proceeds to the next one
+
+                'Now that we know there is something here, peform the reordering task once 
+                CurrentProduct = currentState.TrayState(0, SL).ConveyorIndex 'First converts the current product into the same coding used everywhere here
+                If currentState.TrayState(0, SL).Frozen Then
+                    CurrentProduct += 1000
+                Else
+                    If CurrentProduct <> -1 Then CurrentProduct = 0
+                End If
+
+                If LevelAssignments.ContainsKey(CurrentProduct) Then
+                    'Well, just to confirm there is somewhere for this product to go - Perform the reshelving action
+                    ListOfActions.Add(SL)
+                    ListOfActions.Add(LevelAssignments(CurrentProduct))
+                    currentState.PerformOperation(SL)
+                    currentState.PerformOperation(LevelAssignments(CurrentProduct))
+
+                    'Wont'check for target level fillup as that was done beforehand (supposedly!)
+
+                Else
+                    'Well, I don't know how to solve this =P
+                    Throw New Exception("The current product has nowhere to go!")
+                End If
+
+            Loop
+
+        Next
+
+        Return ListOfActions
+
 
     End Function
 
@@ -555,6 +955,8 @@
         Next
         Return minDat
     End Function
+
+
 
 #End Region
 
